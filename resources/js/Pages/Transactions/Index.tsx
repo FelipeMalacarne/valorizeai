@@ -1,6 +1,6 @@
 import PrimaryButton from '@/Components/PrimaryButton';
+import { Button } from '@/Components/ui/button';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Button } from '../../../..//components/ui/button';
 
 export default function Index() {
     return (
