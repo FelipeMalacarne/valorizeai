@@ -6,6 +6,7 @@ import {
     Command,
     Frame,
     GalleryVerticalEnd,
+    HomeIcon,
     Map,
     PieChart,
     Settings2,
@@ -15,14 +16,19 @@ import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
+    SidebarGroup,
     SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
     SidebarRail,
 } from "@/Components/ui/sidebar";
 import { NavMain } from "@/Components/nav-main";
 import { TeamSwitcher } from "@/Components/team-switcher";
 import { NavProjects } from "@/Components/nav-projects";
 import { NavUser } from "@/Components/nav-user";
-import { usePage } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
+import ApplicationLogo from "./ApplicationLogo";
 // This is sample data.
 const data = {
     user: {
@@ -159,9 +165,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
+                {/* <ApplicationLogo className="h-12" /> */}
                 <TeamSwitcher teams={data.teams} />
             </SidebarHeader>
             <SidebarContent>
+                <SidebarGroup>
+                    <SidebarMenu>
+                        <Link href={route("dashboard")}>
+                            <SidebarMenuButton tooltip={"Dashboard"}>
+                                <HomeIcon />
+                                Dashboard
+                            </SidebarMenuButton>
+                        </Link>
+                    </SidebarMenu>
+                </SidebarGroup>
                 <NavMain items={data.navMain} />
                 <NavProjects projects={data.projects} />
             </SidebarContent>
