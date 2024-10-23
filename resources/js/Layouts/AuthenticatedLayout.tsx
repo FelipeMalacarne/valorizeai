@@ -3,9 +3,11 @@ import ApplicationLogo from "@/Components/ApplicationLogo";
 import Dropdown from "@/Components/Dropdown";
 import NavLink from "@/Components/NavLink";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink";
+import { ThemeToggle } from "@/Components/ThemeToggle";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/Components/ui/breadcrumb";
 import { Separator } from "@/Components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/Components/ui/sidebar";
+import { ThemeProvider } from "@/Providers/ThemeProvider";
 import { Link, usePage } from "@inertiajs/react";
 import { PropsWithChildren, ReactNode, useState } from "react";
 
@@ -19,6 +21,7 @@ export default function Authenticated({
         useState(false);
 
     return (
+        <ThemeProvider>
         <div className="min-h-screen bg-background">
             <SidebarProvider>
                 <AppSidebar />
@@ -46,6 +49,8 @@ export default function Authenticated({
                                 </BreadcrumbList>
                             </Breadcrumb>
                         </div>
+
+                        <ThemeToggle/>
                     </header>
                     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
                         <div className="grid auto-rows-min gap-4 md:grid-cols-3">
@@ -228,5 +233,7 @@ export default function Authenticated({
 
             <main>{children}</main>
         </div>
+
+        </ThemeProvider>
     );
 }
