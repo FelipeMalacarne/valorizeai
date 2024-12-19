@@ -6,11 +6,13 @@ use App\Enums\Color;
 use Illuminate\Database\Eloquent\Concerns\HasVersion7Uuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use JeroenG\Explorer\Application\Explored;
+use Laravel\Scout\Searchable;
 
-class Account extends Model
+class Account extends Model implements Explored
 {
     /** @use HasFactory<\Database\Factories\AccountFactory> */
-    use HasFactory, HasVersion7Uuids;
+    use HasFactory, HasVersion7Uuids, Searchable;
 
     protected $fillable = [
         'name',
@@ -27,4 +29,19 @@ class Account extends Model
         'updated_at' => 'immutable_datetime',
         'created_at' => 'immutable_datetime',
     ];
+
+    public function mappableAs(): array
+    {
+        return [
+            'id' => 'keyword',
+            'name' => 'text',
+            'balance' => 'integer',
+            'type' => 'keyword',
+            'number' => 'keyword',
+            'description' => 'text',
+            'color' => 'keyword',
+            'created_at' => 'date',
+            'updated_at' => 'date',
+        ];
+    }
 }
