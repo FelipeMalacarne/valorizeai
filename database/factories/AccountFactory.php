@@ -18,11 +18,11 @@ class AccountFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name,
-            'balance' => $this->faker->randomNumber(7),
-            'type' => $this->faker->randomElement(['checking', 'savings']),
-            'number' => $this->faker->creditCardNumber,
-            'color' => $this->faker->randomElement(Color::cases()),
+            'name'        => $this->faker->name,
+            'balance'     => $this->faker->randomNumber(7),
+            'type'        => $this->faker->randomElement(['checking', 'savings']),
+            'number'      => $this->faker->creditCardNumber,
+            'color'       => $this->faker->randomElement(Color::cases()),
             'description' => $this->faker->sentence,
         ];
     }

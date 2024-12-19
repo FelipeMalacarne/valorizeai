@@ -18,12 +18,12 @@ class TransactionFactory extends Factory
     public function definition(): array
     {
         return [
-            'amount' => $this->faker->randomNumber(6),
+            'amount'      => $this->faker->randomNumber(6),
             'date_posted' => $this->faker->dateTime(),
-            'fitid' => $this->faker->uuid,
-            'memo' => $this->faker->sentence,
-            'currency' => $this->faker->currencyCode,
-            'account_id' => Account::factory(),
+            'fitid'       => $this->faker->uuid,
+            'memo'        => $this->faker->sentence,
+            'currency'    => $this->faker->currencyCode,
+            'account_id'  => Account::factory(),
         ];
     }
 }

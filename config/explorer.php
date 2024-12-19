@@ -9,8 +9,8 @@ return [
      * https://www.elastic.co/guide/en/elasticsearch/client/php-api/current/configuration.html
      */
     'connection' => [
-        'host' => 'es01',
-        'port' => '9200',
+        'host'   => 'es01',
+        'port'   => '9200',
         'scheme' => 'http',
     ],
 
@@ -44,5 +44,5 @@ return [
      * to a PSR-3 logger. Disabled by default for performance.
      */
     'logging' => env('EXPLORER_ELASTIC_LOGGER_ENABLED', false),
-    'logger' => null,
+    'logger'  => null,
 ];
