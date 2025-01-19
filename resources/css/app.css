@@ -3,6 +3,21 @@
 @tailwind utilities;
 @layer base {
   :root {
+    --rosewater: hsl(11deg, 59%, 67%);
+    --flamingo: hsl(0deg, 60%, 67%);
+    --pink: hsl(316deg, 73%, 69%);
+    --mauve: hsl(266deg, 85%, 58%);
+    --red: hsl(347deg, 87%, 44%);
+    --maroon: hsl(355deg, 76%, 59%);
+    --peach: hsl(22deg, 99%, 52%);
+    --yellow: hsl(35deg, 77%, 49%);
+    --green: hsl(109deg, 58%, 40%);
+    --teal: hsl(183deg, 74%, 35%);
+    --sky: hsl(197deg, 97%, 46%);
+    --sapphire: hsl(189deg, 70%, 42%);
+    --blue: hsl(220deg, 91%, 54%);
+    --lavender: hsl(231deg, 97%, 72%);
+
     --background: 220 23.076923191547394% 94.90196108818054%; /* base */
     --foreground: 234 16.022099554538727% 35.49019694328308%; /* text */
 
@@ -50,7 +65,22 @@
     --sidebar-ring: var(--ring);
 }
   .dark {
-    --background: 240 21.052631735801697% 14.901961386203766%; /* base */
+    --rosewater: hsl(10deg, 56%, 91%);
+    --flamingo: hsl(0deg, 59%, 88%);
+    --pink: hsl(316deg, 72%, 86%);
+    --mauve: hsl(267deg, 84%, 81%);
+    --red: hsl(343deg, 81%, 75%);
+    --maroon: hsl(350deg, 65%, 77%);
+    --peach: hsl(23deg, 92%, 75%);
+    --yellow: hsl(41deg, 86%, 83%);
+    --green: hsl(115deg, 54%, 76%);
+    --teal: hsl(170deg, 57%, 73%);
+    --sky: hsl(189deg, 71%, 73%);
+    --sapphire: hsl(199deg, 76%, 69%);
+    --blue: hsl(217deg, 92%, 76%);
+    --lavender: hsl(232deg, 97%, 85%);
+
+    --background: 240deg 21.052631735801697% 14.901961386203766%; /* base */
     --foreground: 226 63.93442749977112% 88.03921341896057%; /* text */
 
     --muted: 237 16.239316761493683% 22.94117659330368%; /* surface0 */

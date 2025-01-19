@@ -22,6 +22,21 @@ export default {
     			sm: 'calc(var(--radius) - 4px)'
     		},
     		colors: {
+                rosewater: 'var(--rosewater)',
+                flamingo: 'var(--flamingo)',
+                pink: 'var(--pink)',
+                mauve: 'var(--mauve)',
+                red: 'var(--red)',
+                maroon: 'var(--maroon)',
+                peach: 'var(--peach)',
+                yellow: 'var(--yellow)',
+                green: 'var(--green)',
+                teal: 'var(--teal)',
+                sky: 'var(--sky)',
+                sapphire: 'var(--sapphire)',
+                blue: 'var(--blue)',
+                lavender: 'var(--lavender)',
+
     			background: 'hsl(var(--background))',
     			foreground: 'hsl(var(--foreground))',
     			card: {
