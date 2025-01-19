@@ -7,6 +7,7 @@ import {
     Frame,
     GalleryVerticalEnd,
     HomeIcon,
+    LandmarkIcon,
     Map,
     PieChart,
     Settings2,
@@ -177,6 +178,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                 Dashboard
                             </SidebarMenuButton>
                         </Link>
+
+
+                        <Link href={route("accounts.index")}>
+                            <SidebarMenuButton tooltip={"Accounts"}>
+                                <LandmarkIcon />
+                                Accounts
+                            </SidebarMenuButton>
+                        </Link>
+
                     </SidebarMenu>
                 </SidebarGroup>
                 <NavMain items={data.navMain} />

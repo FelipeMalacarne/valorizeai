@@ -18,6 +18,10 @@ export default function Login({
         email: '',
         password: '',
         remember: false,
+    } as {
+        email: string;
+        password: string;
+        remember: boolean;
     });
 
     const submit: FormEventHandler = (e) => {
