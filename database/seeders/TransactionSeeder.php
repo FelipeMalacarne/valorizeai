@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Transaction;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class TransactionSeeder extends Seeder
@@ -12,7 +13,13 @@ class TransactionSeeder extends Seeder
      */
     public function run(): void
     {
+        $user = User::factory()->create([
+            'name' => 'Felipe',
+            'email' => 'felipemalacarne012@gmail.com',
+        ]);
+
         Transaction::factory()
+            ->fromUser($user)
             ->count(10)
             ->create();
     }

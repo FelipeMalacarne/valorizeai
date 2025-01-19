@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionsController;
 use Illuminate\Foundation\Application;
@@ -25,6 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/transactions', [TransactionsController::class, 'index'])->name('transactions.index');
+
+    Route::get('/accounts', [AccountController::class, 'index'])->name('accounts.index');
 });
 
 require __DIR__.'/auth.php';

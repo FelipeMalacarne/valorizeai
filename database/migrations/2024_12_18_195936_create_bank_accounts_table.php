@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('number', 16)->nullable();
             $table->string('description', 255)->nullable();
             $table->string('color', 20)->default('lavender');
+            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

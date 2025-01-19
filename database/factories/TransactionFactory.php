@@ -26,4 +26,11 @@ class TransactionFactory extends Factory
             'account_id'  => Account::factory(),
         ];
     }
+
+    public function fromUser($user)
+    {
+        return $this->state(fn (array $attributes) => [
+            'account_id' => Account::factory()->create(['user_id' => $user->id])->id,
+        ]);
+    }
 }
