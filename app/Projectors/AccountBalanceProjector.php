@@ -2,23 +2,32 @@
 
 namespace App\Projectors;
 
-use App\Events\Account\Created;
+use App\Events\Account\Created as AccountCreated;
 use App\Events\Account\Deleted;
-use App\Events\Account\MoneyAdded;
-use App\Events\Account\MoneySubtracted;
+use App\Events\Transaction\Deleted as TransactionDeleted;
+use App\Events\Transaction\Registered as TransactionRegistered;
 use App\Models\Account;
+use App\Models\Transaction;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
 class AccountBalanceProjector extends Projector
 {
-    public function onAccountCreated(Created $event)
+    public function onAccountCreated(AccountCreated $event)
     {
         Account::new()
             ->writeable()
-            ->create($event->accountAttributes);
+            ->create([
+                'id'          => $event->aggregateRootUuid(),
+                'name'        => $event->name,
+                'type'        => $event->type,
+                'number'      => $event->number,
+                'color'       => $event->color,
+                'description' => $event->description,
+                'user_id'     => $event->userId,
+            ]);
     }
 
-    public function onMoneyAdded(MoneyAdded $event)
+    public function onTransactionRegistered(TransactionRegistered $event)
     {
         $account = Account::find($event->accountId);
 
@@ -27,11 +36,15 @@ class AccountBalanceProjector extends Projector
         $account->writeable()->save();
     }
 
-    public function onMoneySubtracted(MoneySubtracted $event)
+    // TODO: Fix that logic, isnt working right now
+    public function onTransactionDeleted(TransactionDeleted $event)
     {
-        $account = Account::find($event->accountId);
+        $transaction = Transaction::with('account')
+            ->find($event->aggregateRootUuid());
 
-        $account->balance -= $event->amount;
+        $account = $transaction->account;
+
+        $account->balance -= $transaction->amount;
 
         $account->writeable()->save();
     }
