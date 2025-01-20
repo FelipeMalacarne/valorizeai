@@ -2,6 +2,7 @@
 
 namespace App\Aggregates;
 
+use App\Commands\DeleteTransaction;
 use App\Commands\RegisterTransaction;
 use App\Events\Transaction\Deleted;
 use App\Events\Transaction\Registered;
@@ -24,9 +25,9 @@ class TransactionAggregate extends AggregateRoot
         return $this;
     }
 
-    public function deleteTransaction(string $transaction_id): self
+    public function delete(DeleteTransaction $command): self
     {
-        $this->recordThat(Deleted::dispatch($transaction_id));
+        $this->recordThat(new Deleted);
 
         return $this;
     }

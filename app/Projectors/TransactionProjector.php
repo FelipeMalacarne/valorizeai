@@ -27,7 +27,7 @@ class TransactionProjector extends Projector
 
     public function onTransactionDeleted(Deleted $event)
     {
-        Transaction::find($event->transaction_id)
+        Transaction::find($event->aggregateRootUuid())
             ->writeable()
             ->delete();
     }
