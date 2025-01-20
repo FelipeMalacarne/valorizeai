@@ -8,7 +8,6 @@ use App\Events\Account\Created;
 use App\Events\Account\Deleted;
 use App\Events\Account\MoneyAdded;
 use App\Events\Account\MoneySubtracted;
-use Illuminate\Database\Eloquent\Concerns\HasVersion7Uuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;

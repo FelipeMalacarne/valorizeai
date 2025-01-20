@@ -51,9 +51,7 @@ export function AccountCard({ account } : { account: Account} ){
 
             <CardHeader>
 
-                <div className="flex justify-between">
-                    <CardTitle>{account.name}</CardTitle>
-                </div>
+                <CardTitle className="text-ellipsis line-clamp-1">{account.name}</CardTitle>
 
                 <CardDescription className={"h-24 text-ellipsis overflow-hidden line-clamp-5"}>
                     {account.description}

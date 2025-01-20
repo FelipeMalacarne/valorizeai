@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Concerns\SupportsProjections;
 use App\Models\Account;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class TransactionFactory extends Factory
 {
+    use SupportsProjections;
     /**
      * Define the model's default state.
      *

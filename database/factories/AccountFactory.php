@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Concerns\SupportsProjections;
 use App\Enums\Color;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use SupportsProjections;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Account>

@@ -2,18 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasVersion7Uuids;
+use App\Concerns\HasV7Uuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use JeroenG\Explorer\Application\Explored;
 use Laravel\Scout\Searchable;
+use Spatie\EventSourcing\Projections\Projection;
 
-class Transaction extends Model implements Explored
+class Transaction extends Projection implements Explored
 {
     /** @use HasFactory<\Database\Factories\TransactionFactory> */
-    use HasFactory, HasVersion7Uuids, Searchable;
+    use HasFactory, HasV7Uuids, Searchable;
 
     protected $fillable = [
+        'id',
         'amount',
         'date_posted',
         'fitid',

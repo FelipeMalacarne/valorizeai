@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Concerns;
+
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 trait SupportsProjections
