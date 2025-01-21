@@ -22,6 +22,7 @@ class Transaction extends Projection implements Explored
         'currency',
         'account_number',
         'account_id',
+        'description',
     ];
 
     protected $dates = [
@@ -49,6 +50,7 @@ class Transaction extends Projection implements Explored
             'currency'       => 'keyword',
             'amount'         => 'integer',
             'memo'           => 'text',
+            'description'    => 'text',
             'date_posted'    => 'date',
             'created_at'     => 'date',
             'updated_at'     => 'date',

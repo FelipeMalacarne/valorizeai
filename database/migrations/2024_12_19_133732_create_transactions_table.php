@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('currency', 3)->default('BRL');
             $table->string('account_number', 8)->nullable();
             $table->timestamp('date_posted')->default(now());
+            $table->string('description')->nullable();
             $table->foreignUuid('account_id')->index()->constrained()->onDelete('cascade');
             $table->timestamps();
         });

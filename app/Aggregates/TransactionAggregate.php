@@ -2,9 +2,13 @@
 
 namespace App\Aggregates;
 
+use App\Commands\AmendTransactionAmount;
+use App\Commands\ChangeTransactionDescription;
 use App\Commands\DeleteTransaction;
 use App\Commands\RegisterTransaction;
+use App\Events\Transaction\AmountAmended;
 use App\Events\Transaction\Deleted;
+use App\Events\Transaction\DescriptionChanged;
 use App\Events\Transaction\Registered;
 use App\Models\Transaction;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
@@ -21,6 +25,7 @@ class TransactionAggregate extends AggregateRoot
             memo: $command->memo(),
             accountNumber: $command->accountNumber(),
             accountId: $command->accountId(),
+            description: $command->description(),
         ));
 
         return $this;
@@ -28,9 +33,32 @@ class TransactionAggregate extends AggregateRoot
 
     public function delete(DeleteTransaction $command): self
     {
-        $transaction = Transaction::find($command->id);
+        $transaction = Transaction::findOrFail($command->id);
 
-        $this->recordThat(new Deleted($transaction));
+        $this->recordThat(new Deleted(
+            accountId: $transaction->account_id,
+            amount: $transaction->amount,
+        ));
+
+        return $this;
+    }
+
+    public function amendAmount(AmendTransactionAmount $command): self
+    {
+        $transaction = Transaction::findOrFail($command->id);
+
+        $this->recordThat(new AmountAmended(
+            accountId: $transaction->account_id,
+            amount: $command->amount,
+            oldAmount: $transaction->amount,
+        ));
+
+        return $this;
+    }
+
+    public function descriptionChanged(ChangeTransactionDescription $command): self
+    {
+        $this->recordThat(new DescriptionChanged($command->description));
 
         return $this;
     }

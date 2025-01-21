@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Projectors;
 
+use App\Commands\AmendTransactionAmount;
+use App\Commands\RegisterTransaction;
 use App\Enums\Color;
 use App\Events\Account\Created as AccountCreated;
 use App\Events\Account\Deleted as AccountDeleted;
@@ -11,6 +13,7 @@ use App\Models\Account;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Projectors\AccountBalanceProjector;
+use Illuminate\Support\Str;
 use Spatie\EventSourcing\Commands\CommandBus;
 use Tests\TestCase;
 
@@ -74,7 +77,10 @@ class AccountBalanceProjectorTest extends TestCase
             'amount'     => 500,
         ]);
 
-        $event = new TransactionDeleted($transaction);
+        $event = new TransactionDeleted(
+            accountId: $account->id,
+            amount: $transaction->amount,
+        );
 
         $this->projector->onTransactionDeleted($event);
 
@@ -96,6 +102,37 @@ class AccountBalanceProjectorTest extends TestCase
 
         $this->assertDatabaseMissing('accounts', [
             'id' => $account->id,
+        ]);
+    }
+
+    public function test_it_syncs_account_balance_when_transaction_is_amended(): void
+    {
+        $account = Account::factory()->create([
+            'balance' => 5000,
+        ]);
+
+        $bus = app(CommandBus::class);
+        $transaction_id = Str::uuid7();
+        $bus->dispatch(new RegisterTransaction(
+            id: $transaction_id,
+            accountId: $account->id,
+            amount: 5000,
+            currency: 'BRL',
+        ));
+
+        $this->assertDatabaseHas('accounts', [
+            'id'      => $account->id,
+            'balance' => 10000,
+        ]);
+
+        $bus->dispatch(new AmendTransactionAmount(
+            id: $transaction_id,
+            amount: 500,
+        ));
+
+        $this->assertDatabaseHas('accounts', [
+            'id'      => $account->id,
+            'balance' => 5500,
         ]);
     }
 }

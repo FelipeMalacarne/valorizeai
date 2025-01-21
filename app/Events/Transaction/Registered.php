@@ -18,6 +18,7 @@ class Registered extends ShouldBeStored
         public ?string $fitid = null,
         public ?string $memo = null,
         public ?string $accountNumber = null,
-        public ?\DateTime $datePosted = null
+        public ?\DateTime $datePosted = null,
+        public ?string $description = null,
     ) {}
 }

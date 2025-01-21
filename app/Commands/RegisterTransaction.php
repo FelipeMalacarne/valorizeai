@@ -17,7 +17,8 @@ class RegisterTransaction
         private ?string $fitid = null,
         private ?string $memo = null,
         private ?string $accountNumber = null,
-        private ?\DateTime $datePosted = null
+        private ?\DateTime $datePosted = null,
+        private ?string $description = null,
     ) {
         $this->datePosted = $this->datePosted ?? new \DateTime;
     }
@@ -55,5 +56,10 @@ class RegisterTransaction
     public function datePosted(): \DateTime
     {
         return $this->datePosted;
+    }
+
+    public function description(): ?string
+    {
+        return $this->description;
     }
 }
