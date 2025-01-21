@@ -7,7 +7,6 @@ use App\Events\Account\Deleted;
 use App\Events\Transaction\Deleted as TransactionDeleted;
 use App\Events\Transaction\Registered as TransactionRegistered;
 use App\Models\Account;
-use App\Models\Transaction;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
 class AccountBalanceProjector extends Projector
@@ -36,17 +35,11 @@ class AccountBalanceProjector extends Projector
         $account->writeable()->save();
     }
 
-    // TODO: Fix that logic, isnt working right now
     public function onTransactionDeleted(TransactionDeleted $event)
     {
-        $transaction = Transaction::with('account')
-            ->find($event->aggregateRootUuid());
-
-        $account = $transaction->account;
-
-        $account->balance -= $transaction->amount;
-
-        $account->writeable()->save();
+        $event->transaction->account
+            ->writeable()
+            ->decrement('balance', $event->transaction->amount);
     }
 
     public function onAccountDeleted(Deleted $event)

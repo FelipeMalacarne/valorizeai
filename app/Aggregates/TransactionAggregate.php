@@ -6,6 +6,7 @@ use App\Commands\DeleteTransaction;
 use App\Commands\RegisterTransaction;
 use App\Events\Transaction\Deleted;
 use App\Events\Transaction\Registered;
+use App\Models\Transaction;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
 class TransactionAggregate extends AggregateRoot
@@ -27,7 +28,9 @@ class TransactionAggregate extends AggregateRoot
 
     public function delete(DeleteTransaction $command): self
     {
-        $this->recordThat(new Deleted);
+        $transaction = Transaction::find($command->id);
+
+        $this->recordThat(new Deleted($transaction));
 
         return $this;
     }

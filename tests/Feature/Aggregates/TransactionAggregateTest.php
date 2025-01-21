@@ -76,7 +76,7 @@ class TransactionAggregateTest extends TestCase
             'account_number' => '123456',
         ]);
 
-        $bus->dispatch(new DeleteTransaction(id: $uuid));
+        $bus->dispatch(new DeleteTransaction($uuid));
 
         $this->assertDatabaseMissing('transactions', [
             'id'             => $uuid,

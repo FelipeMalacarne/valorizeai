@@ -2,8 +2,6 @@
 
 namespace Tests\Feature\Projectors;
 
-use App\Aggregates\TransactionAggregate;
-use App\Commands\DeleteTransaction;
 use App\Enums\Color;
 use App\Events\Account\Created as AccountCreated;
 use App\Events\Account\Deleted as AccountDeleted;
@@ -13,6 +11,7 @@ use App\Models\Account;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Projectors\AccountBalanceProjector;
+use Spatie\EventSourcing\Commands\CommandBus;
 use Tests\TestCase;
 
 class AccountBalanceProjectorTest extends TestCase
@@ -64,7 +63,6 @@ class AccountBalanceProjectorTest extends TestCase
         ]);
     }
 
-    // TODO: Fix that logic, isnt working right now
     public function test_it_decrements_balance_when_transaction_deleted_event_is_handled()
     {
         $account = Account::factory()->create([
@@ -76,11 +74,7 @@ class AccountBalanceProjectorTest extends TestCase
             'amount'     => 500,
         ]);
 
-
-        $event = new TransactionDeleted(
-            accountId: $account->id,
-            amount: 500,
-        );
+        $event = new TransactionDeleted($transaction);
 
         $this->projector->onTransactionDeleted($event);
 
