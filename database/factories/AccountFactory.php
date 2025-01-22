@@ -3,22 +3,20 @@
 namespace Database\Factories;
 
 use App\Concerns\SupportsProjections;
-use App\Enums\Color;
+use App\Domain\Account\Projections\Account;
+use App\Domain\Account\Enums\Color;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Account>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Domain\Account\Projections\Account>
  */
 class AccountFactory extends Factory
 {
     use SupportsProjections;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = Account::class;
+
     public function definition(): array
     {
         return [
@@ -28,6 +26,7 @@ class AccountFactory extends Factory
             'number'      => $this->faker->creditCardNumber,
             'color'       => $this->faker->randomElement(Color::cases()),
             'description' => $this->faker->sentence,
+            'bank_code'   => (string) $this->faker->randomNumber(3),
             'user_id'     => User::factory(),
         ];
     }

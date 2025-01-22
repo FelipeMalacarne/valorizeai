@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Account;
+use App\Domain\Account\Projections\Account;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class AccountController extends Controller
@@ -14,9 +13,7 @@ class AccountController extends Controller
      */
     public function index()
     {
-        $accounts = Cache::remember('accounts', 60, function () {
-            return Account::search('')->take(15)->paginate(15);
-        });
+        $accounts = Account::search('')->take(15)->paginate(15);
 
         return Inertia::render('Accounts/Index', [
             'filters'  => request()->all('search', 'trashed'),

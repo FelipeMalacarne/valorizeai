@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Projectors;
+namespace App\Domain\Account\Projectors;
 
-use App\Events\Account\Created as AccountCreated;
-use App\Events\Account\Deleted;
+use App\Domain\Account\Events\AccountCreated;
+use App\Domain\Account\Events\AccountDeleted;
+use App\Domain\Account\Projections\Account;
 use App\Events\Transaction\AmountAmended as TransactionAmountAmended;
 use App\Events\Transaction\Deleted as TransactionDeleted;
 use App\Events\Transaction\Registered as TransactionRegistered;
-use App\Models\Account;
-use App\Models\Transaction;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
 class AccountBalanceProjector extends Projector
@@ -44,7 +43,7 @@ class AccountBalanceProjector extends Projector
             ->decrement('balance', $event->amount);
     }
 
-    public function onAccountDeleted(Deleted $event)
+    public function onAccountDeleted(AccountDeleted $event)
     {
         Account::findOrFail($event->accountId)
             ->writeable()

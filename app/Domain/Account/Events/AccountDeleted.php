@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events\Account;
+namespace App\Domain\Account\Events;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -8,7 +8,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Spatie\EventSourcing\StoredEvents\ShouldBeStored;
 
-class Deleted extends ShouldBeStored
+class AccountDeleted extends ShouldBeStored
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 

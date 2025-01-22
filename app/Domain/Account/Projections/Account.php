@@ -1,9 +1,13 @@
 <?php
 
-namespace App\Models;
+namespace App\Domain\Account\Projections;
 
 use App\Concerns\HasV7Uuids;
-use App\Enums\Color;
+use App\Domain\Account\Enums\Color;
+use App\Models\Transaction;
+use App\Models\User;
+use Database\Factories\AccountFactory;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -23,6 +27,7 @@ class Account extends Projection implements Explored
         'type',
         'number',
         'description',
+        'bank_code',
         'color',
         'user_id',
     ];
@@ -50,6 +55,11 @@ class Account extends Projection implements Explored
             'created_at'  => 'date',
             'updated_at'  => 'date',
         ];
+    }
+
+    public static function newFactory(): Factory
+    {
+        return AccountFactory::new();
     }
 
     public function transactions(): HasMany

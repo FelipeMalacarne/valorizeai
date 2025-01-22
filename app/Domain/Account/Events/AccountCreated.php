@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Events\Account;
+namespace App\Domain\Account\Events;
 
-use App\Enums\Color;
+use App\Domain\Account\Enums\Color;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Spatie\EventSourcing\StoredEvents\ShouldBeStored;
 
-class Created extends ShouldBeStored
+class AccountCreated extends ShouldBeStored
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 

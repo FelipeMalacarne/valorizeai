@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Concerns\SupportsProjections;
-use App\Models\Account;
+use App\Domain\Account\Projections\Account;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

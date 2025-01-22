@@ -5,7 +5,7 @@ namespace Tests\Feature\Aggregates;
 use App\Commands\AmendTransactionAmount;
 use App\Commands\DeleteTransaction;
 use App\Commands\RegisterTransaction;
-use App\Models\Account;
+use App\Domain\Account\Projections\Account;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Spatie\EventSourcing\Commands\CommandBus;
