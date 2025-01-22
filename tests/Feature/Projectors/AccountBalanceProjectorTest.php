@@ -2,16 +2,13 @@
 
 namespace Tests\Feature\Projectors;
 
-use App\Domain\Transaction\Commands\AmendTransactionAmount;
-use App\Domain\Transaction\Commands\RegisterTransaction;
-use App\Domain\Account\Projectors\AccountBalanceProjector;
 use App\Domain\Account\Enums\Color;
 use App\Domain\Account\Events\AccountCreated;
 use App\Domain\Account\Events\AccountDeleted;
-use App\Domain\Transaction\Events\Deleted as TransactionDeleted;
-use App\Domain\Transaction\Events\Registered as TransactionRegistered;
 use App\Domain\Account\Projections\Account;
-use App\Domain\Transaction\Projections\Transaction;
+use App\Domain\Account\Projectors\AccountBalanceProjector;
+use App\Domain\Transaction\Commands\AmendTransactionAmount;
+use App\Domain\Transaction\Commands\RegisterTransaction;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Spatie\EventSourcing\Commands\CommandBus;
@@ -43,50 +40,6 @@ class AccountBalanceProjectorTest extends TestCase
             'name'    => 'Test Account',
             'color'   => Color::Teal,
             'user_id' => $user->id,
-        ]);
-    }
-
-    public function test_it_increments_balance_when_transaction_registered_event_is_handled()
-    {
-        $account = Account::factory()->create([
-            'balance' => 1000,
-        ]);
-
-        $event = new TransactionRegistered(
-            accountId: $account->id,
-            currency: 'BRL',
-            amount: 500,
-        );
-
-        $this->projector->onTransactionRegistered($event);
-
-        $this->assertDatabaseHas('accounts', [
-            'id'      => $account->id,
-            'balance' => 1500,
-        ]);
-    }
-
-    public function test_it_decrements_balance_when_transaction_deleted_event_is_handled()
-    {
-        $account = Account::factory()->create([
-            'balance' => 1500,
-        ]);
-
-        $transaction = Transaction::factory()->create([
-            'account_id' => $account->id,
-            'amount'     => 500,
-        ]);
-
-        $event = new TransactionDeleted(
-            accountId: $account->id,
-            amount: $transaction->amount,
-        );
-
-        $this->projector->onTransactionDeleted($event);
-
-        $this->assertDatabaseHas('accounts', [
-            'id'      => $account->id,
-            'balance' => 1000,
         ]);
     }
 

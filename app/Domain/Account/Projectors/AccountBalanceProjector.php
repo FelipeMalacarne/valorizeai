@@ -4,10 +4,8 @@ namespace App\Domain\Account\Projectors;
 
 use App\Domain\Account\Events\AccountCreated;
 use App\Domain\Account\Events\AccountDeleted;
+use App\Domain\Account\Events\BalanceAdjusted;
 use App\Domain\Account\Projections\Account;
-use App\Domain\Transaction\Events\AmountAmended as TransactionAmountAmended;
-use App\Domain\Transaction\Events\Deleted as TransactionDeleted;
-use App\Domain\Transaction\Events\Registered as TransactionRegistered;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
 class AccountBalanceProjector extends Projector
@@ -27,22 +25,6 @@ class AccountBalanceProjector extends Projector
             ]);
     }
 
-    public function onTransactionRegistered(TransactionRegistered $event)
-    {
-        $account = Account::find($event->accountId);
-
-        $account->balance += $event->amount;
-
-        $account->writeable()->save();
-    }
-
-    public function onTransactionDeleted(TransactionDeleted $event)
-    {
-        Account::findOrFail($event->accountId)
-            ->writeable()
-            ->decrement('balance', $event->amount);
-    }
-
     public function onAccountDeleted(AccountDeleted $event)
     {
         Account::findOrFail($event->accountId)
@@ -50,10 +32,10 @@ class AccountBalanceProjector extends Projector
             ->delete();
     }
 
-    public function onTransactionAmountAmended(TransactionAmountAmended $event): void
+    public function onAccountBalanceAdjusted(BalanceAdjusted $event): void
     {
-        Account::findOrFail($event->accountId)
+        Account::findOrFail($event->aggregateRootUuid())
             ->writeable()
-            ->increment('balance', $event->difference());
+            ->increment('balance', $event->amount);
     }
 }
