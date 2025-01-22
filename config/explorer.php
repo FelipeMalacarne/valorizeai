@@ -30,7 +30,7 @@ return [
      */
     'indexes' => [
         \App\Domain\Account\Projections\Account::class,
-        \App\Models\Transaction::class,
+        \App\Domain\Transaction\Projections\Transaction::class,
     ],
 
     /**

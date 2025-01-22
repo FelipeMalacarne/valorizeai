@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Aggregates;
 
-use App\Commands\AmendTransactionAmount;
-use App\Commands\DeleteTransaction;
-use App\Commands\RegisterTransaction;
+use App\Domain\Transaction\Commands\AmendTransactionAmount;
+use App\Domain\Transaction\Commands\DeleteTransaction;
+use App\Domain\Transaction\Commands\RegisterTransaction;
 use App\Domain\Account\Projections\Account;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;

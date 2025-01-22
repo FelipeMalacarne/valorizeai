@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Projectors;
+namespace App\Domain\Transaction\Projectors;
 
-use App\Events\Transaction\AmountAmended;
-use App\Events\Transaction\Deleted;
-use App\Events\Transaction\DescriptionChanged;
-use App\Events\Transaction\Registered;
-use App\Models\Transaction;
+use App\Domain\Transaction\Events\AmountAmended;
+use App\Domain\Transaction\Events\Deleted;
+use App\Domain\Transaction\Events\DescriptionChanged;
+use App\Domain\Transaction\Events\Registered;
+use App\Domain\Transaction\Projections\Transaction;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
 class TransactionProjector extends Projector

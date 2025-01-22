@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Transaction;
+use App\Domain\Transaction\Projections\Transaction;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 

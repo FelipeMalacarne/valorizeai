@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Events\Transaction;
+namespace App\Domain\Transaction\Events;
 
-use App\Models\Transaction;
+use App\Domain\Transaction\Projections\Transaction;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;

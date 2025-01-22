@@ -5,9 +5,9 @@ namespace App\Domain\Account\Projectors;
 use App\Domain\Account\Events\AccountCreated;
 use App\Domain\Account\Events\AccountDeleted;
 use App\Domain\Account\Projections\Account;
-use App\Events\Transaction\AmountAmended as TransactionAmountAmended;
-use App\Events\Transaction\Deleted as TransactionDeleted;
-use App\Events\Transaction\Registered as TransactionRegistered;
+use App\Domain\Transaction\Events\AmountAmended as TransactionAmountAmended;
+use App\Domain\Transaction\Events\Deleted as TransactionDeleted;
+use App\Domain\Transaction\Events\Registered as TransactionRegistered;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
 class AccountBalanceProjector extends Projector

@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Commands;
+namespace App\Domain\Transaction\Commands;
 
-use App\Aggregates\TransactionAggregate;
+use App\Domain\Transaction\TransactionAggregate;
 use Spatie\EventSourcing\Commands\AggregateUuid;
 use Spatie\EventSourcing\Commands\HandledBy;
 
 #[HandledBy(TransactionAggregate::class)]
-class DeleteTransaction
+class ChangeTransactionDescription
 {
     public function __construct(
         #[AggregateUuid] public string $id,
+        public int $description,
     ) {}
 }

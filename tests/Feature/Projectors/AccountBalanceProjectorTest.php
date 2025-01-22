@@ -2,16 +2,16 @@
 
 namespace Tests\Feature\Projectors;
 
-use App\Commands\AmendTransactionAmount;
-use App\Commands\RegisterTransaction;
+use App\Domain\Transaction\Commands\AmendTransactionAmount;
+use App\Domain\Transaction\Commands\RegisterTransaction;
 use App\Domain\Account\Projectors\AccountBalanceProjector;
 use App\Domain\Account\Enums\Color;
 use App\Domain\Account\Events\AccountCreated;
 use App\Domain\Account\Events\AccountDeleted;
-use App\Events\Transaction\Deleted as TransactionDeleted;
-use App\Events\Transaction\Registered as TransactionRegistered;
+use App\Domain\Transaction\Events\Deleted as TransactionDeleted;
+use App\Domain\Transaction\Events\Registered as TransactionRegistered;
 use App\Domain\Account\Projections\Account;
-use App\Models\Transaction;
+use App\Domain\Transaction\Projections\Transaction;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Spatie\EventSourcing\Commands\CommandBus;

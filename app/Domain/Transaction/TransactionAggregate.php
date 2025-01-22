@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Aggregates;
+namespace App\Domain\Transaction;
 
-use App\Commands\AmendTransactionAmount;
-use App\Commands\ChangeTransactionDescription;
-use App\Commands\DeleteTransaction;
-use App\Commands\RegisterTransaction;
-use App\Events\Transaction\AmountAmended;
-use App\Events\Transaction\Deleted;
-use App\Events\Transaction\DescriptionChanged;
-use App\Events\Transaction\Registered;
+use App\Domain\Transaction\Commands\AmendTransactionAmount;
+use App\Domain\Transaction\Commands\ChangeTransactionDescription;
+use App\Domain\Transaction\Commands\DeleteTransaction;
+use App\Domain\Transaction\Commands\RegisterTransaction;
+use App\Domain\Transaction\Events\AmountAmended;
+use App\Domain\Transaction\Events\Deleted;
+use App\Domain\Transaction\Events\DescriptionChanged;
+use App\Domain\Transaction\Events\Registered;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
 class TransactionAggregate extends AggregateRoot

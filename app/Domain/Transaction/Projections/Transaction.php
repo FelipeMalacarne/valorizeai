@@ -1,8 +1,11 @@
 <?php
 
-namespace App\Models;
+namespace App\Domain\Transaction\Projections;
 
 use App\Concerns\HasV7Uuids;
+use App\Domain\Account\Projections\Account;
+use Database\Factories\TransactionFactory;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use JeroenG\Explorer\Application\Explored;
 use Laravel\Scout\Searchable;
@@ -55,6 +58,11 @@ class Transaction extends Projection implements Explored
             'created_at'     => 'date',
             'updated_at'     => 'date',
         ];
+    }
+
+    public static function newFactory(): Factory
+    {
+        return TransactionFactory::new();
     }
 
     public function account()

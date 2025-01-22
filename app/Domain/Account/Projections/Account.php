@@ -4,7 +4,7 @@ namespace App\Domain\Account\Projections;
 
 use App\Concerns\HasV7Uuids;
 use App\Domain\Account\Enums\Color;
-use App\Models\Transaction;
+use App\Domain\Transaction\Projections\Transaction;
 use App\Models\User;
 use Database\Factories\AccountFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
