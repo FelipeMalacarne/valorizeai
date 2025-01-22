@@ -23,6 +23,7 @@ class TransactionProjector extends Projector
                 'fitid'          => $event->fitid,
                 'memo'           => $event->memo,
                 'account_number' => $event->accountNumber,
+                'description'    => $event->description,
                 'account_id'     => $event->accountId,
             ]);
     }
