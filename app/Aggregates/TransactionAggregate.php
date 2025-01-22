@@ -10,11 +10,36 @@ use App\Events\Transaction\AmountAmended;
 use App\Events\Transaction\Deleted;
 use App\Events\Transaction\DescriptionChanged;
 use App\Events\Transaction\Registered;
-use App\Models\Transaction;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
 class TransactionAggregate extends AggregateRoot
 {
+    private int $amount;
+
+    private string $currency;
+
+    private string $accountId;
+
+    private ?string $description = null;
+
+    public function applyRegistered(Registered $event): void
+    {
+        $this->amount = $event->amount;
+        $this->currency = $event->currency;
+        $this->accountId = $event->accountId;
+        $this->description = $event->description;
+    }
+
+    public function applyAmountAmended(AmountAmended $event): void
+    {
+        $this->amount = $event->amount;
+    }
+
+    public function applyDescriptionChanged(DescriptionChanged $event): void
+    {
+        $this->description = $event->description;
+    }
+
     public function register(RegisterTransaction $command): self
     {
         $this->recordThat(new Registered(
@@ -33,11 +58,9 @@ class TransactionAggregate extends AggregateRoot
 
     public function delete(DeleteTransaction $command): self
     {
-        $transaction = Transaction::findOrFail($command->id);
-
         $this->recordThat(new Deleted(
-            accountId: $transaction->account_id,
-            amount: $transaction->amount,
+            accountId: $this->accountId,
+            amount: $this->amount,
         ));
 
         return $this;
@@ -45,12 +68,10 @@ class TransactionAggregate extends AggregateRoot
 
     public function amendAmount(AmendTransactionAmount $command): self
     {
-        $transaction = Transaction::findOrFail($command->id);
-
         $this->recordThat(new AmountAmended(
-            accountId: $transaction->account_id,
+            accountId: $this->accountId,
             amount: $command->amount,
-            oldAmount: $transaction->amount,
+            oldAmount: $this->amount,
         ));
 
         return $this;
