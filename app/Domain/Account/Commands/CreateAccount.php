@@ -3,14 +3,19 @@
 namespace App\Domain\Account\Commands;
 
 use App\Domain\Account\AccountAggregate;
+use App\Domain\Account\Enums\Color;
 use Spatie\EventSourcing\Commands\AggregateUuid;
 use Spatie\EventSourcing\Commands\HandledBy;
 
 #[HandledBy(AccountAggregate::class)]
-class AdjustAccountBalance
+class CreateAccount
 {
     public function __construct(
         #[AggregateUuid] public string $id,
-        public int $amount,
+        public string $name,
+        public Color $color,
+        public string $userId,
+        public ?string $description = null,
+        public ?string $number = null,
     ) {}
 }

@@ -19,7 +19,7 @@ class AdjustBalanceReactor extends Reactor
     {
         $this->commandBus->dispatch(
             new AdjustAccountBalance(
-                accountId: $event->accountId,
+                id: $event->accountId,
                 amount: $event->amount,
             )
         );
@@ -29,7 +29,7 @@ class AdjustBalanceReactor extends Reactor
     {
         $this->commandBus->dispatch(
             new AdjustAccountBalance(
-                accountId: $event->accountId,
+                id: $event->accountId,
                 amount: $event->difference(),
             )
         );
@@ -39,7 +39,7 @@ class AdjustBalanceReactor extends Reactor
     {
         $this->commandBus->dispatch(
             new AdjustAccountBalance(
-                accountId: $event->accountId,
+                id: $event->accountId,
                 amount: -1 * $event->amount,
             )
         );

@@ -17,7 +17,6 @@ class AccountBalanceProjector extends Projector
             ->create([
                 'id'          => $event->aggregateRootUuid(),
                 'name'        => $event->name,
-                'type'        => $event->type,
                 'number'      => $event->number,
                 'color'       => $event->color,
                 'description' => $event->description,
