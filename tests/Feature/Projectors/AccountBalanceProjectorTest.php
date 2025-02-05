@@ -30,7 +30,7 @@ class AccountBalanceProjectorTest extends TestCase
 
         $event = new AccountCreated(
             name: 'Test Account',
-            color: Color::Teal,
+            color: Color::Teal->value,
             userId: $user->id,
         );
 
