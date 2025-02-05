@@ -16,6 +16,18 @@ export type PageProps<
     ziggy: Config & { location: string };
 };
 
+export interface ErrorResponse {
+    message: string
+    errors: Errors
+}
+
+export type Errors = Record<string, string[]>
+
+export type LinkType = {
+    url: string | null
+    label: string
+    active: boolean
+}
 
 export type PaginatedResource<T> = {
     data: T[]
