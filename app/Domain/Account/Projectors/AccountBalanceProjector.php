@@ -6,9 +6,10 @@ use App\Domain\Account\Events\AccountCreated;
 use App\Domain\Account\Events\AccountDeleted;
 use App\Domain\Account\Events\BalanceAdjusted;
 use App\Domain\Account\Projections\Account;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
-class AccountBalanceProjector extends Projector
+class AccountBalanceProjector extends Projector implements ShouldQueue
 {
     public function onAccountCreated(AccountCreated $event)
     {

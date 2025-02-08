@@ -7,6 +7,7 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/Components/ui/sidebar";
+import { Toaster } from "@/Components/ui/toaster";
 import { ThemeProvider } from "@/Providers/ThemeProvider";
 import { PropsWithChildren, ReactNode, useState } from "react";
 
@@ -46,6 +47,7 @@ export default function Authenticated({
                     </SidebarInset>
                 </SidebarProvider>
             </div>
+            <Toaster />
         </ThemeProvider>
     );
 }

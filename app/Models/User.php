@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domain\Account\Projections\Account;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasVersion7Uuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

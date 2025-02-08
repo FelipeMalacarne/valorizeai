@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Domain\Account\Projections\Account;
+use App\Domain\Account\Commands\CreateAccount;
+use App\Domain\Account\Enums\Color;
+use App\Http\Requests\StoreAccountRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Spatie\EventSourcing\Commands\CommandBus;
 
 class AccountController extends Controller
 {
@@ -13,7 +18,9 @@ class AccountController extends Controller
      */
     public function index()
     {
-        $accounts = Account::search('')->take(15)->paginate(15);
+        $accounts = Auth::user()->accounts()
+            ->orderByDesc('created_at')
+            ->paginate(15);
 
         return Inertia::render('Accounts/Index', [
             'filters'  => request()->all('search', 'trashed'),
@@ -26,15 +33,28 @@ class AccountController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Accounts/Create', [
+            'colors' => Color::cases(),
+        ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAccountRequest $request, CommandBus $bus)
     {
-        //
+        $uuid = Str::uuid7();
+
+        $bus->dispatch(new CreateAccount(
+            id: $uuid,
+            name: $request->name,
+            color: Color::from($request->color),
+            userId: $request->user()->id,
+            description: $request->description,
+            number: $request->number,
+        ));
+
+        return response()->json(['message' => 'Conta criada com sucesso'], 201);
     }
 
     /**
