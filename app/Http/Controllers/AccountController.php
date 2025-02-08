@@ -6,9 +6,9 @@ use App\Domain\Account\Commands\CreateAccount;
 use App\Domain\Account\Enums\Color;
 use App\Http\Requests\StoreAccountRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Inertia\Response;
 use Spatie\EventSourcing\Commands\CommandBus;
 
 class AccountController extends Controller
@@ -16,22 +16,24 @@ class AccountController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request): Response
     {
-        $accounts = Auth::user()->accounts()
+        $user = $request->user();
+        $accounts = $user->accounts()
             ->orderByDesc('created_at')
             ->paginate(15);
 
         return Inertia::render('Accounts/Index', [
             'filters'  => request()->all('search', 'trashed'),
             'accounts' => $accounts,
+            'colors'   => Color::cases(),
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): Response
     {
         return Inertia::render('Accounts/Create', [
             'colors' => Color::cases(),
@@ -41,7 +43,7 @@ class AccountController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreAccountRequest $request, CommandBus $bus)
+    public function store(StoreAccountRequest $request, CommandBus $bus): Response
     {
         $uuid = Str::uuid7();
 
