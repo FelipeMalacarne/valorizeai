@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Domain\Account\Commands\CreateAccount;
 use App\Domain\Account\Enums\Color;
 use App\Domain\Account\Enums\Type;
+use App\Domain\Account\Projections\Account;
 use App\Http\Requests\StoreAccountRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,8 +21,8 @@ class AccountController extends Controller
      */
     public function index(Request $request): Response
     {
-        $user = $request->user();
-        $accounts = $user->accounts()
+        $accounts = Account::search()
+            ->where('user_id', $request->user()->id)
             ->orderByDesc('created_at')
             ->paginate(15);
 

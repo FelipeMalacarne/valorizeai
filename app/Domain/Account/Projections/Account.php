@@ -4,6 +4,7 @@ namespace App\Domain\Account\Projections;
 
 use App\Concerns\HasV7Uuids;
 use App\Domain\Account\Enums\Color;
+use App\Domain\Account\Enums\Type;
 use App\Domain\Transaction\Projections\Transaction;
 use App\Models\User;
 use Database\Factories\AccountFactory;
@@ -37,6 +38,7 @@ class Account extends Projection implements Explored
         return [
             'balance'    => 'integer',
             'color'      => Color::class,
+            'type'       => Type::class,
             'updated_at' => 'immutable_datetime',
             'created_at' => 'immutable_datetime',
         ];
@@ -46,12 +48,14 @@ class Account extends Projection implements Explored
     {
         return [
             'id'          => 'keyword',
-            'name'        => 'text',
-            'balance'     => 'integer',
+            'color'       => 'keyword',
+            'user_id'     => 'keyword',
             'type'        => 'keyword',
             'number'      => 'keyword',
+            'bank_code'   => 'keyword',
+            'name'        => 'text',
+            'balance'     => 'integer',
             'description' => 'text',
-            'color'       => 'keyword',
             'created_at'  => 'date',
             'updated_at'  => 'date',
         ];
@@ -62,11 +66,17 @@ class Account extends Projection implements Explored
         return AccountFactory::new();
     }
 
+    /**
+     * @return HasMany<Transaction,Account>
+     */
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
     }
 
+    /**
+     * @return BelongsTo<User,Account>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

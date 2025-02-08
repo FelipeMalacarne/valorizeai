@@ -9,7 +9,7 @@ import {
 } from "@/Components/ui/form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { usePage } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/Components/ui/button";
 import { useForm } from "react-hook-form";
@@ -83,6 +83,7 @@ export default function CreateAccountForm({
             });
 
             setIsOpen(false);
+            router.reload();
         } catch (error: any) {
             const errorResponse: ErrorResponse = error.response.data;
             toast({
