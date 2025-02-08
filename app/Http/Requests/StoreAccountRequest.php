@@ -2,8 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Domain\Account\Enums\Color;
+use App\Domain\Account\Enums\Type;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class StoreAccountRequest extends FormRequest
 {
@@ -21,7 +24,9 @@ class StoreAccountRequest extends FormRequest
     {
         return [
             'name'        => ['required', 'string', 'min:3', 'max:255'],
-            'color'       => ['required', 'string', 'max:20'],
+            'color'       => ['required', Rule::enum(Color::class)],
+            'type'        => ['required', Rule::enum(Type::class)],
+            'bank_code'   => ['required', 'numeric', 'digits:3'],
             'description' => ['nullable', 'string', 'max:255'],
             'number'      => ['nullable', 'string', 'max:16'],
         ];

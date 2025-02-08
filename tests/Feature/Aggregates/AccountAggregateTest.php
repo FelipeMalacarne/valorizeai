@@ -5,6 +5,7 @@ namespace Tests\Feature\Aggregates;
 use App\Domain\Account\Commands\AdjustAccountBalance;
 use App\Domain\Account\Commands\CreateAccount;
 use App\Domain\Account\Enums\Color;
+use App\Domain\Account\Enums\Type;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Spatie\EventSourcing\Commands\CommandBus;
@@ -23,14 +24,20 @@ class AccountAggregateTest extends TestCase
             id: $uuid,
             name: 'Test Account',
             color: Color::Lavender,
+            type: Type::CHECKING,
             userId: $user->id,
+            bankCode: '001',
+            description: 'Test Description',
         ));
 
         $this->assertDatabaseHas('accounts', [
-            'id'      => $uuid,
-            'name'    => 'Test Account',
-            'color'   => Color::Lavender,
-            'user_id' => $user->id,
+            'id'          => $uuid,
+            'name'        => 'Test Account',
+            'color'       => Color::Lavender,
+            'type'        => Type::CHECKING,
+            'user_id'     => $user->id,
+            'bank_code'   => '001',
+            'description' => 'Test Description',
         ]);
     }
 
@@ -44,7 +51,10 @@ class AccountAggregateTest extends TestCase
             id: $uuid,
             name: 'Test Account',
             color: Color::Lavender,
+            type: Type::CHECKING,
             userId: $user->id,
+            bankCode: '001',
+            description: 'Test Description',
         ));
 
         $this->assertDatabaseHas('accounts', [

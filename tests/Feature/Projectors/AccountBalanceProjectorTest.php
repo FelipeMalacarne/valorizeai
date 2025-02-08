@@ -24,13 +24,15 @@ class AccountBalanceProjectorTest extends TestCase
         $this->projector = app(AccountBalanceProjector::class);
     }
 
-    public function test_it_creates_an_account_when_account_created_event_is_handled()
+    public function test_it_creates_an_account_when_account_created_event_is_handled(): void
     {
         $user = User::factory()->create();
 
         $event = new AccountCreated(
             name: 'Test Account',
             color: Color::Teal->value,
+            type: 'checking',
+            bankCode: '001',
             userId: $user->id,
         );
 
@@ -43,7 +45,7 @@ class AccountBalanceProjectorTest extends TestCase
         ]);
     }
 
-    public function test_it_deletes_an_account_when_account_deleted_event_is_handled()
+    public function test_it_deletes_an_account_when_account_deleted_event_is_handled(): void
     {
         $account = Account::factory()->create();
 

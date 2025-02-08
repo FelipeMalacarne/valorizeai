@@ -14,6 +14,8 @@ class AccountCreated extends ShouldBeStored
     public function __construct(
         public string $name,
         public string $color,
+        public string $type,
+        public string $bankCode,
         public string $userId,
         public ?string $number = null,
         public ?string $description = null,

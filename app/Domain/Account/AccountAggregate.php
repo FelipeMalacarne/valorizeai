@@ -32,7 +32,9 @@ class AccountAggregate extends AggregateRoot
             number: $command->number,
             color: $command->color->value,
             description: $command->description,
-            userId: $command->userId
+            userId: $command->userId,
+            type: $command->type->value,
+            bankCode: $command->bankCode
         ));
 
         return $this;

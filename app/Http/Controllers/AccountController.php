@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Domain\Account\Commands\CreateAccount;
 use App\Domain\Account\Enums\Color;
+use App\Domain\Account\Enums\Type;
 use App\Http\Requests\StoreAccountRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -30,20 +32,7 @@ class AccountController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): Response
-    {
-        return Inertia::render('Accounts/Create', [
-            'colors' => Color::cases(),
-        ]);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreAccountRequest $request, CommandBus $bus): Response
+    public function store(StoreAccountRequest $request, CommandBus $bus): JsonResponse
     {
         $uuid = Str::uuid7();
 
@@ -54,6 +43,8 @@ class AccountController extends Controller
             userId: $request->user()->id,
             description: $request->description,
             number: $request->number,
+            type: Type::from($request->type),
+            bankCode: $request->bank_code
         ));
 
         return response()->json(['message' => 'Conta criada com sucesso'], 201);

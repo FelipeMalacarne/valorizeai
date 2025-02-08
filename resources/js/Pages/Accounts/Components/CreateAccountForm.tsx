@@ -39,7 +39,8 @@ const FormSchema = z.object({
         .optional(),
     color: z.string(),
     number: z.string().optional(),
-    bank_id: z.string().length(3, "O código do banco deve ter 3 caracteres"),
+    type: z.enum(["checking", "savings", "salary"]),
+    bank_code: z.string().length(3, "O código do banco deve ter 3 caracteres"),
 });
 
 export default function CreateAccountForm({
@@ -53,11 +54,12 @@ export default function CreateAccountForm({
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
-            name: "",
-            description: "",
-            color: "",
-            number: "",
-            bank_id: "",
+            name: undefined,
+            description: undefined,
+            color: undefined,
+            number: undefined,
+            bank_code: undefined,
+            type: undefined,
         },
     });
 
@@ -70,7 +72,8 @@ export default function CreateAccountForm({
                     description: values.description,
                     color: values.color,
                     number: values.number,
-                    bank_id: values.bank_id,
+                    bank_code: values.bank_code,
+                    type: values.type,
                 },
             });
 
@@ -165,6 +168,41 @@ export default function CreateAccountForm({
                         </FormItem>
                     )}
                 />
+
+                <FormField
+                    name="type"
+                    control={form.control}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Tipo da conta</FormLabel>
+                            <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                            >
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Selecione um tipo" />
+                                    </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value={"checking"}>
+                                        Conta Corrente
+                                    </SelectItem>
+                                    <SelectItem value={"savings"}>
+                                        Poupança
+                                    </SelectItem>
+                                    <SelectItem value={"salary"}>
+                                        Conta Salário
+                                    </SelectItem>
+                                </SelectContent>
+                                <FormDescription>
+                                    O tipo da conta bancária.
+                                </FormDescription>
+                                <FormMessage />
+                            </Select>
+                        </FormItem>
+                    )}
+                />
                 <div className="grid grid-cols-12 gap-6">
                     <div className="col-span-9">
                         <FormField
@@ -190,7 +228,7 @@ export default function CreateAccountForm({
                     <div className="col-span-3">
                         <FormField
                             control={form.control}
-                            name="bank_id"
+                            name="bank_code"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Banco</FormLabel>

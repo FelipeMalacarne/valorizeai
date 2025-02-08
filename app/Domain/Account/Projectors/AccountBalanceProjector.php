@@ -11,7 +11,7 @@ use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
 class AccountBalanceProjector extends Projector implements ShouldQueue
 {
-    public function onAccountCreated(AccountCreated $event)
+    public function onAccountCreated(AccountCreated $event): void
     {
         Account::new()
             ->writeable()
@@ -20,12 +20,14 @@ class AccountBalanceProjector extends Projector implements ShouldQueue
                 'name'        => $event->name,
                 'number'      => $event->number,
                 'color'       => $event->color,
+                'type'        => $event->type,
+                'bank_code'   => $event->bankCode,
                 'description' => $event->description,
                 'user_id'     => $event->userId,
             ]);
     }
 
-    public function onAccountDeleted(AccountDeleted $event)
+    public function onAccountDeleted(AccountDeleted $event): void
     {
         Account::findOrFail($event->accountId)
             ->writeable()
