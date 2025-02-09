@@ -16,6 +16,7 @@ import {
 } from "@/Components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { Account } from "@/types";
+import { router } from "@inertiajs/react";
 import { Landmark, MoreHorizontal } from "lucide-react";
 
 export function AccountCard({ account }: { account: Account }) {
@@ -36,8 +37,15 @@ export function AccountCard({ account }: { account: Account }) {
         lavender: "bg-lavender",
     };
 
+    function navigateToAccount() {
+        router.visit(route("accounts.show", account.id));
+    }
+
     return (
-        <Card className="w-80 hover:shadow-lg transition-shadow hover:scale-105 cursor-pointer">
+        <Card
+            onClick={navigateToAccount}
+            className="w-72 hover:shadow-lg transition-shadow hover:scale-105 cursor-pointer"
+        >
             <CardTitle>
                 <div
                     className={`relative w-full flex justify-center align-middle p-4 py-8 rounded-t-lg bg-${account.color}`}

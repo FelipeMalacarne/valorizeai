@@ -10,6 +10,7 @@ import {
 } from "@/Components/ui/sheet";
 import { useState } from "react";
 import CreateAccountForm from "./CreateAccountForm";
+import { Landmark, Plus } from "lucide-react";
 
 export default function CreateAccountSheet() {
     const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -17,8 +18,12 @@ export default function CreateAccountSheet() {
     return (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-                <Button onClick={() => setIsOpen(true)} size={"lg"}>
-                    Adicionar Conta
+                <Button
+                    className="self-center"
+                    onClick={() => setIsOpen(true)}
+                    size={"icon"}
+                >
+                    <Plus className="w-6 h-6" />
                 </Button>
             </SheetTrigger>
             <SheetContent>

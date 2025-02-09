@@ -51,12 +51,11 @@ class AccountController extends Controller
         return response()->json(['message' => 'Conta criada com sucesso'], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(string $id): Response
     {
-        //
+        return Inertia::render('Accounts/Show', [
+            'account' => Account::findOrFail($id),
+        ]);
     }
 
     /**
