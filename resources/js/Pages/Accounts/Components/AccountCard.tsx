@@ -3,6 +3,7 @@ import {
     Card,
     CardContent,
     CardDescription,
+    CardFooter,
     CardHeader,
     CardTitle,
 } from "@/Components/ui/card";
@@ -36,7 +37,7 @@ export function AccountCard({ account }: { account: Account }) {
     };
 
     return (
-        <Card className="w-80 hover:shadow-lg transition-shadow">
+        <Card className="w-80 hover:shadow-lg transition-shadow hover:scale-105 cursor-pointer">
             <CardTitle>
                 <div
                     className={`relative w-full flex justify-center align-middle p-4 py-8 rounded-t-lg bg-${account.color}`}
@@ -75,16 +76,15 @@ export function AccountCard({ account }: { account: Account }) {
                     {account.name}
                 </CardTitle>
 
-                <CardDescription
-                    className={
-                        "h-24 text-ellipsis overflow-hidden line-clamp-5"
-                    }
-                >
-                    {account.description}
-                </CardDescription>
+                <CardDescription>{account.bank_code}</CardDescription>
             </CardHeader>
 
-            <CardContent className="mt-auto grid grid-cols-2 grid-rows-1">
+            <CardContent className="mt-auto ">
+                <p className="bg-accent/20 rounded-md font-medium text-ellipsis">
+                    R$ {account.balance}
+                </p>
+            </CardContent>
+            <CardFooter className="grid grid-cols-2 grid-rows-1">
                 <p className="text-sm/10 font-medium text-ellipsis">
                     {account.number}
                 </p>
@@ -92,7 +92,7 @@ export function AccountCard({ account }: { account: Account }) {
                 <p className="text-sm/10 font-medium text-ellipsis line-clamp-1 justify-self-end">
                     {account.type}
                 </p>
-            </CardContent>
+            </CardFooter>
         </Card>
     );
 }

@@ -1,4 +1,4 @@
-import { Config } from 'ziggy-js';
+import { Config } from "ziggy-js";
 
 export interface User {
     id: number;
@@ -17,44 +17,68 @@ export type PageProps<
 };
 
 export interface ErrorResponse {
-    message: string
-    errors: Errors
+    message: string;
+    errors: Errors;
 }
 
-export type Errors = Record<string, string[]>
+export type Errors = Record<string, string[]>;
 
 export type LinkType = {
-    url: string | null
-    label: string
-    active: boolean
-}
+    url: string | null;
+    label: string;
+    active: boolean;
+};
 
 export type PaginatedResource<T> = {
-    data: T[]
+    data: T[];
     meta: {
-        total: number
-        page: number
-        last_page: number
-        from: number
-        to: number
-        links: LinkType[]
-    }
+        total: number;
+        page: number;
+        last_page: number;
+        from: number;
+        to: number;
+        links: LinkType[];
+    };
     links: {
-        first: string
-        last: string
-        prev: string | null
-        next: string | null
-    }
+        first: string;
+        last: string;
+        prev: string | null;
+        next: string | null;
+    };
+};
+
+export enum AccountType {
+    Checking = "checking",
+    Savings = "savings",
+    Salary = "salary",
+}
+
+export enum Color {
+    Lavender = "lavender",
+    Blue = "blue",
+    Green = "green",
+    Yellow = "yellow",
+    Red = "red",
+    Rosewater = "rosewater",
+    Flamingo = "flamingo",
+    Pink = "pink",
+    Mauve = "mauve",
+    Maroon = "maroon",
+    Peach = "peach",
+    Teal = "teal",
+    Sky = "sky",
+    Sapphire = "sapphire",
 }
 
 export type Account = {
-    id: string
-    name: string
-    balance: number
-    type: string
-    number: string
-    description: string
-    color: string
-    created_at: string
-    updated_at: string
-}
+    id: string;
+    name: string;
+    balance: number;
+    type: AccountType;
+    bank_code: string;
+    number: string;
+    description: string;
+    color: string;
+    created_at: string;
+    updated_at: string;
+};
