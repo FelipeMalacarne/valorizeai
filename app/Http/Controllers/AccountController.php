@@ -7,6 +7,7 @@ use App\Domain\Account\Enums\Color;
 use App\Domain\Account\Enums\Type;
 use App\Domain\Account\Projections\Account;
 use App\Http\Requests\StoreAccountRequest;
+use App\Http\Resources\AccountResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -28,7 +29,7 @@ class AccountController extends Controller
 
         return Inertia::render('Accounts/Index', [
             'filters'  => request()->all('search', 'trashed'),
-            'accounts' => $accounts,
+            'accounts' => AccountResource::collection($accounts),
             'colors'   => Color::cases(),
         ]);
     }
@@ -54,7 +55,7 @@ class AccountController extends Controller
     public function show(string $id): Response
     {
         return Inertia::render('Accounts/Show', [
-            'account' => Account::findOrFail($id),
+            'account' => AccountResource::make(Account::findOrFail($id)),
         ]);
     }
 
