@@ -51,6 +51,7 @@ class AccountBalanceProjectorTest extends TestCase
 
         $event = new AccountDeleted(
             accountId: $account->id,
+            commanderId: Str::uuid7(),
         );
 
         $this->projector->onAccountDeleted($event);
