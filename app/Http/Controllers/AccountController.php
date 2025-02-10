@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Account\Commands\CreateAccount;
+use App\Domain\Account\Commands\DeleteAccount;
 use App\Domain\Account\Enums\Color;
 use App\Domain\Account\Enums\Type;
 use App\Domain\Account\Projections\Account;
 use App\Http\Requests\StoreAccountRequest;
 use App\Http\Resources\AccountResource;
+use App\Models\User;
+use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -17,11 +21,18 @@ use Spatie\EventSourcing\Commands\CommandBus;
 
 class AccountController extends Controller
 {
+    public function __construct(
+        private CommandBus $bus,
+        #[CurrentUser] private User $user
+    ) {}
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request): Response
     {
+        Gate::authorize('viewAny', Account::class);
+
         $accounts = Account::search()
             ->where('user_id', $request->user()->id)
             ->orderByDesc('created_at')
@@ -34,11 +45,11 @@ class AccountController extends Controller
         ]);
     }
 
-    public function store(StoreAccountRequest $request, CommandBus $bus): JsonResponse
+    public function store(StoreAccountRequest $request): JsonResponse
     {
         $uuid = Str::uuid7();
 
-        $bus->dispatch(new CreateAccount(
+        $this->bus->dispatch(new CreateAccount(
             id: $uuid,
             name: $request->name,
             color: Color::from($request->color),
@@ -54,8 +65,12 @@ class AccountController extends Controller
 
     public function show(string $id): Response
     {
+        $account = Account::findOrFail($id);
+
+        Gate::authorize('view', $account);
+
         return Inertia::render('Accounts/Show', [
-            'account' => AccountResource::make(Account::findOrFail($id)),
+            'account' => AccountResource::make($account),
         ]);
     }
 
@@ -72,11 +87,24 @@ class AccountController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $account = Account::findOrFail($id);
+
+        Gate::authorize('update', $account);
+
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id): Response {}
+    public function destroy(string $id): Response
+    {
+        $account = Account::findOrFail($id);
+
+        Gate::authorize('delete', $account);
+
+        $this->bus->dispatch(new DeleteAccount(
+            accountId: $account->id,
+            commanderId: $user->id,
+        ));
+    }
 }
