@@ -10,6 +10,7 @@
         "jeroen-g/explorer": "^3.14",
         "laravel/breeze": "^2.2",
         "laravel/framework": "^11.9",
+        "laravel/horizon": "^5.30",
         "laravel/octane": "^2.5",
         "laravel/sanctum": "^4.0",
         "laravel/scout": "^10.11",
