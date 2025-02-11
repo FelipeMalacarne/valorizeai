@@ -6,7 +6,6 @@ use Monolog\Handler\SyslogUdpHandler;
 use Monolog\Processor\PsrLogMessageProcessor;
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Default Log Channel
@@ -125,6 +124,20 @@ return [
 
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
+        ],
+
+        'es' => [
+            'driver'         => 'monolog',
+            'level'          => 'debug',
+            'handler'        => \Monolog\Handler\ElasticsearchHandler::class,
+            'formatter'      => \Monolog\Formatter\ElasticsearchFormatter::class,
+            'formatter_with' => [
+                'index' => env('ELASTIC_LOGS_INDEX'),
+                'type'  => '_doc',
+            ],
+            'handler_with' => [
+                'client' => \Elasticsearch\ClientBuilder::create()->setHosts([env('ELASTIC_HOST')])->build(),
+            ],
         ],
 
     ],
