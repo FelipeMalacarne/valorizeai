@@ -3,6 +3,7 @@
 namespace App\Domain\Category\Projections;
 
 use App\Concerns\HasV7Uuids;
+use App\Domain\Account\Enums\Color;
 use App\Domain\Transaction\Projections\Transaction;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -16,6 +17,7 @@ class Category extends Projection
     protected $fillable = [
         'id',
         'name',
+        'color',
         'description',
         'is_default',
         'user_id',
@@ -24,6 +26,7 @@ class Category extends Projection
     protected function casts(): array
     {
         return [
+            'color'      => Color::class,
             'is_default' => 'boolean',
             'updated_at' => 'immutable_datetime',
             'created_at' => 'immutable_datetime',
