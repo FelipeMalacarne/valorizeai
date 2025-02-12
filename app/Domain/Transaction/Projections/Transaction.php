@@ -4,9 +4,12 @@ namespace App\Domain\Transaction\Projections;
 
 use App\Concerns\HasV7Uuids;
 use App\Domain\Account\Projections\Account;
+use App\Domain\Category\Projections\Category;
 use Database\Factories\TransactionFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use JeroenG\Explorer\Application\Explored;
 use Laravel\Scout\Searchable;
 use Spatie\EventSourcing\Projections\Projection;
@@ -65,8 +68,19 @@ class Transaction extends Projection implements Explored
         return TransactionFactory::new();
     }
 
-    public function account()
+    /**
+     * @return BelongsTo<Account,Transaction>
+     */
+    public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
+    }
+
+    /**
+     * @return BelongsToMany<Category,Transaction>
+     */
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class);
     }
 }
