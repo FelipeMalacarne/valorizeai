@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Concerns\SupportsProjections;
 use App\Domain\Account\Projections\Account;
+use App\Domain\Category\Projections\Category;
 use App\Domain\Transaction\Projections\Transaction;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -26,6 +27,17 @@ class TransactionFactory extends Factory
             'currency'    => $this->faker->currencyCode,
             'account_id'  => Account::factory(),
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Transaction $transaction) {
+            $transaction->categories()
+                ->attach(Category::inRandomOrder()
+                    ->limit($this->faker->numberBetween(1, 4))
+                    ->get()
+                );
+        });
     }
 
     public function fromUser($user)
