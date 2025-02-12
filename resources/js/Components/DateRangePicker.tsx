@@ -1,5 +1,5 @@
 import * as React from "react";
-import { addDays, format } from "date-fns";
+import { addDays, addHours, endOfDay, format, startOfDay } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
@@ -7,17 +7,61 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
+import { Separator } from "./ui/separator";
+
+type DatePreset = {
+    label: string;
+    from: Date;
+    to: Date;
+};
+
+const presets = [
+    {
+        label: "Today",
+        from: startOfDay(new Date()),
+        to: endOfDay(new Date()),
+    },
+    {
+        label: "Yesterday",
+        from: startOfDay(addDays(new Date(), -1)),
+        to: endOfDay(addDays(new Date(), -1)),
+    },
+    {
+        label: "Last 7 days",
+        from: startOfDay(addDays(new Date(), -7)),
+        to: endOfDay(new Date()),
+    },
+    {
+        label: "Last 14 days",
+        from: startOfDay(addDays(new Date(), -14)),
+        to: endOfDay(new Date()),
+    },
+    {
+        label: "Last 30 days",
+        from: startOfDay(addDays(new Date(), -30)),
+        to: endOfDay(new Date()),
+    },
+    {
+        label: "Last 90 days",
+        from: startOfDay(addDays(new Date(), -90)),
+        to: endOfDay(new Date()),
+    },
+    {
+        label: "Last year",
+        from: startOfDay(addDays(new Date(), -365)),
+        to: endOfDay(new Date()),
+    },
+] satisfies DatePreset[];
 
 export function DatePickerWithRange({
-    className,
-}: React.HTMLAttributes<HTMLDivElement>) {
-    const [date, setDate] = React.useState<DateRange | undefined>({
-        from: new Date(2022, 0, 20),
-        to: addDays(new Date(2022, 0, 20), 20),
-    });
-
+    date,
+    setDate,
+}: {
+    date?: DateRange;
+    setDate: (date: DateRange | undefined) => void;
+}) {
     return (
-        <div className={cn("grid gap-2", className)}>
+        <div className={cn("grid gap-2")}>
             <Popover>
                 <PopoverTrigger asChild>
                     <Button
@@ -44,16 +88,65 @@ export function DatePickerWithRange({
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                        initialFocus
-                        mode="range"
-                        defaultMonth={date?.from}
-                        selected={date}
-                        onSelect={setDate}
-                        numberOfMonths={2}
-                    />
+                    <div className="flex justify-between">
+                        <DatePresets
+                            onSelect={setDate}
+                            selected={date}
+                            presets={presets}
+                        />
+                        <Separator
+                            orientation="vertical"
+                            className="h-auto w-[px]"
+                        />
+                        <Calendar
+                            initialFocus
+                            mode="range"
+                            defaultMonth={date?.from}
+                            selected={date}
+                            onSelect={setDate}
+                            numberOfMonths={2}
+                        />
+                    </div>
                 </PopoverContent>
             </Popover>
+        </div>
+    );
+}
+
+function DatePresets({
+    selected,
+    onSelect,
+    presets,
+}: {
+    selected: DateRange | undefined;
+    onSelect: (date: DateRange | undefined) => void;
+    presets: DatePreset[];
+}) {
+    return (
+        <div className="flex flex-col gap-2 p-3">
+            <p className="mx-3 text-xs uppercase text-muted-foreground">
+                Date Range
+            </p>
+            <div className="grid gap-1">
+                {presets.map(({ label, from, to }) => {
+                    const isActive =
+                        selected?.from === from && selected?.to === to;
+                    return (
+                        <Button
+                            key={label}
+                            variant={isActive ? "outline" : "ghost"}
+                            size="sm"
+                            onClick={() => onSelect({ from, to })}
+                            className={cn(
+                                "flex items-center justify-between gap-6",
+                                !isActive && "border border-transparent",
+                            )}
+                        >
+                            <span className="mr-auto">{label}</span>
+                        </Button>
+                    );
+                })}
+            </div>
         </div>
     );
 }
