@@ -4,6 +4,7 @@ import {
     BookOpen,
     Bot,
     Command,
+    DollarSign,
     Frame,
     GalleryVerticalEnd,
     HomeIcon,
@@ -179,7 +180,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             </SidebarMenuButton>
                         </Link>
 
-
                         <Link href={route("accounts.index")}>
                             <SidebarMenuButton tooltip={"Accounts"}>
                                 <LandmarkIcon />
@@ -187,6 +187,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             </SidebarMenuButton>
                         </Link>
 
+                        <Link href={route("transactions.index")}>
+                            <SidebarMenuButton tooltip={"Transactions"}>
+                                <DollarSign />
+                                Transactions
+                            </SidebarMenuButton>
+                        </Link>
                     </SidebarMenu>
                 </SidebarGroup>
                 <NavMain items={data.navMain} />

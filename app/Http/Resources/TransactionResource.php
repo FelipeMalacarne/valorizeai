@@ -22,6 +22,7 @@ class TransactionResource extends JsonResource
             'currency'    => $this->currency,
             'description' => $this->description,
             'categories'  => CategoryResource::collection($this->categories),
+            'account'     => $this->account->name,
             'date_posted' => $this->date_posted->format('Y-m-d'),
         ];
     }

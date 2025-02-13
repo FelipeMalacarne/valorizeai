@@ -82,3 +82,21 @@ export type Account = {
     created_at: string;
     updated_at: string;
 };
+
+export type Category = {
+    id: string;
+    name: string;
+    color: Color;
+};
+
+export type Transaction = {
+    id: string;
+    amount: number;
+    fitid: string;
+    memo: string;
+    currency: string;
+    account: string;
+    categories: Category[];
+    description: string;
+    date_posted: string;
+};

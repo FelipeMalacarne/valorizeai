@@ -2,17 +2,34 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Transaction\Projections\Transaction;
+use App\Http\Resources\TransactionResource;
+use App\Models\User;
+use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
+use Spatie\EventSourcing\Commands\CommandBus;
 
 class TransactionsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct(
+        private CommandBus $bus,
+        #[CurrentUser] private User $user
+    ) {}
+
+    public function index(): Response
     {
-        return Inertia::render('Transactions/Index');
+        $accounts = $this->user->accounts()->pluck('id')->toArray();
+
+        $transactions = Transaction::search()
+            ->whereIn('account_id', $accounts)
+            ->orderByDesc('created_at')
+            ->simplePaginate(15);
+
+        return Inertia::render('Transactions/Index', [
+            'transactions' => TransactionResource::collection($transactions),
+        ]);
     }
 
     /**
