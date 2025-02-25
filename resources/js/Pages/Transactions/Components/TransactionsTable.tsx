@@ -19,6 +19,8 @@ import {
 import { Transaction } from "@/types";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
+import { DataTable } from "./DataTable";
+import { columns } from "./Columns";
 
 export default function TransactionsTable({
     transactions,
@@ -65,7 +67,9 @@ export default function TransactionsTable({
                 </Button>
             </div>
             <div className="rounded-md border">
-                <Table>
+                <DataTable columns={columns} data={transactions} />
+
+                {/* <Table>
                     <TableHeader>
                         <TableRow>
                             <TableHead>ID</TableHead>
@@ -96,7 +100,7 @@ export default function TransactionsTable({
                             </TableRow>
                         ))}
                     </TableBody>
-                </Table>
+                </Table> */}
             </div>
         </div>
     );
