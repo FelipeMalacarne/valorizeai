@@ -173,21 +173,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarMenu>
-                        <Link href={route("dashboard")}>
+                        <Link href={route("dashboard")} prefetch>
                             <SidebarMenuButton tooltip={"Dashboard"}>
                                 <HomeIcon />
                                 Dashboard
                             </SidebarMenuButton>
                         </Link>
 
-                        <Link href={route("accounts.index")}>
+                        <Link href={route("accounts.index")} prefetch>
                             <SidebarMenuButton tooltip={"Accounts"}>
                                 <LandmarkIcon />
                                 Accounts
                             </SidebarMenuButton>
                         </Link>
 
-                        <Link href={route("transactions.index")}>
+                        <Link href={route("transactions.index")} prefetch>
                             <SidebarMenuButton tooltip={"Transactions"}>
                                 <DollarSign />
                                 Transactions
