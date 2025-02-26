@@ -6,10 +6,12 @@ use App\Concerns\HasV7Uuids;
 use App\Domain\Account\Projections\Account;
 use App\Domain\Category\Projections\Category;
 use Database\Factories\TransactionFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Number;
 use JeroenG\Explorer\Application\Explored;
 use Laravel\Scout\Searchable;
 use Spatie\EventSourcing\Projections\Projection;
@@ -61,6 +63,13 @@ class Transaction extends Projection implements Explored
             'created_at'     => 'date',
             'updated_at'     => 'date',
         ];
+    }
+
+    protected function money(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => Number::currency($this->amount, $this->currency)
+        );
     }
 
     public static function newFactory(): Factory

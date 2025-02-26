@@ -25,7 +25,8 @@ class TransactionsController extends Controller
         $transactions = Transaction::search()
             ->whereIn('account_id', $accounts)
             ->orderByDesc('created_at')
-            ->simplePaginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         return Inertia::render('Transactions/Index', [
             'transactions' => TransactionResource::collection($transactions),
