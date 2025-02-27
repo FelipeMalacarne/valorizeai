@@ -91,10 +91,9 @@ export type Category = {
 
 export type Transaction = {
     id: string;
-    amount: number;
+    money: string;
     fitid: string;
     memo: string;
-    currency: string;
     account: string;
     categories: Category[];
     description: string;
