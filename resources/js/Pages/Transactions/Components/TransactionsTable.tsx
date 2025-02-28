@@ -8,14 +8,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/Components/ui/table";
 import { PaginatedResource, Transaction } from "@/types";
 import { useEffect, useRef, useState } from "react";
 import { DateRange } from "react-day-picker";
@@ -118,7 +110,6 @@ export default function TransactionsTable({
                 <DatePickerWithRange date={date} setDate={setDate} />
                 <Button
                     onClick={() => {
-                        setSearchTerm("");
                         setCategoryFilter("");
                         setDate(undefined);
                     }}
