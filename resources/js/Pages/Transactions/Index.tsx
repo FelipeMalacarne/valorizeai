@@ -5,9 +5,10 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { PageProps, PaginatedResource, Transaction } from "@/types";
 import { addDays } from "date-fns";
 import { File } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
 import TransactionsTable from "./Components/TransactionsTable";
+import { router } from "@inertiajs/react";
 
 export type TransactionIndexProps = {
     transactions: PaginatedResource<Transaction>;
@@ -21,11 +22,12 @@ export default function Index(props: PageProps<TransactionIndexProps>) {
         to: undefined,
     });
 
+
     return (
         <>
             {/* <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" /> */}
 
-            <TransactionsTable transactions={props.transactions.data} />
+            <TransactionsTable transactions={props.transactions} />
 
             <div className="flex-1 space-y-8 p-8 pt-6">
                 <div className="space-y-4">

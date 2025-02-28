@@ -16,31 +16,91 @@ import {
     TableHeader,
     TableRow,
 } from "@/Components/ui/table";
-import { Transaction } from "@/types";
-import { useState } from "react";
+import { PaginatedResource, Transaction } from "@/types";
+import { useEffect, useRef, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { DataTable } from "./DataTable";
 import { columns } from "./Columns";
+import LinkPagination from "@/Components/LinkPagination";
+import { router } from "@inertiajs/react";
 
 export default function TransactionsTable({
     transactions,
 }: {
-    transactions: Transaction[];
+    transactions: PaginatedResource<Transaction>;
 }) {
-    const [searchTerm, setSearchTerm] = useState("");
     const [categoryFilter, setCategoryFilter] = useState("");
     const [date, setDate] = useState<DateRange | undefined>(undefined);
     const [filteredTransactions, setFilteredTransactions] = useState<
         Transaction[]
     >([]);
 
+    const [query, setQuery] = useState({
+        search: "",
+        orderBy: {
+            column: "created_at",
+            direction: "desc",
+        },
+    });
+
+    const isFirstRender = useRef(true);
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        const params = new URLSearchParams(window.location.search);
+
+        // Update the "search" parameter based on input:
+        if (query.search) {
+            params.set("search", query.search);
+        } else {
+            params.delete("search");
+        }
+
+        // Similarly for orderBy parameters:
+        if (query.orderBy.column) {
+            params.set("orderBy[column]", query.orderBy.column);
+        } else {
+            params.delete("orderBy[column]");
+        }
+        if (query.orderBy.direction) {
+            params.set("orderBy[direction]", query.orderBy.direction);
+        } else {
+            params.delete("orderBy[direction]");
+        }
+
+        // For date parameters, you could do the same if needed:
+        // if (date.from) {
+        //   params.set('from', new Date(date.from).toISOString());
+        // } else {
+        //   params.delete('from');
+        // }
+        // if (date.to) {
+        //   params.set('to', new Date(date.to).toISOString());
+        // } else {
+        //   params.delete('to');
+        // }
+
+        console.log(params.toString());
+        router.get(
+            `/transactions?${params.toString()}`,
+            {},
+            { preserveState: true, replace: true, preserveScroll: true },
+        );
+    }, [query, date]);
+
     return (
         <div className="space-y-4">
             <div className="flex flex-wrap gap-4">
                 <Input
                     placeholder="Search transactions..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={query.search}
+                    onChange={(e) =>
+                        setQuery({ ...query, search: e.target.value })
+                    }
                     className="max-w-sm"
                 />
                 <Select
@@ -67,7 +127,18 @@ export default function TransactionsTable({
                 </Button>
             </div>
             <div className="rounded-md border">
-                <DataTable columns={columns} data={transactions} />
+                <DataTable
+                    columns={columns}
+                    data={transactions.data}
+                    total={transactions.meta.total}
+                    links={transactions.meta.links}
+                />
+
+                <LinkPagination
+                    links={transactions.meta.links}
+                    lastPageUrl={transactions.links.last}
+                    firstPageUrl={transactions.links.first}
+                />
 
                 {/* <Table>
                     <TableHeader>

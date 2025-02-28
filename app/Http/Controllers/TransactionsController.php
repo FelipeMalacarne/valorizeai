@@ -18,11 +18,11 @@ class TransactionsController extends Controller
         #[CurrentUser] private User $user
     ) {}
 
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $accounts = $this->user->accounts()->pluck('id')->toArray();
 
-        $transactions = Transaction::search()
+        $transactions = Transaction::search($request->query('search'))
             ->whereIn('account_id', $accounts)
             ->orderByDesc('created_at')
             ->paginate(15)

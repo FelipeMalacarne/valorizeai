@@ -20,7 +20,7 @@ class TransactionSeeder extends Seeder
 
         Transaction::factory()
             ->fromUser($user)
-            ->count(10)
+            ->count(1000)
             ->create();
     }
 }

@@ -20,7 +20,7 @@ type JumpType = "previous" | "next" | "last" | "first";
 const JumpItem = ({ type, url }: { type: JumpType; url: string | null }) => {
     return (
         <PaginationItem>
-            <Link href={url || "#"} prefetch preserveScroll>
+            <Link href={url || "#"} prefetch preserveScroll preserveState>
                 <PaginationLink>
                     {type === "previous" ? (
                         <ChevronLeftIcon />
@@ -48,7 +48,7 @@ const NumberItem = ({
 }) => {
     return (
         <PaginationItem>
-            <Link href={url || "#"} prefetch preserveScroll>
+            <Link href={url || "#"} prefetch preserveScroll preserveState>
                 <PaginationLink isActive={active}>{label}</PaginationLink>
             </Link>
         </PaginationItem>
