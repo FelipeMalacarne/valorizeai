@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Domain\Account\Commands\CreateAccount;
@@ -19,7 +21,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\EventSourcing\Commands\CommandBus;
 
-class AccountController extends Controller
+final class AccountController extends Controller
 {
     public function __construct(
         private CommandBus $bus,

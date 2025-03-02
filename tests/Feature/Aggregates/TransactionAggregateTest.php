@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Aggregates;
 
 use App\Domain\Account\Projections\Account;
@@ -11,7 +13,7 @@ use Illuminate\Support\Str;
 use Spatie\EventSourcing\Commands\CommandBus;
 use Tests\TestCase;
 
-class TransactionAggregateTest extends TestCase
+final class TransactionAggregateTest extends TestCase
 {
     // use RefreshDatabase;
 

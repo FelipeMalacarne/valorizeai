@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Transaction\Projectors;
 
 use App\Domain\Transaction\Events\AmountAmended;
@@ -9,7 +11,7 @@ use App\Domain\Transaction\Events\Registered;
 use App\Domain\Transaction\Projections\Transaction;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
-class TransactionProjector extends Projector
+final class TransactionProjector extends Projector
 {
     public function onTransactionRegistered(Registered $event): void
     {

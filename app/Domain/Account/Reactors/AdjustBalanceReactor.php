@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Account\Reactors;
 
 use App\Domain\Account\Commands\AdjustAccountBalance;
@@ -9,7 +11,7 @@ use App\Domain\Transaction\Events\Registered as TransactionRegistered;
 use Spatie\EventSourcing\Commands\CommandBus;
 use Spatie\EventSourcing\EventHandlers\Reactors\Reactor;
 
-class AdjustBalanceReactor extends Reactor
+final class AdjustBalanceReactor extends Reactor
 {
     public function __construct(
         private CommandBus $commandBus

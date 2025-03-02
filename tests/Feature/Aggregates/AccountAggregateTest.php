@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Aggregates;
 
 use App\Domain\Account\Commands\AdjustAccountBalance;
@@ -13,7 +15,7 @@ use Illuminate\Support\Str;
 use Spatie\EventSourcing\Commands\CommandBus;
 use Tests\TestCase;
 
-class AccountAggregateTest extends TestCase
+final class AccountAggregateTest extends TestCase
 {
     public function test_create_account(): void
     {

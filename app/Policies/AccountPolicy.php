@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Domain\Account\Projections\Account;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
-class AccountPolicy
+final class AccountPolicy
 {
     /**
      * Determine whether the user can view any models.

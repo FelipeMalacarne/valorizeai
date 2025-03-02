@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Account\Projections;
 
 use App\Concerns\HasV7Uuids;
@@ -16,7 +18,7 @@ use JeroenG\Explorer\Application\Explored;
 use Laravel\Scout\Searchable;
 use Spatie\EventSourcing\Projections\Projection;
 
-class Account extends Projection implements Explored
+final class Account extends Projection implements Explored
 {
     /** @use HasFactory<\Database\Factories\AccountFactory> */
     use HasFactory, HasV7Uuids, Searchable;
@@ -33,15 +35,9 @@ class Account extends Projection implements Explored
         'user_id',
     ];
 
-    protected function casts(): array
+    public static function newFactory(): Factory
     {
-        return [
-            'balance'    => 'integer',
-            'color'      => Color::class,
-            'type'       => Type::class,
-            'updated_at' => 'immutable_datetime',
-            'created_at' => 'immutable_datetime',
-        ];
+        return AccountFactory::new();
     }
 
     public function mappableAs(): array
@@ -61,11 +57,6 @@ class Account extends Projection implements Explored
         ];
     }
 
-    public static function newFactory(): Factory
-    {
-        return AccountFactory::new();
-    }
-
     /**
      * @return HasMany<Transaction,Account>
      */
@@ -80,5 +71,16 @@ class Account extends Projection implements Explored
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'balance'    => 'integer',
+            'color'      => Color::class,
+            'type'       => Type::class,
+            'updated_at' => 'immutable_datetime',
+            'created_at' => 'immutable_datetime',
+        ];
     }
 }

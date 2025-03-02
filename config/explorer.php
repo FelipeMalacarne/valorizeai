@@ -20,8 +20,8 @@ return [
      * them in the index configuration below.
      */
     'default_index_settings' => [
-        //'index' => [],
-        //'analysis' => [],
+        // 'index' => [],
+        // 'analysis' => [],
     ],
 
     /**
@@ -29,8 +29,8 @@ return [
      * of the mapping possibilities can be found in the documentation of Explorer's repository.
      */
     'indexes' => [
-        \App\Domain\Account\Projections\Account::class,
-        \App\Domain\Transaction\Projections\Transaction::class,
+        App\Domain\Account\Projections\Account::class,
+        App\Domain\Transaction\Projections\Transaction::class,
     ],
 
     /**

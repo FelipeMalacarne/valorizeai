@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Transaction\Projections;
 
 use App\Concerns\HasV7Uuids;
@@ -16,7 +18,7 @@ use JeroenG\Explorer\Application\Explored;
 use Laravel\Scout\Searchable;
 use Spatie\EventSourcing\Projections\Projection;
 
-class Transaction extends Projection implements Explored
+final class Transaction extends Projection implements Explored
 {
     /** @use HasFactory<\Database\Factories\TransactionFactory> */
     use HasFactory, HasV7Uuids, Searchable;
@@ -39,13 +41,9 @@ class Transaction extends Projection implements Explored
         'date_posted',
     ];
 
-    protected function casts(): array
+    public static function newFactory(): Factory
     {
-        return [
-            'date_posted' => 'datetime',
-            'created_at'  => 'immutable_datetime',
-            'updated_at'  => 'immutable_datetime',
-        ];
+        return TransactionFactory::new();
     }
 
     public function mappableAs(): array
@@ -65,18 +63,6 @@ class Transaction extends Projection implements Explored
         ];
     }
 
-    protected function money(): Attribute
-    {
-        return Attribute::make(
-            get: fn () => Number::currency($this->amount, $this->currency)
-        );
-    }
-
-    public static function newFactory(): Factory
-    {
-        return TransactionFactory::new();
-    }
-
     /**
      * @return BelongsTo<Account,Transaction>
      */
@@ -91,5 +77,21 @@ class Transaction extends Projection implements Explored
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class);
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'date_posted' => 'datetime',
+            'created_at'  => 'immutable_datetime',
+            'updated_at'  => 'immutable_datetime',
+        ];
+    }
+
+    protected function money(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => Number::currency($this->amount, $this->currency)
+        );
     }
 }

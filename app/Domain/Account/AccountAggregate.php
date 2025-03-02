@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Account;
 
 use App\Domain\Account\Commands\AdjustAccountBalance;
@@ -12,7 +14,7 @@ use App\Domain\Account\Events\AccountDetailsUpdated;
 use App\Domain\Account\Events\BalanceAdjusted;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
-class AccountAggregate extends AggregateRoot
+final class AccountAggregate extends AggregateRoot
 {
     private int $balance = 0;
 

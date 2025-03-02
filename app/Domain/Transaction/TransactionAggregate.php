@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Transaction;
 
 use App\Domain\Transaction\Commands\AmendTransactionAmount;
@@ -12,7 +14,7 @@ use App\Domain\Transaction\Events\DescriptionChanged;
 use App\Domain\Transaction\Events\Registered;
 use Spatie\EventSourcing\AggregateRoots\AggregateRoot;
 
-class TransactionAggregate extends AggregateRoot
+final class TransactionAggregate extends AggregateRoot
 {
     private int $amount;
 

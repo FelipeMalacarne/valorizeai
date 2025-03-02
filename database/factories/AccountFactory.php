@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Concerns\SupportsProjections;
-use App\Domain\Account\Projections\Account;
 use App\Domain\Account\Enums\Color;
+use App\Domain\Account\Projections\Account;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Domain\Account\Projections\Account>
  */
-class AccountFactory extends Factory
+final class AccountFactory extends Factory
 {
     use SupportsProjections;
 

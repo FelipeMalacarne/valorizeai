@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Domain\Transaction\Projections\Transaction;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
-class TransactionSeeder extends Seeder
+final class TransactionSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,7 +16,7 @@ class TransactionSeeder extends Seeder
     public function run(): void
     {
         $user = User::factory()->create([
-            'name' => 'Felipe',
+            'name'  => 'Felipe',
             'email' => 'felipemalacarne012@gmail.com',
         ]);
 

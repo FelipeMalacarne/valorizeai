@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Domain\Transaction\Projections\Transaction;
@@ -11,7 +13,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\EventSourcing\Commands\CommandBus;
 
-class TransactionsController extends Controller
+final class TransactionsController extends Controller
 {
     public function __construct(
         private CommandBus $bus,

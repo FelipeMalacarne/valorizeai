@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Projectors;
 
 use App\Domain\Account\Enums\Color;
@@ -14,11 +16,11 @@ use Illuminate\Support\Str;
 use Spatie\EventSourcing\Commands\CommandBus;
 use Tests\TestCase;
 
-class AccountBalanceProjectorTest extends TestCase
+final class AccountBalanceProjectorTest extends TestCase
 {
     private AccountBalanceProjector $projector;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->projector = app(AccountBalanceProjector::class);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Account\Projectors;
 
 use App\Domain\Account\Events\AccountCreated;
@@ -9,7 +11,7 @@ use App\Domain\Account\Events\BalanceAdjusted;
 use App\Domain\Account\Projections\Account;
 use Spatie\EventSourcing\EventHandlers\Projectors\Projector;
 
-class AccountBalanceProjector extends Projector
+final class AccountBalanceProjector extends Projector
 {
     public function onAccountCreated(AccountCreated $event): void
     {

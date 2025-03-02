@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Concerns\SupportsProjections;
@@ -11,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Domain\Transaction\Projections\Transaction>
  */
-class TransactionFactory extends Factory
+final class TransactionFactory extends Factory
 {
     use SupportsProjections;
 

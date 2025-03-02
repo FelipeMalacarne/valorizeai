@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -129,14 +131,14 @@ return [
         'es' => [
             'driver'         => 'monolog',
             'level'          => 'debug',
-            'handler'        => \Monolog\Handler\ElasticsearchHandler::class,
-            'formatter'      => \Monolog\Formatter\ElasticsearchFormatter::class,
+            'handler'        => Monolog\Handler\ElasticsearchHandler::class,
+            'formatter'      => Monolog\Formatter\ElasticsearchFormatter::class,
             'formatter_with' => [
                 'index' => env('ELASTIC_LOGS_INDEX'),
                 'type'  => '_doc',
             ],
             'handler_with' => [
-                'client' => \Elasticsearch\ClientBuilder::create()->setHosts([env('ELASTIC_HOST')])->build(),
+                'client' => Elasticsearch\ClientBuilder::create()->setHosts([env('ELASTIC_HOST')])->build(),
             ],
         ],
 

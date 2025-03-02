@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Transaction\Commands;
 
 use App\Domain\Transaction\TransactionAggregate;
+use DateTimeImmutable;
 use Spatie\EventSourcing\Commands\AggregateUuid;
 use Spatie\EventSourcing\Commands\HandledBy;
 
 #[HandledBy(TransactionAggregate::class)]
-class RegisterTransaction
+final class RegisterTransaction
 {
     public function __construct(
         #[AggregateUuid] public string $id,
@@ -17,10 +20,10 @@ class RegisterTransaction
         private ?string $fitid = null,
         private ?string $memo = null,
         private ?string $accountNumber = null,
-        private ?\DateTime $datePosted = null,
+        private ?DateTimeImmutable $datePosted = null,
         private ?string $description = null,
     ) {
-        $this->datePosted = $this->datePosted ?? new \DateTime;
+        $this->datePosted = $this->datePosted ?? new DateTimeImmutable;
     }
 
     public function amount(): int
@@ -53,7 +56,7 @@ class RegisterTransaction
         return $this->accountNumber;
     }
 
-    public function datePosted(): \DateTime
+    public function datePosted(): DateTimeImmutable
     {
         return $this->datePosted;
     }

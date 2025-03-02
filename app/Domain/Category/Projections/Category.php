@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain\Category\Projections;
 
 use App\Concerns\HasV7Uuids;
@@ -9,7 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\EventSourcing\Projections\Projection;
 
-class Category extends Projection
+final class Category extends Projection
 {
     /** @use HasFactory<\Database\Factories\CategoryFactory> */
     use HasFactory, HasV7Uuids;
@@ -23,6 +25,14 @@ class Category extends Projection
         'user_id',
     ];
 
+    /**
+     * @return BelongsToMany<Transaction,Category>
+     */
+    public function transactions(): BelongsToMany
+    {
+        return $this->belongsToMany(Transaction::class);
+    }
+
     protected function casts(): array
     {
         return [
@@ -31,13 +41,5 @@ class Category extends Projection
             'updated_at' => 'immutable_datetime',
             'created_at' => 'immutable_datetime',
         ];
-    }
-
-    /**
-     * @return BelongsToMany<Transaction,Category>
-     */
-    public function transactions(): BelongsToMany
-    {
-        return $this->belongsToMany(Transaction::class);
     }
 }

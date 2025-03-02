@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
 
-class AccountResource extends JsonResource
+final class AccountResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
