@@ -139,7 +139,7 @@ return [
                 'type'  => '_doc',
             ],
             'handler_with' => [
-                'client' => ClientBuilder::create()->setHosts([env('ELASTIC_HOST')])->build(),
+                'client' => ClientBuilder::create()->setHosts([env('ELASTIC_HOST', 'es01').':'.env('ELASTIC_PORT', '9200')])->build(),
             ],
         ],
 
