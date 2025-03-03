@@ -7,7 +7,8 @@
     "require": {
         "php": "^8.4",
         "inertiajs/inertia-laravel": "^2.0",
-        "jeroen-g/explorer": "^3.14",
+        "elasticsearch/elasticsearch": "^8.0",
+        "jeroen-g/explorer": "^4.00",
         "laravel/breeze": "^2.2",
         "laravel/framework": "^11.9",
         "laravel/horizon": "^5.30",

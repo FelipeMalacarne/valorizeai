@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Elastic\Elasticsearch\ClientBuilder;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -138,7 +139,7 @@ return [
                 'type'  => '_doc',
             ],
             'handler_with' => [
-                'client' => Elasticsearch\ClientBuilder::create()->setHosts([env('ELASTIC_HOST')])->build(),
+                'client' => ClientBuilder::create()->setHosts([env('ELASTIC_HOST')])->build(),
             ],
         ],
 
