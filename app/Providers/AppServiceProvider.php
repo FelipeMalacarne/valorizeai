@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -27,16 +28,41 @@ final class AppServiceProvider extends ServiceProvider
     {
         if (config('app.debug')) {
             DB::listen(function ($query) {
-                // Log::info('SQL', [
-                //     'query'    => $query->sql,
-                //     'bindings' => $query->bindings,
-                //     'time'     => $query->time,
-                // ]);
-                Log::info('Query '.$query->sql);
+                Log::info('SQL', [
+                    'query'    => $query->sql,
+                    'bindings' => $query->bindings,
+                    'time'     => $query->time,
+                ]);
             });
         }
 
-        Vite::prefetch(concurrency: 3);
+        $this->configureCommands();
+        $this->configureModels();
+        $this->configureResources();
+        $this->configureVite();
+    }
+
+    private function configureCommands(): void
+    {
+        DB::prohibitDestructiveCommands(
+            $this->app->isProduction(),
+        );
+    }
+
+    private function configureModels(): void
+    {
+        Model::shouldBeStrict();
+        Model::unguard();
+    }
+
+    private function configureResources(): void
+    {
         JsonResource::withoutWrapping();
+    }
+
+    private function configureVite(): void
+    {
+        Vite::usePrefetchStrategy('aggressive');
+        Vite::prefetch(concurrency: 3);
     }
 }

@@ -30,6 +30,8 @@ final class TransactionsController extends Controller
             ->paginate(15)
             ->withQueryString();
 
+        $transactions->load(['categories', 'account']);
+
         return Inertia::render('Transactions/Index', [
             'transactions' => TransactionResource::collection($transactions),
         ]);
