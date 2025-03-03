@@ -52,7 +52,7 @@ final class AccountController extends Controller
         $uuid = Str::uuid7();
 
         $this->bus->dispatch(new CreateAccount(
-            id: $uuid,
+            id: $uuid->toString(),
             name: $request->name,
             color: Color::from($request->color),
             userId: $request->user()->id,
