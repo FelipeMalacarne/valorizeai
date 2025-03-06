@@ -1,6 +1,6 @@
-import { CategoryBadge } from "@/Components/CategoryBadge";
-import { InlineCode } from "@/Components/InlineCodeCopy";
-import { Badge } from "@/Components/ui/badge";
+import { CategoryBadge } from "@/components/category-badge";
+import { InlineCode } from "@/components/inline-code-copy";
+import { Badge } from "@/components/ui/badge";
 import { Category, Transaction } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { IdCard } from "lucide-react";

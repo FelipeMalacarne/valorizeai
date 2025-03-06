@@ -32,7 +32,7 @@ final class TransactionsController extends Controller
 
         $transactions->load(['categories', 'account']);
 
-        return Inertia::render('Transactions/Index', [
+        return Inertia::render('transactions/index', [
             'transactions' => TransactionResource::collection($transactions),
         ]);
     }

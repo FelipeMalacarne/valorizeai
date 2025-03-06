@@ -1,13 +1,13 @@
-import { AppSidebar } from "@/Components/app-sidebar";
-import { Crumb, DynamicBreadcrumbs } from "@/Components/DynamicBreadCrumbs";
-import { ThemeToggle } from "@/Components/ThemeToggle";
-import { Separator } from "@/Components/ui/separator";
+import { AppSidebar } from "@/components/app-sidebar";
+import { Crumb, DynamicBreadcrumbs } from "@/components/DynamicBreadCrumbs";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Separator } from "@/components/ui/separator";
 import {
     SidebarInset,
     SidebarProvider,
     SidebarTrigger,
-} from "@/Components/ui/sidebar";
-import { Toaster } from "@/Components/ui/toaster";
+} from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/Providers/ThemeProvider";
 import { PropsWithChildren, ReactNode, useState } from "react";
 

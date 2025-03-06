@@ -1,4 +1,4 @@
-// import { DataTableFilterField } from "@/Pages/Transactions/Components/Types";
+// import { DataTableFilterField } from "@/Pages/Transactions/components/Types";
 // import { ColumnDef, ColumnFiltersState, RowSelectionState, SortingState, VisibilityState } from "@tanstack/react-table";
 // import { createContext, useContext, useMemo } from "react";
 

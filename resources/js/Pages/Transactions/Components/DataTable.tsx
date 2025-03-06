@@ -1,5 +1,5 @@
-import LinkPagination from "@/Components/LinkPagination";
-import { Button } from "@/Components/ui/button";
+import LinkPagination from "@/components/LinkPagination";
+import { Button } from "@/components/ui/button";
 import {
     Pagination,
     PaginationContent,
@@ -8,7 +8,7 @@ import {
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
-} from "@/Components/ui/pagination";
+} from "@/components/ui/pagination";
 import {
     Table,
     TableBody,
@@ -16,7 +16,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/Components/ui/table";
+} from "@/components/ui/table";
 import { LinkType, PaginatedResource } from "@/types";
 import {
     ColumnDef,

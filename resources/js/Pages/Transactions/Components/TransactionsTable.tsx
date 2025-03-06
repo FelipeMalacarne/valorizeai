@@ -1,19 +1,19 @@
-import { DatePickerWithRange } from "@/Components/DateRangePicker";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
+import { DatePickerWithRange } from "@/components/date-range-picker";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "@/Components/ui/select";
+} from "@/components/ui/select";
 import { PaginatedResource, Transaction } from "@/types";
 import { useEffect, useRef, useState } from "react";
 import { DateRange } from "react-day-picker";
 import { DataTable } from "./DataTable";
 import { columns } from "./Columns";
-import LinkPagination from "@/Components/LinkPagination";
+import LinkPagination from "@/components/LinkPagination";
 import { router } from "@inertiajs/react";
 
 export default function TransactionsTable({

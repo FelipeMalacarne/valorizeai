@@ -1,14 +1,16 @@
-import { DatePickerWithRange } from "@/Components/DateRangePicker";
-import { Button } from "@/Components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/Components/ui/tabs";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { DatePickerWithRange } from "@/components/date-range-picker";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
 import { PageProps, PaginatedResource, Transaction } from "@/types";
 import { addDays } from "date-fns";
 import { File } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DateRange } from "react-day-picker";
-import TransactionsTable from "./Components/TransactionsTable";
+import TransactionsTable from "./components/TransactionsTable";
 import { router } from "@inertiajs/react";
+import AppLayout from "@/layouts/app-layout";
+import { Crumb } from "@/components/breadcrumbs";
 
 export type TransactionIndexProps = {
     transactions: PaginatedResource<Transaction>;
@@ -22,26 +24,30 @@ export default function Index(props: PageProps<TransactionIndexProps>) {
         to: undefined,
     });
 
+    const breadcrumbs: Crumb[] = [
+        { label: "Minhas Transações", href: route("transactions.index") },
+    ];
 
     return (
         <>
-            {/* <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" /> */}
+            <AppLayout breadcrumbs={breadcrumbs}>
+                {/* <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" /> */}
 
-            <TransactionsTable transactions={props.transactions} />
+                <TransactionsTable transactions={props.transactions} />
 
-            <div className="flex-1 space-y-8 p-8 pt-6">
-                <div className="space-y-4">
-                    <main className="grid flex-1 items-start gap-4 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
-                        {/* <SelectedTransactionProvider> */}
-                        <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
-                            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
-                                {/* <AddTransactionCard />
+                <div className="flex-1 space-y-8 p-8 pt-6">
+                    <div className="space-y-4">
+                        <main className="grid flex-1 items-start gap-4 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
+                            {/* <SelectedTransactionProvider> */}
+                            <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2">
+                                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+                                    {/* <AddTransactionCard />
                                 <WeeklyCard />
                                 <MonthlyCard /> */}
-                            </div>
-                            <Tabs defaultValue="all">
-                                <div className="flex items-center">
-                                    {/* <TabsList>
+                                </div>
+                                <Tabs defaultValue="all">
+                                    <div className="flex items-center">
+                                        {/* <TabsList>
                                         <TabsTrigger value="all">
                                             Todas
                                         </TabsTrigger>
@@ -53,44 +59,36 @@ export default function Index(props: PageProps<TransactionIndexProps>) {
                                         </TabsTrigger>
                                     </TabsList> */}
 
-                                    <DatePickerWithRange
-                                        date={date}
-                                        setDate={setDate}
-                                    />
-                                    <div className="ml-auto flex items-center gap-2">
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="h-7 gap-1 text-sm"
-                                        >
-                                            <File className="h-3.5 w-3.5" />
-                                            <span className="sr-only sm:not-sr-only">
-                                                Export
-                                            </span>
-                                        </Button>
+                                        <DatePickerWithRange
+                                            date={date}
+                                            setDate={setDate}
+                                        />
+                                        <div className="ml-auto flex items-center gap-2">
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="h-7 gap-1 text-sm"
+                                            >
+                                                <File className="h-3.5 w-3.5" />
+                                                <span className="sr-only sm:not-sr-only">
+                                                    Export
+                                                </span>
+                                            </Button>
+                                        </div>
                                     </div>
-                                </div>
 
-                                {/* <AllTab />
+                                    {/* <AllTab />
                                 <DebitTab />
                                 <CreditTab /> */}
-                            </Tabs>
-                        </div>
+                                </Tabs>
+                            </div>
 
-                        {/* <SingleTransactionCard /> */}
-                        {/* </SelectedTransactionProvider> */}
-                    </main>
+                            {/* <SingleTransactionCard /> */}
+                            {/* </SelectedTransactionProvider> */}
+                        </main>
+                    </div>
                 </div>
-            </div>
+            </AppLayout>
         </>
     );
 }
-
-Index.layout = (page: any) => (
-    <AuthenticatedLayout
-        children={page}
-        breadcrumbs={[
-            { label: "Minhas Transações", href: route("transactions.index") },
-        ]}
-    />
-);

@@ -5,9 +5,11 @@ import {
     Bot,
     Command,
     DollarSign,
+    Folder,
     Frame,
     GalleryVerticalEnd,
     HomeIcon,
+    Icon,
     LandmarkIcon,
     Map,
     PieChart,
@@ -22,16 +24,14 @@ import {
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
-    SidebarMenuItem,
     SidebarRail,
-} from "@/Components/ui/sidebar";
-import { NavMain } from "@/Components/nav-main";
-import { TeamSwitcher } from "@/Components/team-switcher";
-import { NavProjects } from "@/Components/nav-projects";
-import { NavUser } from "@/Components/nav-user";
+} from "@/components/ui/sidebar";
+import { NavMain } from "@/components/nav-main";
+import { TeamSwitcher } from "@/components/team-switcher";
+import { NavProjects } from "@/components/nav-projects";
+import { NavUser } from "@/components/nav-user";
 import { Link, router, usePage } from "@inertiajs/react";
-import ApplicationLogo from "./ApplicationLogo";
-// This is sample data.
+import { NavFooter } from "./nav-footer";
 const data = {
     user: {
         name: "shadcn",
@@ -161,15 +161,34 @@ const data = {
     ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-    const user = usePage().props.auth.user;
+export type NavItem = {
+    title: string;
+    url: string;
+    icon?: React.ComponentType<React.ComponentProps<typeof Icon>>;
+};
 
+const footerNavItems: NavItem[] = [
+    {
+        title: "Repository",
+        url: "https://github.com/laravel/react-starter-kit",
+        icon: Folder,
+    },
+    {
+        title: "Documentation",
+        url: "https://laravel.com/docs/starter-kits",
+        icon: BookOpen,
+    },
+];
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
         <Sidebar collapsible="icon" {...props}>
             <SidebarHeader>
-                {/* <ApplicationLogo className="h-12" /> */}
+                {/* <ApplicationLogo className="h-12" />
+                <AppLogo /> */}
                 <TeamSwitcher teams={data.teams} />
             </SidebarHeader>
+
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarMenu>
@@ -199,13 +218,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <NavProjects projects={data.projects} />
             </SidebarContent>
             <SidebarFooter>
-                <NavUser
-                    user={{
-                        name: user.name,
-                        email: user.email,
-                        avatar: "/avatars/shadcn.jpg",
-                    }}
-                />
+                <NavFooter items={footerNavItems} className="mt-auto" />
+                <NavUser />
             </SidebarFooter>
             <SidebarRail />
         </Sidebar>

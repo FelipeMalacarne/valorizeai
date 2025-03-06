@@ -40,7 +40,7 @@ final class AccountController extends Controller
             ->orderByDesc('created_at')
             ->paginate(15);
 
-        return Inertia::render('Accounts/Index', [
+        return Inertia::render('accounts/index', [
             'filters'  => request()->all('search', 'trashed'),
             'accounts' => AccountResource::collection($accounts),
             'colors'   => Color::cases(),
@@ -71,7 +71,7 @@ final class AccountController extends Controller
 
         Gate::authorize('view', $account);
 
-        return Inertia::render('Accounts/Show', [
+        return Inertia::render('accounts/show', [
             'account' => AccountResource::make($account),
         ]);
     }
@@ -106,7 +106,7 @@ final class AccountController extends Controller
 
         $this->bus->dispatch(new DeleteAccount(
             accountId: $account->id,
-            commanderId: $user->id,
+            commanderId: $this->user->id,
         ));
     }
 }
