@@ -15,7 +15,6 @@ export function AppSidebarHeader({
                 <Separator orientation="vertical" className="mr-2 h-4" />
                 <Breadcrumbs breadcrumbs={breadcrumbs} />
             </div>
-            <ThemeToggle className="mr-2" />
         </header>
     );
 }
