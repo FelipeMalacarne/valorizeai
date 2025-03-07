@@ -129,19 +129,20 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
-        'es' => [
-            'driver'         => 'monolog',
-            'level'          => 'debug',
-            'handler'        => Monolog\Handler\ElasticsearchHandler::class,
-            'formatter'      => Monolog\Formatter\ElasticsearchFormatter::class,
-            'formatter_with' => [
-                'index' => env('ELASTIC_LOGS_INDEX'),
-                'type'  => '_doc',
-            ],
-            'handler_with' => [
-                'client' => ClientBuilder::create()->setHosts([env('ELASTIC_HOST', 'es01').':'.env('ELASTIC_PORT', '9200')])->build(),
-            ],
-        ],
+        // TODO:  implement the elastic client on serrvice provider
+        // 'es' => [
+        //     'driver'         => 'monolog',
+        //     'level'          => 'debug',
+        //     'handler'        => Monolog\Handler\ElasticsearchHandler::class,
+        //     'formatter'      => Monolog\Formatter\ElasticsearchFormatter::class,
+        //     'formatter_with' => [
+        //         'index' => env('ELASTIC_LOGS_INDEX'),
+        //         'type'  => '_doc',
+        //     ],
+        //     'handler_with' => [
+        //         'client' => ClientBuilder::create()->setHosts([env('ELASTIC_HOST', 'es01').':'.env('ELASTIC_PORT', '9200')])->build(),
+        //     ],
+        // ],
 
     ],
 
