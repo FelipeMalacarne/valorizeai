@@ -45,14 +45,12 @@ export default function TransactionsTable({
 
         const params = new URLSearchParams(window.location.search);
 
-        // Update the "search" parameter based on input:
         if (query.search) {
             params.set("search", query.search);
         } else {
             params.delete("search");
         }
 
-        // Similarly for orderBy parameters:
         if (query.orderBy.column) {
             params.set("orderBy[column]", query.orderBy.column);
         } else {
@@ -64,17 +62,7 @@ export default function TransactionsTable({
             params.delete("orderBy[direction]");
         }
 
-        // For date parameters, you could do the same if needed:
-        // if (date.from) {
-        //   params.set('from', new Date(date.from).toISOString());
-        // } else {
-        //   params.delete('from');
-        // }
-        // if (date.to) {
-        //   params.set('to', new Date(date.to).toISOString());
-        // } else {
-        //   params.delete('to');
-        // }
+        params.delete("page");
 
         console.log(params.toString());
         router.get(
