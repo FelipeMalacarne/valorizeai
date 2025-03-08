@@ -40,6 +40,7 @@ final class AppServiceProvider extends ServiceProvider
         $this->configureModels();
         $this->configureResources();
         $this->configureVite();
+        $this->configureTelescope();
     }
 
     private function configureCommands(): void
@@ -64,5 +65,13 @@ final class AppServiceProvider extends ServiceProvider
     {
         Vite::usePrefetchStrategy('aggressive');
         Vite::prefetch(concurrency: 3);
+    }
+
+    private function configureTelescope(): void
+    {
+        if ($this->app->environment('local') && class_exists(\Laravel\Telescope\TelescopeServiceProvider::class)) {
+            $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
+            $this->app->register(TelescopeServiceProvider::class);
+        }
     }
 }
