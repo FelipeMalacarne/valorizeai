@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace App\Support\CQRS;
 
-/**
- * @template T
- * @template Q of Query<T>
- */
 interface QueryHandler
 {
     // /**

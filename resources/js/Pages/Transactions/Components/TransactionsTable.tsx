@@ -29,6 +29,7 @@ export default function TransactionsTable({
 
     const [query, setQuery] = useState({
         search: "",
+        // category: Category,
         orderBy: {
             column: "created_at",
             direction: "desc",

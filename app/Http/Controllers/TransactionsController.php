@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Domain\Category\Projections\Category;
-use App\Domain\Explorer\Enums\MultiMatchType;
-use App\Domain\Explorer\Syntax\MultiMatch;
-use App\Domain\Transaction\Projections\Transaction;
+use App\Domain\Category\Queries\ListCategoriesQuery;
 use App\Domain\Transaction\Queries\IndexTransactionsQuery;
+use App\Http\Resources\CategoryResource;
 use App\Http\Resources\TransactionResource;
 use App\Models\User;
 use App\Support\CQRS\Query;
 use App\Support\CQRS\QueryBusContract;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\EventSourcing\Commands\CommandBus;
@@ -23,7 +20,7 @@ use Spatie\EventSourcing\Commands\CommandBus;
 final class TransactionsController extends Controller
 {
     /**
-     * @param QueryBusContract<mixed,Query<T>> $queryBus
+     * @param  QueryBusContract<mixed,Query<T>>  $queryBus
      */
     public function __construct(
         private CommandBus $commandBus,
@@ -35,15 +32,15 @@ final class TransactionsController extends Controller
     {
         $transactions = $this->queryBus->dispatch($query);
 
-        $transactions->load(['categories', 'account']);
-
-        $categories = Cache::remember("categories:{$this->user->id}", now()->addMinutes(10), function () {
-            return Category::whereUser($this->user->id)->get();
-        });
+        $categories = $this->queryBus->dispatch(
+            ListCategoriesQuery::from([
+                'user_id' => $this->user->id,
+            ])
+        );
 
         return Inertia::render('transactions/index', [
             'transactions' => TransactionResource::collection($transactions),
-            'categories'   => $categories,
+            'categories'   => CategoryResource::collection($categories),
         ]);
     }
 

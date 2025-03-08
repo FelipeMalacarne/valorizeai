@@ -39,9 +39,14 @@ final class IndexTransactionsQueryHandler implements QueryHandler
             ));
         }
 
-        return $builder->whereIn('account_id', $accounts)
+        $transactions = $builder->whereIn('account_id', $accounts)
             ->orderByDesc('created_at')
             ->paginate($query->perPage)
             ->withQueryString();
+
+        $transactions->load(['categories', 'account']);
+
+        return $transactions;
+
     }
 }

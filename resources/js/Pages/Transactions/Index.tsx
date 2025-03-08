@@ -2,7 +2,7 @@ import { DatePickerWithRange } from "@/components/date-range-picker";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
-import { PageProps, PaginatedResource, Transaction } from "@/types";
+import { Category, PageProps, PaginatedResource, Transaction } from "@/types";
 import { addDays } from "date-fns";
 import { File } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -14,10 +14,12 @@ import { Crumb } from "@/components/breadcrumbs";
 
 export type TransactionIndexProps = {
     transactions: PaginatedResource<Transaction>;
+    categories: Category[];
 };
 
 export default function Index(props: PageProps<TransactionIndexProps>) {
     console.log(props.transactions);
+    console.log(props.categories);
 
     const [date, setDate] = useState<DateRange | undefined>({
         from: undefined,
