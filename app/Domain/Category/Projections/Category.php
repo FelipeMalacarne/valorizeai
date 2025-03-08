@@ -34,15 +34,17 @@ final class Category extends Projection
     {
         return $this->belongsToMany(Transaction::class);
     }
+
     /**
-     * @param Builder<Model> $query
+     * @param  Builder<Model>  $query
      */
     public function scopeDefault(Builder $query): Builder
     {
         return $query->where('is_default', true);
     }
+
     /**
-     * @param Builder<Model> $query
+     * @param  Builder<Model>  $query
      */
     public function scopeWhereUser(Builder $query, string $userId): Builder
     {
