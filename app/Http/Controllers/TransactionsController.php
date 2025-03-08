@@ -4,52 +4,46 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Domain\Category\Projections\Category;
 use App\Domain\Explorer\Enums\MultiMatchType;
 use App\Domain\Explorer\Syntax\MultiMatch;
 use App\Domain\Transaction\Projections\Transaction;
+use App\Domain\Transaction\Queries\IndexTransactionsQuery;
 use App\Http\Resources\TransactionResource;
 use App\Models\User;
+use App\Support\CQRS\Query;
+use App\Support\CQRS\QueryBusContract;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\EventSourcing\Commands\CommandBus;
 
 final class TransactionsController extends Controller
 {
+    /**
+     * @param QueryBusContract<mixed,Query<T>> $queryBus
+     */
     public function __construct(
-        private CommandBus $bus,
+        private CommandBus $commandBus,
+        private QueryBusContract $queryBus,
         #[CurrentUser] private User $user
     ) {}
 
-    public function index(Request $request): Response
+    public function index(IndexTransactionsQuery $query): Response
     {
-        $accounts = $this->user->accounts()->pluck('id')->toArray();
-
-        $search = $request->query('search');
-
-        $transactions = Transaction::search()
-            ->when($search, fn ($query) => $query->must(new MultiMatch(
-                value: $search,
-                fields: [
-                    'description',
-                    'description._2gram',
-                    'description._3gram',
-                    'memo',
-                    'memo._2gram',
-                    'memo._3gram',
-                ],
-                type: MultiMatchType::BOOL_PREFIX,
-            )))
-            ->whereIn('account_id', $accounts)
-            ->orderByDesc('created_at')
-            ->paginate(15)
-            ->withQueryString();
+        $transactions = $this->queryBus->dispatch($query);
 
         $transactions->load(['categories', 'account']);
 
+        $categories = Cache::remember("categories:{$this->user->id}", now()->addMinutes(10), function () {
+            return Category::whereUser($this->user->id)->get();
+        });
+
         return Inertia::render('transactions/index', [
             'transactions' => TransactionResource::collection($transactions),
+            'categories'   => $categories,
         ]);
     }
 
