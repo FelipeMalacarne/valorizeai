@@ -45,14 +45,14 @@ final class TransactionAggregate extends AggregateRoot
     public function register(RegisterTransaction $command): self
     {
         $this->recordThat(new Registered(
-            amount: $command->amount(),
-            currency: $command->currency(),
-            datePosted: $command->datePosted(),
-            fitid: $command->fitid(),
-            memo: $command->memo(),
-            accountNumber: $command->accountNumber(),
-            accountId: $command->accountId(),
-            description: $command->description(),
+            amount: $command->amount,
+            currency: $command->currency,
+            datePosted: $command->datePosted,
+            fitid: $command->fitid,
+            memo: $command->memo,
+            accountNumber: $command->accountNumber,
+            accountId: $command->accountId,
+            description: $command->description,
         ));
 
         return $this;

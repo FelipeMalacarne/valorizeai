@@ -19,7 +19,7 @@ final class AccountAggregateTest extends TestCase
 {
     public function test_create_account(): void
     {
-        $uuid = Str::uuid7();
+        $uuid = Str::uuid7()->toString();
         $bus = app(CommandBus::class);
 
         $user = User::factory()->create();
@@ -47,7 +47,7 @@ final class AccountAggregateTest extends TestCase
 
     public function test_adjust_balance(): void
     {
-        $uuid = Str::uuid7();
+        $uuid = Str::uuid7()->toString();
         $bus = app(CommandBus::class);
         $user = User::factory()->create();
 
@@ -79,7 +79,7 @@ final class AccountAggregateTest extends TestCase
 
     public function test_update_account_details(): void
     {
-        $uuid = Str::uuid7();
+        $uuid = Str::uuid7()->toString();
         $bus = app(CommandBus::class);
         $user = User::factory()->create();
 
@@ -126,7 +126,7 @@ final class AccountAggregateTest extends TestCase
 
     public function test_delete_account(): void
     {
-        $uuid = Str::uuid7();
+        $uuid = Str::uuid7()->toString();
         $bus = app(CommandBus::class);
         $user = User::factory()->create();
 

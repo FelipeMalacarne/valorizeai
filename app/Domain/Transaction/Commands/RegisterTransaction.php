@@ -5,64 +5,23 @@ declare(strict_types=1);
 namespace App\Domain\Transaction\Commands;
 
 use App\Domain\Transaction\TransactionAggregate;
-use DateTimeImmutable;
+use Illuminate\Support\Carbon;
 use Spatie\EventSourcing\Commands\AggregateUuid;
 use Spatie\EventSourcing\Commands\HandledBy;
+use Spatie\LaravelData\Data;
 
 #[HandledBy(TransactionAggregate::class)]
-final class RegisterTransaction
+final class RegisterTransaction extends Data
 {
     public function __construct(
         #[AggregateUuid] public string $id,
-        private int $amount,
-        private string $currency,
-        private string $accountId,
-        private ?string $fitid = null,
-        private ?string $memo = null,
-        private ?string $accountNumber = null,
-        private ?DateTimeImmutable $datePosted = null,
-        private ?string $description = null,
-    ) {
-        $this->datePosted = $this->datePosted ?? new DateTimeImmutable;
-    }
-
-    public function amount(): int
-    {
-        return $this->amount;
-    }
-
-    public function currency(): string
-    {
-        return $this->currency;
-    }
-
-    public function accountId(): string
-    {
-        return $this->accountId;
-    }
-
-    public function fitid(): ?string
-    {
-        return $this->fitid;
-    }
-
-    public function memo(): ?string
-    {
-        return $this->memo;
-    }
-
-    public function accountNumber(): ?string
-    {
-        return $this->accountNumber;
-    }
-
-    public function datePosted(): DateTimeImmutable
-    {
-        return $this->datePosted;
-    }
-
-    public function description(): ?string
-    {
-        return $this->description;
-    }
+        public int $amount,
+        public string $currency,
+        public string $accountId,
+        public ?string $fitid = null,
+        public ?string $memo = null,
+        public ?string $accountNumber = null,
+        public Carbon $datePosted = new Carbon,
+        public ?string $description = null,
+    ) {}
 }

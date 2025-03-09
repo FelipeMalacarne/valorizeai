@@ -9,6 +9,7 @@ use App\Domain\Account\Projections\Account;
 use App\Domain\Category\Projections\Category;
 use App\Domain\Transaction\Projections\Transaction;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use User;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Domain\Transaction\Projections\Transaction>
@@ -42,7 +43,7 @@ final class TransactionFactory extends Factory
         });
     }
 
-    public function fromUser($user)
+    public function fromUser(User $user): static
     {
         return $this->state(fn (array $attributes) => [
             'account_id' => Account::factory()->create(['user_id' => $user->id])->id,

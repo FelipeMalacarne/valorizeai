@@ -53,7 +53,7 @@ final class AccountBalanceProjectorTest extends TestCase
 
         $event = new AccountDeleted(
             accountId: $account->id,
-            commanderId: Str::uuid7(),
+            commanderId: Str::uuid7()->toString(),
         );
 
         $this->projector->onAccountDeleted($event);
@@ -70,7 +70,7 @@ final class AccountBalanceProjectorTest extends TestCase
         ]);
 
         $bus = app(CommandBus::class);
-        $transaction_id = Str::uuid7();
+        $transaction_id = Str::uuid7()->toString();
         $bus->dispatch(new RegisterTransaction(
             id: $transaction_id,
             accountId: $account->id,

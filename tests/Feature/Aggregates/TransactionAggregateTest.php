@@ -22,7 +22,7 @@ final class TransactionAggregateTest extends TestCase
      */
     public function test_register(): void
     {
-        $uuid = Str::uuid7();
+        $uuid = Str::uuid7()->toString();
 
         $account = Account::factory()->create();
 
@@ -53,7 +53,7 @@ final class TransactionAggregateTest extends TestCase
 
     public function test_delete(): void
     {
-        $uuid = Str::uuid7();
+        $uuid = Str::uuid7()->toString();
         $account = Account::factory()->create();
         $bus = app(CommandBus::class);
 
@@ -95,7 +95,7 @@ final class TransactionAggregateTest extends TestCase
 
     public function test_amend_amount(): void
     {
-        $uuid = Str::uuid7();
+        $uuid = Str::uuid7()->toString();
         $account = Account::factory()->create();
         $bus = app(CommandBus::class);
         $bus->dispatch(new RegisterTransaction(
@@ -136,7 +136,7 @@ final class TransactionAggregateTest extends TestCase
 
     public function test_account_balance_after_amend_amount(): void
     {
-        $uuid = Str::uuid7();
+        $uuid = Str::uuid7()->toString();
         $account = Account::factory()->create([
             'balance' => 5000,
         ]);
@@ -188,7 +188,7 @@ final class TransactionAggregateTest extends TestCase
 
     public function test_account_after_register_transaction(): void
     {
-        $uuid = Str::uuid7();
+        $uuid = Str::uuid7()->toString();
         $account = Account::factory()->create([
             'balance' => 5000,
         ]);
@@ -224,7 +224,7 @@ final class TransactionAggregateTest extends TestCase
 
     public function test_account_balance_after_delete_transaction(): void
     {
-        $uuid = Str::uuid7();
+        $uuid = Str::uuid7()->toString();
         $account = Account::factory()->create([
             'balance' => 5000,
         ]);
