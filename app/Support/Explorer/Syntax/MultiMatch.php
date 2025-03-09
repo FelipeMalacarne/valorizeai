@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Explorer\Syntax;
+namespace App\Support\Explorer\Syntax;
 
-use App\Domain\Explorer\Enums\MultiMatchType;
+use App\Support\Explorer\Enums\MultiMatchType;
 use JeroenG\Explorer\Domain\Syntax\MultiMatch as ExplorerMultiMatch;
 
 final class MultiMatch extends ExplorerMultiMatch
