@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Queries;
 
+use App\Domain\Account\Projections\Account;
 use App\Domain\Category\Projections\Category;
 use App\Domain\Transaction\Projections\Transaction;
 use App\Domain\Transaction\Queries\IndexTransactionsQuery;
@@ -85,5 +86,40 @@ final class IndexTransactionQueryTest extends TestCase
         $items = $result->getCollection();
 
         $this->assertCount(3, $items);
+        $this->assertDatabaseCount('transactions', 13);
+    }
+
+    public function test_it_filters_by_account(): void
+    {
+        $user = User::factory()->create();
+
+        $account = Account::factory()->create(['user_id' => $user->id]);
+
+        $transactions = Transaction::factory()
+            ->fromUser($user)
+            ->withRandomCategories()
+            ->count(10)
+            ->create();
+
+        $target_transactions = Transaction::factory()
+            ->fromUser($user)
+            ->count(3)
+            ->create([
+                'account_id' => $account->id,
+            ]);
+
+        sleep(1);
+
+        $handler = new IndexTransactionsQueryHandler;
+        $query = new IndexTransactionsQuery(
+            user_id: $user->id,
+            account_id: $account->id,
+        );
+
+        $result = $handler->handle($query);
+        $items = $result->getCollection();
+
+        $this->assertCount(3, $items);
+        $this->assertDatabaseCount('transactions', 13);
     }
 }
