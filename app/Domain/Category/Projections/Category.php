@@ -7,7 +7,9 @@ namespace App\Domain\Category\Projections;
 use App\Concerns\HasV7Uuids;
 use App\Domain\Account\Enums\Color;
 use App\Domain\Transaction\Projections\Transaction;
+use Database\Factories\CategoryFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -22,10 +24,14 @@ final class Category extends Projection
         'id',
         'name',
         'color',
-        'description',
         'is_default',
         'user_id',
     ];
+
+    public static function newFactory(): Factory
+    {
+        return CategoryFactory::new();
+    }
 
     /**
      * @return BelongsToMany<Transaction,Category>
