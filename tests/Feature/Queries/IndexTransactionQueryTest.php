@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Queries;
 
+use App\Domain\Category\Projections\Category;
 use App\Domain\Transaction\Projections\Transaction;
 use App\Domain\Transaction\Queries\IndexTransactionsQuery;
 use App\Domain\Transaction\Queries\IndexTransactionsQueryHandler;
@@ -46,5 +47,43 @@ final class IndexTransactionQueryTest extends TestCase
         $items->each(function (Transaction $transaction) use ($user) {
             $this->assertEquals($user->id, $transaction->account->user->id);
         });
+    }
+
+    public function test_it_filters_by_category(): void
+    {
+        $user = User::factory()->create();
+
+        $transactions = Transaction::factory()
+            ->fromUser($user)
+            ->withRandomCategories()
+            ->count(10)
+            ->create();
+
+        $test_category = Category::factory()
+            ->isDefault()
+            ->create(['name' => 'Test Category']);
+
+        $target_transactions = Transaction::factory()
+            ->fromUser($user)
+            ->count(3)
+            ->create();
+
+        $target_transactions
+            ->each(fn ($transaction) => $transaction->categories()->attach($test_category))
+            ->each(fn ($transaction) => $transaction->touch());
+
+        // wait for elastic indexing
+        sleep(1);
+
+        $handler = new IndexTransactionsQueryHandler;
+        $query = new IndexTransactionsQuery(
+            user_id: $user->id,
+            category_id: $test_category->id
+        );
+
+        $result = $handler->handle($query);
+        $items = $result->getCollection();
+
+        $this->assertCount(3, $items);
     }
 }
