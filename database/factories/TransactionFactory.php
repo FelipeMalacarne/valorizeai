@@ -32,7 +32,7 @@ final class TransactionFactory extends Factory
         ];
     }
 
-    public function configure(): static
+    public function withRandomCategories(): static
     {
         return $this->afterCreating(function (Transaction $transaction) {
             $transaction->categories()

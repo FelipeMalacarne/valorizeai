@@ -21,6 +21,7 @@ final class TransactionSeeder extends Seeder
         ]);
 
         Transaction::factory()
+            ->withRandomCategories()
             ->fromUser($user)
             ->count(100)
             ->create();
