@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Feature\Settings;
 
 use App\Models\User;
@@ -7,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
-class PasswordUpdateTest extends TestCase
+final class PasswordUpdateTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -19,8 +21,8 @@ class PasswordUpdateTest extends TestCase
             ->actingAs($user)
             ->from('/settings/password')
             ->put('/settings/password', [
-                'current_password' => 'password',
-                'password' => 'new-password',
+                'current_password'      => 'password',
+                'password'              => 'new-password',
                 'password_confirmation' => 'new-password',
             ]);
 
@@ -39,8 +41,8 @@ class PasswordUpdateTest extends TestCase
             ->actingAs($user)
             ->from('/settings/password')
             ->put('/settings/password', [
-                'current_password' => 'wrong-password',
-                'password' => 'new-password',
+                'current_password'      => 'wrong-password',
+                'password'              => 'new-password',
                 'password_confirmation' => 'new-password',
             ]);
 
