@@ -7,16 +7,13 @@ namespace App\Http\Controllers;
 use App\Domain\Account\Commands\CreateAccount;
 use App\Domain\Account\Commands\DeleteAccount;
 use App\Domain\Account\Enums\Color;
-use App\Domain\Account\Enums\Type;
 use App\Domain\Account\Projections\Account;
-use App\Http\Requests\StoreAccountRequest;
 use App\Http\Resources\AccountResource;
 use App\Models\User;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\EventSourcing\Commands\CommandBus;
@@ -47,20 +44,9 @@ final class AccountController extends Controller
         ]);
     }
 
-    public function store(StoreAccountRequest $request): JsonResponse
+    public function store(CreateAccount $command): JsonResponse
     {
-        $uuid = Str::uuid7();
-
-        $this->bus->dispatch(new CreateAccount(
-            id: $uuid->toString(),
-            name: $request->name,
-            color: Color::from($request->color),
-            userId: $request->user()->id,
-            description: $request->description,
-            number: $request->number,
-            type: Type::from($request->type),
-            bankCode: $request->bank_code
-        ));
+        $this->bus->dispatch($command);
 
         return response()->json(['message' => 'Conta criada com sucesso'], 201);
     }

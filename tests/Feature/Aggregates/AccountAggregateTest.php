@@ -29,9 +29,10 @@ final class AccountAggregateTest extends TestCase
             name: 'Test Account',
             color: Color::Lavender,
             type: Type::CHECKING,
-            userId: $user->id,
-            bankCode: '001',
+            user_id: $user->id,
+            bank_code: '001',
             description: 'Test Description',
+            number: null,
         ));
 
         $this->assertDatabaseHas('accounts', [
@@ -56,9 +57,10 @@ final class AccountAggregateTest extends TestCase
             name: 'Test Account',
             color: Color::Lavender,
             type: Type::CHECKING,
-            userId: $user->id,
-            bankCode: '001',
+            user_id: $user->id,
+            bank_code: '001',
             description: 'Test Description',
+            number: null,
         ));
 
         $this->assertDatabaseHas('accounts', [
@@ -88,9 +90,10 @@ final class AccountAggregateTest extends TestCase
             name: 'Test Account',
             color: Color::Lavender,
             type: Type::CHECKING,
-            userId: $user->id,
-            bankCode: '001',
+            user_id: $user->id,
+            bank_code: '001',
             description: 'Test Description',
+            number: null,
         ));
 
         $this->assertDatabaseHas('accounts', [
@@ -135,9 +138,10 @@ final class AccountAggregateTest extends TestCase
             name: 'Test Account',
             color: Color::Lavender,
             type: Type::CHECKING,
-            userId: $user->id,
-            bankCode: '001',
+            user_id: $user->id,
+            bank_code: '001',
             description: 'Test Description',
+            number: null,
         ));
 
         $this->assertDatabaseHas('accounts', [
