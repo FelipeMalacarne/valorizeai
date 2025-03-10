@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Transaction\Queries;
 
-use App\Domain\Explorer\Enums\MultiMatchType;
-use App\Domain\Explorer\Syntax\MultiMatch;
 use App\Domain\Transaction\Projections\Transaction;
 use App\Support\CQRS\QueryHandler;
+use App\Support\Explorer\Enums\MultiMatchType;
+use App\Support\Explorer\Syntax\MultiMatch;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 
