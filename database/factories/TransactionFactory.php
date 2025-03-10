@@ -8,8 +8,8 @@ use App\Concerns\SupportsProjections;
 use App\Domain\Account\Projections\Account;
 use App\Domain\Category\Projections\Category;
 use App\Domain\Transaction\Projections\Transaction;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use User;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Domain\Transaction\Projections\Transaction>

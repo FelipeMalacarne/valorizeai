@@ -41,10 +41,10 @@ return [
     | This option allows you to control if the operations that sync your data
     | with your search engines are queued. When this is set to "true" then
     | all automatic data syncing will get queued for better performance.
-    |
+    | #### scout queue doesnt work great
     */
 
-    'queue' => env('SCOUT_QUEUE', false),
+    'queue' => false,
 
     /*
     |--------------------------------------------------------------------------

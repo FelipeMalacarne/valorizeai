@@ -22,7 +22,7 @@ final class TransactionSeeder extends Seeder
 
         Transaction::factory()
             ->fromUser($user)
-            ->count(1000)
+            ->count(100)
             ->create();
     }
 }

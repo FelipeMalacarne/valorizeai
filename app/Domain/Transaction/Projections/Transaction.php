@@ -7,6 +7,7 @@ namespace App\Domain\Transaction\Projections;
 use App\Concerns\HasV7Uuids;
 use App\Domain\Account\Projections\Account;
 use App\Domain\Category\Projections\Category;
+use App\Domain\Transaction\Concerns\SearchesTransactions;
 use Database\Factories\TransactionFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -15,13 +16,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Number;
 use JeroenG\Explorer\Application\Explored;
-use Laravel\Scout\Searchable;
 use Spatie\EventSourcing\Projections\Projection;
 
 final class Transaction extends Projection implements Explored
 {
     /** @use HasFactory<\Database\Factories\TransactionFactory> */
-    use HasFactory, HasV7Uuids, Searchable;
+    use HasFactory, HasV7Uuids, SearchesTransactions;
 
     protected $fillable = [
         'id',
@@ -44,23 +44,6 @@ final class Transaction extends Projection implements Explored
     public static function newFactory(): Factory
     {
         return TransactionFactory::new();
-    }
-
-    public function mappableAs(): array
-    {
-        return [
-            'id'             => 'keyword',
-            'fitid'          => 'keyword',
-            'account_id'     => 'keyword',
-            'account_number' => 'keyword',
-            'currency'       => 'keyword',
-            'amount'         => 'integer',
-            'memo'           => 'search_as_you_type',
-            'description'    => 'search_as_you_type',
-            'date_posted'    => 'date',
-            'created_at'     => 'date',
-            'updated_at'     => 'date',
-        ];
     }
 
     /**
