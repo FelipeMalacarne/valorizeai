@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Explorer\Enums;
+namespace App\Support\Explorer\Enums;
 
 enum MultiMatchType: string
 {
