@@ -39,12 +39,12 @@ final class IndexTransactionsQueryHandler implements QueryHandler
             ));
         }
 
-        if ($query->account_id) {
-            $builder->must(new Term('account_id', $query->account_id));
+        if ($query->accounts) {
+            $builder->whereIn('account_id', $query->accounts);
         }
 
-        if ($query->category_id) {
-            $builder->must(new Term('categories', $query->category_id));
+        if ($query->categories) {
+            $builder->whereIn('categories', $query->categories);
         }
 
         $transactions = $builder
