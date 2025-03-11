@@ -146,6 +146,15 @@ function DatePresets({
                         </Button>
                     );
                 })}
+                {/* clear range */}
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onSelect({ from: undefined, to: undefined })}
+                    className="flex items-center justify-between gap-6"
+                >
+                    <span className="mr-auto">Clear</span>
+                </Button>
             </div>
         </div>
     );
