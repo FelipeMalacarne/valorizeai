@@ -70,6 +70,10 @@ export enum Color {
     Sapphire = "sapphire",
 }
 
+export type Resource<T> = {
+    data: T;
+};
+
 export type Account = {
     id: string;
     name: string;

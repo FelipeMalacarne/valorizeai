@@ -1,20 +1,23 @@
 import { DatePickerWithRange } from "@/components/date-range-picker";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AuthenticatedLayout from "@/layouts/AuthenticatedLayout";
-import { Category, PageProps, PaginatedResource, Transaction } from "@/types";
-import { addDays } from "date-fns";
+import { Tabs } from "@/components/ui/tabs";
+import {
+    Category,
+    PageProps,
+    PaginatedResource,
+    Resource,
+    Transaction,
+} from "@/types";
 import { File } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DateRange } from "react-day-picker";
 import TransactionsTable from "./components/TransactionsTable";
-import { router } from "@inertiajs/react";
 import AppLayout from "@/layouts/app-layout";
 import { Crumb } from "@/components/breadcrumbs";
 
 export type TransactionIndexProps = {
     transactions: PaginatedResource<Transaction>;
-    categories: Category[];
+    categories: Resource<Category[]>;
 };
 
 export default function Index(props: PageProps<TransactionIndexProps>) {
