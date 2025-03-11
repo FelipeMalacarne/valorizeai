@@ -6,7 +6,9 @@ namespace App\Support\Data;
 
 use App\Support\Enums\OrderByDirection;
 use Spatie\LaravelData\Data;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
+#[TypeScript]
 final class OrderBy extends Data
 {
     public function __construct(

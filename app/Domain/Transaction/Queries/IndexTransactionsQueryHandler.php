@@ -53,7 +53,7 @@ final class IndexTransactionsQueryHandler implements QueryHandler
                 direction: $query->order_by?->direction ?? 'desc'
             )
             ->paginate(
-                perPage: $query->perPage,
+                perPage: $query->per_page,
                 pageName: 'page',
                 page: $query->page
             )
