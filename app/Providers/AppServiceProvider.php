@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Vite;
@@ -38,7 +37,6 @@ final class AppServiceProvider extends ServiceProvider
 
         $this->configureCommands();
         $this->configureModels();
-        $this->configureResources();
         $this->configureVite();
         $this->configureTelescope();
     }
@@ -54,11 +52,6 @@ final class AppServiceProvider extends ServiceProvider
     {
         Model::shouldBeStrict();
         Model::unguard();
-    }
-
-    private function configureResources(): void
-    {
-        JsonResource::withoutWrapping();
     }
 
     private function configureVite(): void
