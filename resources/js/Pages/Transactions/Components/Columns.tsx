@@ -25,7 +25,7 @@ export const columns: ColumnDef<Transaction>[] = [
         header: "ID",
         cell: ({ row }) => {
             const idValue = row.getValue("id") as string;
-            return <InlineCode code={idValue} />;
+            return <InlineCode className="max-w-[300px] truncate" code={idValue} />;
         },
     },
     {
@@ -33,17 +33,17 @@ export const columns: ColumnDef<Transaction>[] = [
         header: "amount",
         cell: ({ row }) => {
             const value = row.getValue("money") as number;
-            return <div className="text-right font-medium">{row.getValue("money")}</div>
+            return <div className="font-medium">{row.getValue("money")}</div>
         },
     },
-    // {
-    //     accessorKey: "fitid",
-    //     header: "Fit ID",
-    //     cell: ({ row }) => {
-    //         const value = row.getValue("fitid") as string;
-    //         return <div className="max-w-[200px] truncate">{value}</div>;
-    //     },
-    // },
+    {
+        accessorKey: "fitid",
+        header: "Fit ID",
+        cell: ({ row }) => {
+            const value = row.getValue("fitid") as string;
+            return <div className="max-w-[200px] truncate">{value}</div>;
+        },
+    },
     {
         accessorKey: "memo",
         header: "Memo",
