@@ -9,7 +9,6 @@ use App\Support\CQRS\QueryHandler;
 use App\Support\Explorer\Enums\MultiMatchType;
 use App\Support\Explorer\Syntax\MultiMatch;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use JeroenG\Explorer\Domain\Syntax\Term;
 
 /**
  * @implements QueryHandler<LengthAwarePaginator<Transaction>, IndexTransactionsQuery>

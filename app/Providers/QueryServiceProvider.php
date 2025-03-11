@@ -21,6 +21,7 @@ final class QueryServiceProvider extends ServiceProvider
         $handlers = [
             \App\Domain\Transaction\Queries\IndexTransactionsQueryHandler::class,
             \App\Domain\Category\Queries\ListCategoriesQueryHandler::class,
+            \App\Domain\Account\Queries\ListAccountsQueryHandler::class,
         ];
 
         // [ QueryFQN => HandlerFQN ]

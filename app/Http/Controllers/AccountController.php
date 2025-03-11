@@ -8,8 +8,10 @@ use App\Domain\Account\Commands\CreateAccount;
 use App\Domain\Account\Commands\DeleteAccount;
 use App\Domain\Account\Enums\Color;
 use App\Domain\Account\Projections\Account;
+use App\Domain\Account\Queries\ListAccountsQuery;
 use App\Http\Resources\AccountResource;
 use App\Models\User;
+use App\Support\CQRS\QueryBusContract;
 use Illuminate\Container\Attributes\CurrentUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,24 +23,18 @@ use Spatie\EventSourcing\Commands\CommandBus;
 final class AccountController extends Controller
 {
     public function __construct(
-        private CommandBus $bus,
+        private CommandBus $commandBus,
+        private QueryBusContract $queryBus,
         #[CurrentUser] private User $user
     ) {}
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): Response
+    public function index(ListAccountsQuery $query): Response
     {
         Gate::authorize('viewAny', Account::class);
 
-        $accounts = Account::search()
-            ->where('user_id', $request->user()->id)
-            ->orderByDesc('created_at')
-            ->paginate(15);
+        $accounts = $this->queryBus->dispatch($query);
 
         return Inertia::render('accounts/index', [
-            'filters'  => request()->all('search', 'trashed'),
             'accounts' => AccountResource::collection($accounts),
             'colors'   => Color::cases(),
         ]);

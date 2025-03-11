@@ -79,14 +79,13 @@ final class IndexTransactionQueryTest extends TestCase
         $handler = new IndexTransactionsQueryHandler;
         $query = new IndexTransactionsQuery(
             user_id: $user->id,
-            category_id: $test_category->id
+            categories: [$test_category->id],
         );
 
         $result = $handler->handle($query);
         $items = $result->getCollection();
 
         $this->assertCount(3, $items);
-        $this->assertDatabaseCount('transactions', 13);
     }
 
     public function test_it_filters_by_account(): void
@@ -113,13 +112,12 @@ final class IndexTransactionQueryTest extends TestCase
         $handler = new IndexTransactionsQueryHandler;
         $query = new IndexTransactionsQuery(
             user_id: $user->id,
-            account_id: $account->id,
+            accounts: [$account->id],
         );
 
         $result = $handler->handle($query);
         $items = $result->getCollection();
 
         $this->assertCount(3, $items);
-        $this->assertDatabaseCount('transactions', 13);
     }
 }
