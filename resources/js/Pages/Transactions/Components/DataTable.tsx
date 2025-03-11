@@ -1,14 +1,3 @@
-import LinkPagination from "@/components/LinkPagination";
-import { Button } from "@/components/ui/button";
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "@/components/ui/pagination";
 import {
     Table,
     TableBody,
@@ -17,36 +6,13 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { LinkType, PaginatedResource } from "@/types";
-import {
-    ColumnDef,
-    flexRender,
-    getCoreRowModel,
-    getPaginationRowModel,
-    useReactTable,
-} from "@tanstack/react-table";
-
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[];
-    data: TData[];
-    total: number;
-    links: LinkType[];
-}
+import { flexRender, Table as TanTable } from "@tanstack/react-table";
 
 export function DataTable<TData, TValue>({
-    columns,
-    data,
-    total,
-    links,
-}: DataTableProps<TData, TValue>) {
-    const table = useReactTable({
-        data,
-        columns,
-        getCoreRowModel: getCoreRowModel(),
-        manualPagination: true,
-        rowCount: total,
-    });
-
+    table,
+}: {
+    table: TanTable<TData>;
+}) {
     return (
         <>
             <div className="rounded-md border">
@@ -92,7 +58,7 @@ export function DataTable<TData, TValue>({
                         ) : (
                             <TableRow>
                                 <TableCell
-                                    colSpan={columns.length}
+                                    colSpan={table.getAllColumns().length}
                                     className="h-24 text-center"
                                 >
                                     No results.
@@ -102,8 +68,6 @@ export function DataTable<TData, TValue>({
                     </TableBody>
                 </Table>
             </div>
-
-
         </>
     );
 }
