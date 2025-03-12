@@ -12,7 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { TransactionsTableProvider } from "@/Providers/TransactionsTableProvider";
 import { TransactionsTableToolbar } from "./transactions-table-toolbar";
-import { Domain } from "domain";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 
 export default function TransactionsTable({
     transactions,
@@ -20,9 +20,16 @@ export default function TransactionsTable({
     transactions: PaginatedResource<Transaction>;
 }) {
     const [rowSelection, setRowSelection] = useState({});
-    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-        {},
-    );
+    const [columnVisibility, setColumnVisibility] =
+      useLocalStorage<VisibilityState>("transactions-table-visibility", {
+          id: true,
+          money: true,
+          categories: true,
+          fitid: false,
+          memo: true,
+          account: true,
+          date_posted: true,
+      });
 
     const [query, setQuery] =
         useState<App.Domain.Transaction.Queries.IndexTransactionsQuery>(() => {

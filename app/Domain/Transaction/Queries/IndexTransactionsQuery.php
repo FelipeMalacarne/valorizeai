@@ -28,19 +28,25 @@ final class IndexTransactionsQuery extends Data implements Query
         #[FromAuthenticatedUserProperty(property: 'id')]
         #[TypeScriptOptional]
         public string $user_id,
+
         public ?string $search = null,
+
         /** @var string[] */
         public array $categories = [],
+
         /** @var string[] */
         public array $accounts = [],
-        // 2025-03-03T03:00:00.000Z
+
         #[WithCast(DateTimeInterfaceCast::class, format: 'Y-m-d\TH:i:s.uP')]
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d\TH:i:s.uP')]
         public ?Carbon $start_date = null,
+
         #[WithCast(DateTimeInterfaceCast::class, format: 'Y-m-d\TH:i:s.uP')]
         #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d\TH:i:s.uP')]
         public ?Carbon $end_date = null,
+
         public ?OrderBy $order_by = null,
+
         public int $page = 1,
         public int $per_page = 15,
     ) {}
