@@ -20,6 +20,11 @@ final class IndexTransactionsQueryHandler implements QueryHandler
      */
     public function handle(IndexTransactionsQuery $query): LengthAwarePaginator
     {
+        logger()->info('Handling IndexTransactionsQuery');
+
+        logger($query);
+
+
         $builder = Transaction::search()
             ->where('user_id', $query->user_id);
 

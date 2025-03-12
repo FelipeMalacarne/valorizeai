@@ -16,14 +16,19 @@ declare namespace App.Domain.Account.Enums {
         | "sapphire";
     export type Type = "checking" | "savings" | "salary";
 }
+declare namespace App.Domain.Account.Queries {
+    export type ListAccountsQuery = {
+        userId?: string;
+    };
+}
 declare namespace App.Domain.Transaction.Queries {
     export type IndexTransactionsQuery = {
         user_id?: string;
         search: string | null;
-        categories: Array<string> | null;
-        accounts: Array<string> | null;
-        start_date: string | null;
-        end_date: string | null;
+        categories: Array<string>;
+        accounts: Array<string>;
+        start_date: any | null;
+        end_date: any | null;
         order_by: App.Support.Data.OrderBy | null;
         page: number;
         per_page: number;

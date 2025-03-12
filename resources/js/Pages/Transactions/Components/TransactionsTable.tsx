@@ -1,13 +1,3 @@
-import { DatePickerWithRange } from "@/components/date-range-picker";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { PaginatedResource, Transaction } from "@/types";
 import { useEffect, useRef, useState } from "react";
 import { DateRange } from "react-day-picker";
@@ -15,57 +5,99 @@ import { DataTable } from "./DataTable";
 import { columns } from "./Columns";
 import LinkPagination from "@/components/LinkPagination";
 import { router } from "@inertiajs/react";
+import {
+    getCoreRowModel,
+    useReactTable,
+    VisibilityState,
+} from "@tanstack/react-table";
+import { TransactionsTableProvider } from "@/Providers/TransactionsTableProvider";
+import { TransactionsTableToolbar } from "./transactions-table-toolbar";
+import { Domain } from "domain";
 
 export default function TransactionsTable({
     transactions,
 }: {
     transactions: PaginatedResource<Transaction>;
 }) {
-    const [categoryFilter, setCategoryFilter] = useState("");
-    const [date, setDate] = useState<DateRange | undefined>(undefined);
-    const [filteredTransactions, setFilteredTransactions] = useState<
-        Transaction[]
-    >([]);
+    const [rowSelection, setRowSelection] = useState({});
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+        {},
+    );
 
-    const [query, setQuery] = useState({
-        search: "",
-        // category: Category,
-        orderBy: {
-            column: "created_at",
-            direction: "desc",
-        },
+    const [query, setQuery] =
+        useState<App.Domain.Transaction.Queries.IndexTransactionsQuery>(() => {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                search: params.get("search") || null,
+                categories: params.get("categories[]")
+                    ? params.get("categories[]")!.split(",")
+                    : [],
+                accounts: params.get("accounts")
+                    ? params.get("accounts")!.split(",")
+                    : [],
+                order_by: {
+                    column: params.get("orderBy[column]") || "created_at",
+                    direction:
+                        (params.get("orderBy[direction]") as "asc" | "desc") ||
+                        "desc",
+                },
+                start_date: params.get("start_date")
+                    ? new Date(params.get("start_date")!).toISOString()
+                    : null,
+                end_date: params.get("end_date")
+                    ? new Date(params.get("end_date")!).toISOString()
+                    : null,
+                page: 1,
+                per_page: 10,
+            };
+        });
+
+    // If you need a separate date range state:
+    const [date, setDate] = useState<DateRange | undefined>(() => {
+        const params = new URLSearchParams(window.location.search);
+        return {
+            from: new Date(params.get("start_date") || ""),
+            to: new Date(params.get("end_date") || ""),
+        };
     });
 
     const isFirstRender = useRef(true);
 
     useEffect(() => {
+        // Skip the very first render (page load).
         if (isFirstRender.current) {
             isFirstRender.current = false;
             return;
         }
 
-        const params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams();
 
         if (query.search) {
             params.set("search", query.search);
-        } else {
-            params.delete("search");
+        }
+        if (query.categories && query.categories.length > 0) {
+            params.set("categories[]", query.categories.join(","));
+        }
+        if (query.accounts && query.accounts.length > 0) {
+            params.set("accounts", query.accounts.join(","));
+        }
+        if (query.order_by?.column) {
+            params.set("orderBy[column]", query.order_by.column);
+        }
+        if (query.order_by?.direction) {
+            params.set("orderBy[direction]", query.order_by.direction);
+        }
+        if (query.start_date) {
+            params.set("start_date", query.start_date);
+        }
+        if (query.end_date) {
+            params.set("end_date", query.end_date);
         }
 
-        if (query.orderBy.column) {
-            params.set("orderBy[column]", query.orderBy.column);
-        } else {
-            params.delete("orderBy[column]");
-        }
-        if (query.orderBy.direction) {
-            params.set("orderBy[direction]", query.orderBy.direction);
-        } else {
-            params.delete("orderBy[direction]");
-        }
+        params.set("per_page", String(query.per_page));
 
         params.delete("page");
 
-        console.log(params.toString());
         router.get(
             `/transactions?${params.toString()}`,
             {},
@@ -73,54 +105,38 @@ export default function TransactionsTable({
         );
     }, [query, date]);
 
+    const table = useReactTable({
+        data: transactions.data,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        manualPagination: true,
+        rowCount: transactions.meta.total,
+        onColumnVisibilityChange: setColumnVisibility,
+        onRowSelectionChange: setRowSelection,
+        state: {
+            columnVisibility,
+            rowSelection,
+        },
+    });
+
     return (
-        <div className="space-y-4">
-            <div className="flex flex-wrap gap-4">
-                <Input
-                    placeholder="Search transactions..."
-                    value={query.search}
-                    onChange={(e) =>
-                        setQuery({ ...query, search: e.target.value })
-                    }
-                    className="max-w-sm"
-                />
-                <Select
-                    value={categoryFilter}
-                    onValueChange={setCategoryFilter}
-                >
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All Categories</SelectItem>
-                        {/* Add category options here */}
-                    </SelectContent>
-                </Select>
-                <DatePickerWithRange date={date} setDate={setDate} />
-                <Button
-                    onClick={() => {
-                        setCategoryFilter("");
-                        setDate(undefined);
-                    }}
-                >
-                    Clear Filters
-                </Button>
-            </div>
-            <div className="rounded-md border">
-                <DataTable
-                    columns={columns}
-                    data={transactions.data}
-                    total={transactions.meta.total}
-                    links={transactions.meta.links}
-                />
+        <TransactionsTableProvider
+            table={table}
+            query={query}
+            setQuery={setQuery}
+        >
+            <div className="space-y-4">
+                <div className="rounded-md border">
+                    <TransactionsTableToolbar />
+                    <DataTable table={table} />
 
-                <LinkPagination
-                    links={transactions.meta.links}
-                    lastPageUrl={transactions.links.last}
-                    firstPageUrl={transactions.links.first}
-                />
+                    <LinkPagination
+                        links={transactions.meta.links}
+                        lastPageUrl={transactions.links.last}
+                        firstPageUrl={transactions.links.first}
+                    />
 
-                {/* <Table>
+                    {/* <Table>
                     <TableHeader>
                         <TableRow>
                             <TableHead>ID</TableHead>
@@ -152,7 +168,8 @@ export default function TransactionsTable({
                         ))}
                     </TableBody>
                 </Table> */}
+                </div>
             </div>
-        </div>
+        </TransactionsTableProvider>
     );
 }

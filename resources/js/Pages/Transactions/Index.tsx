@@ -2,6 +2,7 @@ import { DatePickerWithRange } from "@/components/date-range-picker";
 import { Button } from "@/components/ui/button";
 import { Tabs } from "@/components/ui/tabs";
 import {
+    Account,
     Category,
     PageProps,
     PaginatedResource,
@@ -18,6 +19,7 @@ import { Crumb } from "@/components/breadcrumbs";
 export type TransactionIndexProps = {
     transactions: PaginatedResource<Transaction>;
     categories: Resource<Category[]>;
+    accounts: Resource<Account[]>;
 };
 
 export default function Index(props: PageProps<TransactionIndexProps>) {

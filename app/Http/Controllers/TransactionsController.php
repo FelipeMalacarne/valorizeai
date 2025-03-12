@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Domain\Account\Queries\ListAccountsQuery;
 use App\Domain\Category\Queries\ListCategoriesQuery;
 use App\Domain\Transaction\Queries\IndexTransactionsQuery;
+use App\Http\Resources\AccountResource;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\TransactionResource;
 use App\Models\User;
@@ -32,15 +34,14 @@ final class TransactionsController extends Controller
     {
         $transactions = $this->queryBus->dispatch($query);
 
-        $categories = $this->queryBus->dispatch(
-            ListCategoriesQuery::from([
-                'user_id' => $this->user->id,
-            ])
-        );
+        $categories = $this->queryBus->dispatch(new ListCategoriesQuery($this->user->id));
+
+        $accounts = $this->queryBus->dispatch(new ListAccountsQuery($this->user->id));
 
         return Inertia::render('transactions/index', [
             'transactions' => TransactionResource::collection($transactions),
             'categories'   => CategoryResource::collection($categories),
+            'accounts'     => AccountResource::collection($accounts),
         ]);
     }
 
