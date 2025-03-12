@@ -52,7 +52,6 @@ export default function TransactionsTable({
             };
         });
 
-    // If you need a separate date range state:
     const [date, setDate] = useState<DateRange | undefined>(() => {
         const params = new URLSearchParams(window.location.search);
         return {
