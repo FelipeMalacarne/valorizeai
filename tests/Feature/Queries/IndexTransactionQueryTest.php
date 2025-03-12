@@ -88,6 +88,58 @@ final class IndexTransactionQueryTest extends TestCase
         $this->assertCount(3, $items);
     }
 
+    public function test_it_filters_by_multiple_categories(): void
+    {
+        $user = User::factory()->create();
+
+        $first = Category::factory()->create([
+            'name'    => 'First Category',
+            'user_id' => $user->id,
+        ]);
+
+        $second = Category::factory()->create([
+            'name'    => 'Second Category',
+            'user_id' => $user->id,
+        ]);
+
+        $transactions = Transaction::factory()
+            ->fromUser($user)
+            ->count(10)
+            ->create();
+
+        $target_transactions = Transaction::factory()
+            ->fromUser($user)
+            ->count(3)
+            ->create();
+
+        $target_transactions
+            ->each(fn ($transaction) => $transaction->categories()->attach($first->id))
+            ->each(fn ($transaction) => $transaction->touch());
+
+        $other_transactions = Transaction::factory()
+            ->fromUser($user)
+            ->count(5)
+            ->create();
+
+        $other_transactions
+            ->each(fn ($transaction) => $transaction->categories()->attach($second->id))
+            ->each(fn ($transaction) => $transaction->touch());
+
+        // wait for elastic indexing
+        sleep(1);
+
+        $handler = new IndexTransactionsQueryHandler;
+        $query = new IndexTransactionsQuery(
+            user_id: $user->id,
+            categories: [$first->id, $second->id],
+        );
+
+        $result = $handler->handle($query);
+        $items = $result->getCollection();
+
+        $this->assertCount(8, $items);
+    }
+
     public function test_it_filters_by_account(): void
     {
         $user = User::factory()->create();

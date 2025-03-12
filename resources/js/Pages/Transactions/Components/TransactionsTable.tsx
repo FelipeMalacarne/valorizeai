@@ -21,15 +21,15 @@ export default function TransactionsTable({
 }) {
     const [rowSelection, setRowSelection] = useState({});
     const [columnVisibility, setColumnVisibility] =
-      useLocalStorage<VisibilityState>("transactions-table-visibility", {
-          id: true,
-          money: true,
-          categories: true,
-          fitid: false,
-          memo: true,
-          account: true,
-          date_posted: true,
-      });
+        useLocalStorage<VisibilityState>("transactions-table-visibility", {
+            id: true,
+            money: true,
+            categories: true,
+            fitid: false,
+            memo: true,
+            account: true,
+            date_posted: true,
+        });
 
     const [query, setQuery] =
         useState<App.Domain.Transaction.Queries.IndexTransactionsQuery>(() => {
@@ -59,14 +59,6 @@ export default function TransactionsTable({
             };
         });
 
-    const [date, setDate] = useState<DateRange | undefined>(() => {
-        const params = new URLSearchParams(window.location.search);
-        return {
-            from: new Date(params.get("start_date") || ""),
-            to: new Date(params.get("end_date") || ""),
-        };
-    });
-
     const isFirstRender = useRef(true);
 
     useEffect(() => {
@@ -82,10 +74,14 @@ export default function TransactionsTable({
             params.set("search", query.search);
         }
         if (query.categories && query.categories.length > 0) {
-            params.set("categories[]", query.categories.join(","));
+            query.categories.forEach((category) => {
+                params.append("categories[]", category);
+            });
         }
         if (query.accounts && query.accounts.length > 0) {
-            params.set("accounts", query.accounts.join(","));
+            query.accounts.forEach((account) => {
+                params.append("accounts[]", account);
+            });
         }
         if (query.order_by?.column) {
             params.set("orderBy[column]", query.order_by.column);
@@ -109,7 +105,7 @@ export default function TransactionsTable({
             {},
             { preserveState: true, replace: true, preserveScroll: true },
         );
-    }, [query, date]);
+    }, [query]);
 
     const table = useReactTable({
         data: transactions.data,

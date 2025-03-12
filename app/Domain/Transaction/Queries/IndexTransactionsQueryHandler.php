@@ -9,6 +9,7 @@ use App\Support\CQRS\QueryHandler;
 use App\Support\Explorer\Enums\MultiMatchType;
 use App\Support\Explorer\Syntax\MultiMatch;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use JeroenG\Explorer\Infrastructure\Scout\Builder;
 
 /**
  * @implements QueryHandler<LengthAwarePaginator<Transaction>, IndexTransactionsQuery>
@@ -20,11 +21,7 @@ final class IndexTransactionsQueryHandler implements QueryHandler
      */
     public function handle(IndexTransactionsQuery $query): LengthAwarePaginator
     {
-        logger()->info('Handling IndexTransactionsQuery');
-
-        logger($query);
-
-
+        /* @var Builder $builder */
         $builder = Transaction::search()
             ->where('user_id', $query->user_id);
 
