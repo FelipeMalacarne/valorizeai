@@ -34,6 +34,7 @@ final class AccountController extends Controller
 
         $accounts = $this->queryBus->dispatch($query);
 
+
         return Inertia::render('accounts/index', [
             'accounts' => AccountResource::collection($accounts),
             'colors'   => Color::cases(),

@@ -14,9 +14,6 @@ final class CachingQueryBus implements QueryBusContract
 
     public function dispatch(object $query): mixed
     {
-        // For demonstration, let's do a simple approach:
-        // If the query implements "CacheableQueryContract",
-        // we use its TTL and a hashed key. Otherwise, pass through.
         if (! $query instanceof CacheableQuery) {
             return $this->decoratee->dispatch($query);
         }
