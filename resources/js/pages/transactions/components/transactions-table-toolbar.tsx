@@ -12,7 +12,8 @@ import { TransactionIndexProps } from "..";
 
 export function TransactionsTableToolbar() {
     const { table, query, setQuery } = useTransactionsTable();
-    const { categories } = usePage<PageProps<TransactionIndexProps>>().props;
+    const { categories, accounts } =
+        usePage<PageProps<TransactionIndexProps>>().props;
     const isFiltered = table.getState().columnFilters.length > 0;
 
     const range: DateRange = {
@@ -66,19 +67,17 @@ export function TransactionsTableToolbar() {
                     selectedValues={query.categories || []}
                     setSelectedValues={handleCategoriesChanged}
                 />
-                {/* <DataTableFilter
-            column={table.getColumn("status")}
-            title="Status"
-            options={statuses}
-          />
-        }
-        {table.getColumn("priority") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("priority")}
-            title="Priority"
-            options={priorities}
-          />
-        )} */}
+                <DataTableFilter
+                    title="Accounts"
+                    options={accounts.data.map((account) => ({
+                        label: account.name,
+                        value: account.id,
+                    }))}
+                    selectedValues={query.accounts || []}
+                    setSelectedValues={(values) =>
+                        setQuery({ ...query, accounts: values })
+                    }
+                />
                 {isFiltered && (
                     <Button
                         variant="ghost"
