@@ -4,13 +4,11 @@ import { DatePickerWithRange } from "@/components/date-range-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTransactionsTable } from "@/Providers/TransactionsTableProvider";
-import { Color, PageProps } from "@/types";
+import { PageProps } from "@/types";
 import { usePage } from "@inertiajs/react";
 import { X } from "lucide-react";
-import { useState } from "react";
 import { DateRange } from "react-day-picker";
-import { TransactionIndexProps } from "..";
-import { ColorSquare } from "@/pages/accounts/components/color-square";
+import { TransactionIndexProps } from "../Index";
 
 export function TransactionsTableToolbar() {
     const { table, query, setQuery } = useTransactionsTable();

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { type ComponentType } from "react";
 import {
     AudioWaveform,
     BookOpen,
@@ -9,8 +10,8 @@ import {
     Frame,
     GalleryVerticalEnd,
     HomeIcon,
-    Icon,
     LandmarkIcon,
+    LucideProps,
     Map,
     PieChart,
     Settings2,
@@ -164,7 +165,8 @@ const data = {
 export type NavItem = {
     title: string;
     url: string;
-    icon?: React.ComponentType<React.ComponentProps<typeof Icon>>;
+    // icon?: React.ComponentType<React.ComponentProps<typeof Icon>>;
+    icon?: ComponentType<LucideProps>;
 };
 
 const footerNavItems: NavItem[] = [

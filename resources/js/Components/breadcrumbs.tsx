@@ -1,6 +1,13 @@
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
-import { Link } from '@inertiajs/react';
-import { Fragment } from 'react';
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Link } from "@inertiajs/react";
+import { Fragment } from "react";
 
 export interface Crumb {
     label: string;
@@ -18,10 +25,18 @@ export function Breadcrumbs({ breadcrumbs }: { breadcrumbs: Crumb[] }) {
                                 <Fragment key={index}>
                                     <BreadcrumbItem>
                                         {isLast ? (
-                                            <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                                            <BreadcrumbPage>
+                                                {item.label}
+                                            </BreadcrumbPage>
                                         ) : (
                                             <BreadcrumbLink asChild>
-                                                <Link prefetch preserveState href={item.href}>{item.label}</Link>
+                                                <Link
+                                                    prefetch
+                                                    preserveState
+                                                    href={item.href}
+                                                >
+                                                    {item.label}
+                                                </Link>
                                             </BreadcrumbLink>
                                         )}
                                     </BreadcrumbItem>

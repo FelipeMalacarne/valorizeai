@@ -1,6 +1,5 @@
 import { PaginatedResource, Transaction } from "@/types";
 import { useEffect, useRef, useState } from "react";
-import { DateRange } from "react-day-picker";
 import { DataTable } from "./DataTable";
 import { columns } from "./Columns";
 import LinkPagination from "@/components/LinkPagination";
