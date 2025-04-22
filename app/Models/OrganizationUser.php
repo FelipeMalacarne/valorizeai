@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 final class OrganizationUser extends Pivot
 {
+    protected $fillable = [
+        'role',
+    ];
+
     protected $casts = [
         'role' => OrganizationRole::class,
     ];
