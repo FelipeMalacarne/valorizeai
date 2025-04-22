@@ -1,5 +1,4 @@
 @import 'tailwindcss';
-
 @plugin 'tailwindcss-animate';
 
 @source '../views';
@@ -59,14 +58,6 @@
     --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
 @layer base {
     *,
     ::after,
@@ -77,82 +68,147 @@
     }
 }
 
+/* ───────────────  Catppuccin (OKLCH)  ─────────────── */
+
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --destructive-foreground: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.87 0 0);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
+    /*  flat palette */
+    --rosewater: oklch(0.717 0.103 33.356);
+    --flamingo: oklch(0.687 0.126 20.857);
+    --pink: oklch(0.725 0.173 338.389);
+    --mauve: oklch(0.554 0.25 296.956);
+    --red: oklch(0.55 0.215 19.803);
+    --maroon: oklch(0.627 0.195 20.267);
+    --peach: oklch(0.692 0.204 42.522);
+    --yellow: oklch(0.71 0.148 67.89);
+    --green: oklch(0.628 0.178 140.388);
+    --teal: oklch(0.61 0.099 200.647);
+    --sky: oklch(0.687 0.146 235.325);
+    --sapphire: oklch(0.65 0.107 213.207);
+    --blue: oklch(0.559 0.225 262.135);
+    --lavender: oklch(0.664 0.175 273.21);
+
+    /*  UI roles */
+    --background: oklch(0.98 0.006 264.532);
+    --foreground: oklch(0.25 0.043 279.504);
+
+    --muted: oklch(0.9 0.015 268.666);
+    --muted-foreground: oklch(0.4 0.038 278.998);
+
+    --card: var(--background);
+    --card-foreground: var(--foreground);
+
+    --popover: var(--background);
+    --popover-foreground: var(--foreground);
+
+    --border: oklch(0.85 0.017 271.198);
+    --input: var(--border);
+
+    --primary: var(--mauve);
+    --primary-foreground: var(--background);
+
+    --secondary: var(--muted);
+    --secondary-foreground: var(--foreground);
+
+    --accent: var(--muted);
+    --accent-foreground: var(--foreground);
+
+    --destructive: var(--red);
+    --destructive-foreground: var(--background);
+
+    --ring: var(--foreground);
+
+    /*  charts */
+    --chart-1: var(--red);
+    --chart-2: var(--teal);
+    --chart-3: var(--blue);
+    --chart-4: var(--yellow);
+    --chart-5: var(--green);
+
+    /*  sidebar */
+    --sidebar: oklch(0.97 0.006 264.532);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
+
     --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.87 0 0);
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.145 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.145 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.985 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.396 0.141 25.723);
-    --destructive-foreground: oklch(0.637 0.237 25.331);
-    --border: oklch(0.269 0 0);
-    --input: oklch(0.269 0 0);
-    --ring: oklch(0.439 0 0);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.985 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(0.269 0 0);
-    --sidebar-ring: oklch(0.439 0 0);
+    /*  flat palette */
+    --rosewater: oklch(0.921 0.024 31.113);
+    --flamingo: oklch(0.883 0.041 17.95);
+    --pink: oklch(0.869 0.076 335.987);
+    --mauve: oklch(0.787 0.119 304.446);
+    --red: oklch(0.757 0.129 2.439);
+    --maroon: oklch(0.778 0.092 8.488);
+    --peach: oklch(0.821 0.104 52.649);
+    --yellow: oklch(0.918 0.071 85.985);
+    --green: oklch(0.857 0.109 142.526);
+    --teal: oklch(0.856 0.08 182.723);
+    --sky: oklch(0.848 0.083 209.925);
+    --sapphire: oklch(0.788 0.097 229.633);
+    --blue: oklch(0.768 0.111 259.662);
+    --lavender: oklch(0.815 0.091 277.398);
+
+    /*  UI roles */
+    --background: oklch(0.2 0.03 283.911);
+    --foreground: oklch(0.95 0.042 272.097);
+
+    --muted: oklch(0.28 0.032 282.103);
+    --muted-foreground: oklch(0.85 0.041 273.242);
+
+    --card: var(--background);
+    --card-foreground: var(--foreground);
+
+    --popover: var(--background);
+    --popover-foreground: var(--foreground);
+
+    --border: oklch(0.35 0.032 279.902);
+    --input: var(--border);
+
+    --primary: var(--mauve);
+    --primary-foreground: var(--background);
+
+    --secondary: var(--muted);
+    --secondary-foreground: var(--muted-foreground);
+
+    --accent: var(--muted);
+    --accent-foreground: var(--muted-foreground);
+
+    --destructive: var(--red);
+    --destructive-foreground: var(--background);
+
+    --ring: var(--foreground);
+
+    /*  charts */
+    --chart-1: var(--red);
+    --chart-2: var(--teal);
+    --chart-3: var(--blue);
+    --chart-4: var(--yellow);
+    --chart-5: var(--green);
+
+    /*  sidebar */
+    --sidebar: oklch(0.22 0.03 283.911);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--accent);
+    --sidebar-accent-foreground: var(--accent-foreground);
+    --sidebar-border: var(--border);
+    --sidebar-ring: var(--ring);
+
+    --radius: 0.625rem;
 }
 
+/* basic Tailwind resets */
 @layer base {
     * {
         @apply border-border;
     }
-
     body {
         @apply bg-background text-foreground;
     }
