@@ -1,7 +1,7 @@
 services:
     laravel.test:
         build:
-            context: './vendor/laravel/sail/runtimes/8.4'
+            context: './docker/8.4'
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
@@ -37,7 +37,7 @@ services:
             POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
         volumes:
             - 'sail-pgsql:/var/lib/postgresql/data'
-            - './vendor/laravel/sail/database/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+            - './docker/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
         networks:
             - sail
         healthcheck:
@@ -94,6 +94,54 @@ services:
             - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
         networks:
             - sail
+
+    es01:
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.17.2
+        container_name: es01
+        environment:
+            - node.name=es01
+            - cluster.name=es-docker-cluster
+            - discovery.type=single-node
+            - bootstrap.memory_lock=true
+            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+            - xpack.security.enabled=false
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+        volumes:
+            - data01:/usr/share/elasticsearch/data
+        ports:
+            - 9200:9200
+        networks:
+            - sail
+
+    es.testing:
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.17.2
+        environment:
+            - node.name=es01
+            - cluster.name=es-docker-cluster
+            - discovery.type=single-node
+            - bootstrap.memory_lock=true
+            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+            - xpack.security.enabled=false
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+        networks:
+            - sail
+
+    kib01:
+        image: docker.elastic.co/kibana/kibana:8.17.2
+        container_name: kib01
+        ports:
+            - 5601:5601
+        environment:
+            ELASTICSEARCH_URL: http://es01:9200
+            ELASTICSEARCH_HOSTS: http://es01:9200
+        networks:
+            - sail
 networks:
     sail:
         driver: bridge
@@ -103,4 +151,6 @@ volumes:
     sail-redis:
         driver: local
     sail-minio:
+        driver: local
+    data01:
         driver: local
