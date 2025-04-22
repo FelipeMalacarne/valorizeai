@@ -33,6 +33,8 @@ final class RegisterUser
                 'role' => OrganizationRole::OWNER,
             ]);
 
+            $user->update(['current_organization_id' => $organization->id]);
+
             event(new Registered($user));
 
             return $user;

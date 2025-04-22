@@ -7,9 +7,11 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use InvalidArgumentException;
 
 final class User extends Authenticatable
 {
@@ -25,6 +27,7 @@ final class User extends Authenticatable
         'name',
         'email',
         'password',
+        'current_organization_id',
     ];
 
     /**
@@ -43,6 +46,20 @@ final class User extends Authenticatable
             ->withPivot('role')
             ->withTimestamps()
             ->using(OrganizationUser::class);
+    }
+
+    public function currentOrganization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class, 'current_organization_id');
+    }
+
+    public function switchOrganization(Organization $organization): void
+    {
+        if (! $this->organizations->contains($organization)) {
+            throw new InvalidArgumentException('User does not belong to this organization');
+        }
+
+        $this->update(['current_organization_id' => $organization->id]);
     }
 
     /**
