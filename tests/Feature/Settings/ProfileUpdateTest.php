@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\User;
 
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(Illuminate\Foundation\Testing\RefreshDatabase::class);
 
 test('profile page is displayed', function () {
     $user = User::factory()->create();
@@ -20,7 +22,7 @@ test('profile information can be updated', function () {
     $response = $this
         ->actingAs($user)
         ->patch('/settings/profile', [
-            'name' => 'Test User',
+            'name'  => 'Test User',
             'email' => 'test@example.com',
         ]);
 
@@ -41,7 +43,7 @@ test('email verification status is unchanged when the email address is unchanged
     $response = $this
         ->actingAs($user)
         ->patch('/settings/profile', [
-            'name' => 'Test User',
+            'name'  => 'Test User',
             'email' => $user->email,
         ]);
 

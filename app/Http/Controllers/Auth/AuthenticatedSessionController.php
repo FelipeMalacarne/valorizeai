@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -11,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
 
-class AuthenticatedSessionController extends Controller
+final class AuthenticatedSessionController extends Controller
 {
     /**
      * Show the login page.
@@ -20,7 +22,7 @@ class AuthenticatedSessionController extends Controller
     {
         return Inertia::render('auth/login', [
             'canResetPassword' => Route::has('password.request'),
-            'status' => $request->session()->get('status'),
+            'status'           => $request->session()->get('status'),
         ]);
     }
 
