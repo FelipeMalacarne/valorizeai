@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\Currency;
+use App\Models\Organization;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -11,6 +13,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 final class OrganizationFactory extends Factory
 {
+    protected $model = Organization::class;
+
     /**
      * Define the model's default state.
      *
@@ -19,7 +23,9 @@ final class OrganizationFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'id'                 => fake()->uuid(),
+            'name'               => fake()->company(),
+            'preferred_currency' => fake()->randomElement([Currency::BRL, Currency::USD]),
         ];
     }
 }
