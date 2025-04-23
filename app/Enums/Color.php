@@ -6,18 +6,18 @@ namespace App\Enums;
 
 enum Color: string
 {
-    case Lavender = 'lavender';
-    case Blue = 'blue';
-    case Green = 'green';
-    case Yellow = 'yellow';
-    case Red = 'red';
-    case Rosewater = 'rosewater';
-    case Flamingo = 'flamingo';
-    case Pink = 'pink';
-    case Mauve = 'mauve';
-    case Maroon = 'maroon';
-    case Peach = 'peach';
-    case Teal = 'teal';
-    case Sky = 'sky';
-    case Sapphire = 'sapphire';
+    case LAVENDER = 'lavender';
+    case BLUE = 'blue';
+    case GREEN = 'green';
+    case YELLOW = 'yellow';
+    case RED = 'red';
+    case ROSEWATER = 'rosewater';
+    case FLAMINGO = 'flamingo';
+    case PINK = 'pink';
+    case MAUVE = 'mauve';
+    case MAROON = 'maroon';
+    case PEACH = 'peach';
+    case TEAL = 'teal';
+    case SKY = 'sky';
+    case SAPPHIRE = 'sapphire';
 }

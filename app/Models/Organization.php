@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 final class Organization extends Model
 {
@@ -32,6 +33,11 @@ final class Organization extends Model
             ->withPivot('role')
             ->withTimestamps()
             ->using(OrganizationUser::class);
+    }
+
+    public function accounts(): HasMany
+    {
+        return $this->hasMany(Account::class);
     }
 
     public function addUser(User $user, OrganizationRole $role): void
