@@ -31,7 +31,6 @@ final class RegisteredUserController extends Controller
     public function store(RegisterUserRequest $request, RegisterUser $action): RedirectResponse
     {
         $user = $action->handle($request);
-        logger($user);
 
         Auth::login($user);
 
