@@ -24,16 +24,13 @@ final class Account extends Model
         'currency',
         'type',
         'number',
-        'description',
-        'bank_code',
-        'color',
-        'organization_id',
+        'user_id',
+        'bank_id',
     ];
 
     protected $casts = [
         'balance'    => 'integer',
         'currency'   => Currency::class,
-        'color'      => Color::class,
         'type'       => AccountType::class,
         'created_at' => 'immutable_datetime',
         'updated_at' => 'immutable_datetime',
@@ -58,11 +55,20 @@ final class Account extends Model
     // }
 
     /**
-     * @return BelongsTo<Organization,Account>
+     * @return BelongsTo<User,Account>
      */
-    public function organization(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Organization::class);
+        return $this->belongsTo(User::class);
+    }
+
+
+    /**
+     * @return BelongsTo<Bank,Account>
+     */
+    public function bank(): BelongsTo
+    {
+        return $this->belongsTo(Bank::class);
     }
 
     /**

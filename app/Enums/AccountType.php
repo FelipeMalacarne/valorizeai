@@ -8,5 +8,6 @@ enum AccountType: string
 {
     case CHECKING = 'checking';
     case SAVINGS = 'savings';
-    case SALARY = 'salary';
+    case INVESTMENT = 'investment';
+    case CREDIT = 'credit';
 }

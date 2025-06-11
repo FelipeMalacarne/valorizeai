@@ -17,7 +17,6 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('code', 3)->unique();
-            $table->string('website')->nullable();
             $table->timestamps();
         });
 
