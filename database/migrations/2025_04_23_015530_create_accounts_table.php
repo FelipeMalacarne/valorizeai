@@ -13,18 +13,27 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::create('banks', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('name');
+            $table->string('code', 3)->unique();
+            $table->string('website')->nullable();
+            $table->timestamps();
+        });
+
         Schema::create('accounts', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
-            $table->integer('balance')->default(0);
-            $table->string('currency', 3);
-            $table->string('type', 20);
+            $table->integer('balance')->default(0); // cents
+            $table->enum('currency', ['BRL', 'USD', 'EUR']);
+            $table->enum('type', ['checking', 'savings', 'credit', 'investment']);
             $table->string('number', 16)->nullable();
-            $table->string('description', 255)->nullable();
-            $table->string('color');
-            $table->string('bank_code', 3)->nullable();
-            $table->foreignUuid('organization_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('bank_id')->constrained()->nullOnDelete();
             $table->timestamps();
+
+            $table->index(['user_id']);
+            $table->index(['bank_id']);
         });
     }
 

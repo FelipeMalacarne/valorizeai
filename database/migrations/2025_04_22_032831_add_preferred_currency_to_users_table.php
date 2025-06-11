@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('organizations', function (Blueprint $table) {
-            $table->string('preferred_currency', 3)->default('USD')->after('name');
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('preferred_currency', 3)->after('name');
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('organizations', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('preferred_currency');
         });
     }
