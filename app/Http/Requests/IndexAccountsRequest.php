@@ -13,8 +13,8 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 final class IndexAccountsRequest extends Data
 {
     public function __construct(
-        public ?string $search,
-        public ?AccountType $type,
-        public ?Currency $currency,
+        public ?string $search = null,
+        public ?AccountType $type = null,
+        public ?Currency $currency = null,
     ) {}
 }
