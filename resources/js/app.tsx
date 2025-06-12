@@ -3,7 +3,9 @@ import '../css/app.css';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
+import { SWRConfig } from 'swr';
 import { initializeTheme } from './hooks/use-appearance';
+import axios from 'axios';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -13,7 +15,11 @@ createInertiaApp({
     setup({ el, App, props }) {
         const root = createRoot(el);
 
-        root.render(<App {...props} />);
+        root.render(
+            <SWRConfig value={{ fetcher: (resource, init) => axios.get(resource, init).then((res) => res.data) }}>
+                <App {...props} />
+            </SWRConfig>,
+        );
     },
     progress: {
         color: '#4B5563',
