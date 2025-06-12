@@ -12,10 +12,11 @@ use App\Queries\ListAccountsQuery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Inertia\Response;
 
 final class AccountController extends Controller
 {
-    public function index(IndexAccountsRequest $data, ListAccountsQuery $query)
+    public function index(IndexAccountsRequest $data, ListAccountsQuery $query): Response
     {
         $accounts = $query->handle($data, Auth::user());
 
@@ -26,7 +27,13 @@ final class AccountController extends Controller
 
     public function store(StoreAccountRequest $data) {}
 
-    public function show(Account $account) {}
+    public function show(Account $account): Response
+    {
+        // TODO: Policy check
+        return Inertia::render('accounts/show', [
+            'account' => AccountResource::from($account->load(['bank'])),
+        ]);
+    }
 
     public function update(StoreAccountRequest $data, Account $account)
     {

@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Link } from '@inertiajs/react';
 import { CreditCard, Edit, Eye, MoreHorizontal, PiggyBank, TrendingUp, Wallet } from 'lucide-react';
 
 export function AccountCard({ account }: { account: App.Http.Resources.AccountResource }) {
@@ -39,6 +40,7 @@ export function AccountCard({ account }: { account: App.Http.Resources.AccountRe
             key={account.id}
             className="hover:border-l-primary cursor-pointer border-l-4 border-l-transparent transition-all duration-200 hover:shadow-lg max-w-sm shadow-sm"
         >
+            <Link href={route('accounts.show', account.id)}>
             <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
@@ -90,6 +92,8 @@ export function AccountCard({ account }: { account: App.Http.Resources.AccountRe
                     <Badge variant="outline">{account.currency}</Badge>
                 </div>
             </CardContent>
+
+            </Link>
         </Card>
     );
 }
