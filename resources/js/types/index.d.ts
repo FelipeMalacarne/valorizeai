@@ -22,18 +22,18 @@ export interface NavItem {
     isActive?: boolean;
 }
 
-export interface SharedData {
+export type SharedData<T extends Record<string, unknown> = Record<string, unknown>> = T & {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
     ziggy: Config & { location: string };
-    sidebarOpen: boolean;
     flash: {
-        success?: string;
-        error?: string;
+        success: string | null;
+        error: string | null;
     };
     [key: string]: unknown;
-}
+};
+
 
 export interface User {
     id: number;
@@ -45,3 +45,26 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export type LinkType = {
+    url: string | null;
+    label: string;
+    active: boolean;
+};
+
+export type PaginatedResource<T> = {
+    data: T[];
+    current_page: number;
+    from: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    page: number;
+    to: number;
+    links: LinkType[];
+    path: string;
+    first_page_url: string;
+    last_page_url: string;
+    prev_page_url: string;
+    next_page_url: string;
+};
