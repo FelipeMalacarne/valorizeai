@@ -9,19 +9,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
 
-type RegisterForm = {
-    name: string;
-    email: string;
-    password: string;
-    password_confirmation: string;
-};
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function Register() {
-    const { data, setData, post, processing, errors, reset } = useForm<Required<RegisterForm>>({
+    const { data, setData, post, processing, errors, reset } = useForm<App.Http.Requests.RegisterUserRequest>({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
+        preferred_currency: 'BRL',
     });
 
     const submit: FormEventHandler = (e) => {
@@ -99,6 +95,21 @@ export default function Register() {
                             placeholder="Confirm password"
                         />
                         <InputError message={errors.password_confirmation} />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label htmlFor="currency">Preferred Currency</Label>
+                        <Select onValueChange={(value) => setData('preferred_currency', value as App.Enums.Currency)} required>
+                            <SelectTrigger tabIndex={5}>
+                                <SelectValue placeholder={'Select a currency'} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="BRL">BRL</SelectItem>
+                                <SelectItem value="USD">USD</SelectItem>
+                                <SelectItem value="EUR">EUR</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <InputError message={errors.email} />
                     </div>
 
                     <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={processing}>

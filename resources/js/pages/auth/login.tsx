@@ -14,6 +14,7 @@ type LoginForm = {
     email: string;
     password: string;
     remember: boolean;
+    preferred_currency: 'BRL' | 'USD' | 'EUR';
 };
 
 interface LoginProps {
@@ -26,6 +27,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
         email: '',
         password: '',
         remember: false,
+        preferred_currency: 'BRL',
     });
 
     const submit: FormEventHandler = (e) => {

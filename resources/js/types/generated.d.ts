@@ -23,6 +23,7 @@ declare namespace App.Http.Requests {
         name: string;
         email: string;
         password: string;
+        password_confirmation: string;
         preferred_currency: App.Enums.Currency;
     };
 }
