@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\Account\StoreAccount;
+use App\Actions\Account\UpdateAccount;
 use App\Http\Requests\Account\IndexAccountsRequest;
 use App\Http\Requests\Account\StoreAccountRequest;
+use App\Http\Requests\Account\UpdateAccountRequest;
 use App\Http\Resources\AccountResource;
 use App\Models\Account;
 use App\Queries\ListAccountsQuery;
@@ -46,11 +48,11 @@ final class AccountController extends Controller
         ]);
     }
 
-    public function update(StoreAccountRequest $data, Account $account): RedirectResponse
+    public function update(UpdateAccountRequest $data, UpdateAccount $action, Account $account): RedirectResponse
     {
         Gate::authorize('update', $account);
-        // Logic to update the account
-        // This could involve validating the request data and updating the account in the database.
+
+        $account = $action->handle($data, $account);
 
         return back()->with([
             'success' => __('Account :name updated successfully', ['name' => $account->name]),
