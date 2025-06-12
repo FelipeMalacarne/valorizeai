@@ -38,7 +38,7 @@ export function AccountCard({ account }: { account: App.Http.Resources.AccountRe
     return (
         <Card
             key={account.id}
-            className="hover:border-l-primary cursor-pointer border-l-4 border-l-transparent transition-all duration-200 hover:shadow-lg max-w-sm shadow-sm"
+            className="hover:border-l-primary cursor-pointer border-l-4 border-l-transparent transition-all duration-200 hover:shadow-lg shadow-sm"
         >
             <Link href={route('accounts.show', account.id)}>
             <CardHeader className="pb-4">
@@ -47,6 +47,7 @@ export function AccountCard({ account }: { account: App.Http.Resources.AccountRe
                         <Avatar className="h-12 w-12">
                             <AvatarFallback className={getAccountTypeColor(account.type)}>{getAccountIcon(account.type)}</AvatarFallback>
                         </Avatar>
+
                         <div>
                             <CardTitle className="text-lg">{account.name}</CardTitle>
                             <p className="text-sm text-muted-foreground">
@@ -55,6 +56,7 @@ export function AccountCard({ account }: { account: App.Http.Resources.AccountRe
                             </p>
                         </div>
                     </div>
+
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                             <Button variant="ghost" size="sm">
@@ -82,6 +84,7 @@ export function AccountCard({ account }: { account: App.Http.Resources.AccountRe
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
+
                 </div>
             </CardHeader>
             <CardContent>
