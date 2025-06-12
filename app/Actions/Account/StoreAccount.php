@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Account;
 
-use App\Http\Requests\StoreAccountRequest;
+use App\Http\Requests\Account\StoreAccountRequest;
 use App\Models\Account;
 use App\Models\User;
 

@@ -19,11 +19,6 @@ declare namespace App.Enums {
     export type OrganizationRole = 'owner' | 'admin' | 'member';
 }
 declare namespace App.Http.Requests {
-    export type IndexAccountsRequest = {
-        search: string | null;
-        type: App.Enums.AccountType | null;
-        currency: App.Enums.Currency | null;
-    };
     export type RegisterUserRequest = {
         name: string;
         email: string;
@@ -31,12 +26,24 @@ declare namespace App.Http.Requests {
         password_confirmation: string;
         preferred_currency: App.Enums.Currency;
     };
+}
+declare namespace App.Http.Requests.Account {
+    export type IndexAccountsRequest = {
+        search: string | null;
+        type: App.Enums.AccountType | null;
+        currency: App.Enums.Currency | null;
+    };
     export type StoreAccountRequest = {
         name: string;
         number: string | null;
         currency: App.Enums.Currency;
         type: App.Enums.AccountType;
         bank_id: string;
+    };
+    export type UpdateAccountRequest = {
+        name: string | null;
+        number: string | null;
+        type: App.Enums.AccountType | null;
     };
 }
 declare namespace App.Http.Resources {

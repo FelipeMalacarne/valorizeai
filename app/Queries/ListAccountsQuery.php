@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Queries;
 
-use App\Http\Requests\IndexAccountsRequest;
+use App\Http\Requests\Account\IndexAccountsRequest;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\Account\StoreAccount;
-use App\Http\Requests\IndexAccountsRequest;
-use App\Http\Requests\StoreAccountRequest;
+use App\Http\Requests\Account\IndexAccountsRequest;
+use App\Http\Requests\Account\StoreAccountRequest;
 use App\Http\Resources\AccountResource;
 use App\Models\Account;
 use App\Queries\ListAccountsQuery;

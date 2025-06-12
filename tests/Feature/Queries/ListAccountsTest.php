@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Http\Requests\IndexAccountsRequest;
+use App\Http\Requests\Account\IndexAccountsRequest;
 use App\Models\Account;
 use App\Models\User;
 use App\Queries\ListAccountsQuery;

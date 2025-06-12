@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Actions\Account\StoreAccount;
 use App\Enums\AccountType;
 use App\Enums\Currency;
-use App\Http\Requests\StoreAccountRequest;
+use App\Http\Requests\Account\StoreAccountRequest;
 use App\Models\Bank;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

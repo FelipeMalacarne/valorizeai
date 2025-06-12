@@ -7,12 +7,12 @@ import { X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 export function AccountFilters() {
-    const initialQuery: App.Http.Requests.IndexAccountsRequest = {
+    const initialQuery: App.Http.Requests.Account.IndexAccountsRequest = {
         search: '',
         type: null,
         currency: null,
     };
-    const [query, setQuery] = useState<App.Http.Requests.IndexAccountsRequest>(initialQuery);
+    const [query, setQuery] = useState<App.Http.Requests.Account.IndexAccountsRequest>(initialQuery);
     const [filtersCount, setFiltersCount] = useState(0);
 
     const initialRender = useRef(true);
@@ -22,7 +22,7 @@ export function AccountFilters() {
             return;
         }
 
-        setFiltersCount(Object.keys(query).filter((key) => query[key as keyof App.Http.Requests.IndexAccountsRequest]).length);
+        setFiltersCount(Object.keys(query).filter((key) => query[key as keyof App.Http.Requests.Account.IndexAccountsRequest]).length);
 
         router.visit(route('accounts.index'), {
             data: query,
