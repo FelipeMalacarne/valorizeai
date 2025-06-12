@@ -21,6 +21,14 @@ final class ListAccountsQuery
             });
         }
 
+        if ($data->type) {
+            $query->where('type', $data->type);
+        }
+
+        if ($data->currency) {
+            $query->where('currency', $data->currency);
+        }
+
         return $query->paginate(10)->withQueryString();
 
     }

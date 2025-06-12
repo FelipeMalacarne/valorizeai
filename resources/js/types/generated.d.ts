@@ -21,6 +21,8 @@ declare namespace App.Enums {
 declare namespace App.Http.Requests {
     export type IndexAccountsRequest = {
         search: string | null;
+        type: App.Enums.AccountType | null;
+        currency: App.Enums.Currency | null;
     };
     export type RegisterUserRequest = {
         name: string;

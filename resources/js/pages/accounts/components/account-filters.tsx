@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { router } from '@inertiajs/react';
 import { X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -8,6 +9,8 @@ import { useEffect, useRef, useState } from 'react';
 export function AccountFilters() {
     const initialQuery: App.Http.Requests.IndexAccountsRequest = {
         search: '',
+        type: null,
+        currency: null,
     };
     const [query, setQuery] = useState<App.Http.Requests.IndexAccountsRequest>(initialQuery);
     const [filtersCount, setFiltersCount] = useState(0);
@@ -33,35 +36,59 @@ export function AccountFilters() {
     };
 
     return (
-        <div className="flex items-center justify-between gap-4">
-            <Input
-                placeholder="Pesquisar por nome ou número da conta"
-                value={query.search ?? ''}
-                onChange={(e) => setQuery({ ...query, search: e.target.value })}
-                tabIndex={1}
-            />
+        <Card>
+            <CardContent>
+                <div className="grid grid-cols-2 items-center justify-between gap-4 md:grid-cols-5">
+                    <Input
+                        className="col-span-2 md:col-span-3"
+                        placeholder="Pesquisar..."
+                        value={query.search ?? ''}
+                        onChange={(e) => setQuery({ ...query, search: e.target.value })}
+                        tabIndex={1}
+                    />
 
-            <Select>
-                <SelectTrigger tabIndex={2} className="w-[180px]">
-                    <SelectValue placeholder="Select a fruit" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectGroup>
-                        {/* <SelectLabel>Fruits</SelectLabel> */}
-                        <SelectItem value="apple">Apple</SelectItem>
-                        <SelectItem value="banana">Banana</SelectItem>
-                        <SelectItem value="blueberry">Blueberry</SelectItem>
-                        <SelectItem value="grapes">Grapes</SelectItem>
-                        <SelectItem value="pineapple">Pineapple</SelectItem>
-                    </SelectGroup>
-                </SelectContent>
-            </Select>
+                    <Select
+                        value={query.type ?? ''}
+                        onValueChange={(value) => setQuery({ ...query, type: (value as App.Enums.AccountType) || null })}
+                    >
+                        <SelectTrigger tabIndex={2}>
+                            <SelectValue placeholder="Tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem value="checking">Corrente</SelectItem>
+                                <SelectItem value="investment">Investimento</SelectItem>
+                                <SelectItem value="credit">Crédito</SelectItem>
+                                <SelectItem value="savings">Poupança</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
 
-            {filtersCount > 0 && (
-                <Button variant={'ghost'} size={'icon'} onClick={clearFilters} tabIndex={3}>
-                    <X />
-                </Button>
-            )}
-        </div>
+                    <div className="flex justify-between gap-4">
+                        <Select
+                            value={query.currency ?? ''}
+                            onValueChange={(value) => setQuery({ ...query, currency: (value as App.Enums.Currency) || null })}
+                        >
+                            <SelectTrigger tabIndex={3}>
+                                <SelectValue placeholder="Moeda" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectItem value="BRL">BRL</SelectItem>
+                                    <SelectItem value="USD">USD</SelectItem>
+                                    <SelectItem value="EUR">EUR</SelectItem>
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+
+                        {filtersCount > 0 && (
+                            <Button variant={'ghost'} size={'icon'} onClick={clearFilters} tabIndex={3}>
+                                <X />
+                            </Button>
+                        )}
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
     );
 }
