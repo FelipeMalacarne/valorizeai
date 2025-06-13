@@ -60,4 +60,10 @@ declare namespace App.Http.Resources {
         code: string;
         name: string;
     };
+    export type CategoryResource = {
+        id: string;
+        name: string;
+        color: App.Enums.Color;
+        description: string | null;
+    };
 }
