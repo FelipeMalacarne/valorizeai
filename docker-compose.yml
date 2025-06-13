@@ -1,11 +1,11 @@
 services:
     laravel.test:
         build:
-            context: './docker/8.4'
+            context: ./docker/8.4
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
-        image: 'sail-8.4/app'
+        image: sail-8.4/app
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
@@ -16,7 +16,7 @@ services:
             XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
             XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
-            SUPERVISOR_PHP_COMMAND: "/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan octane:start --watch --server=swoole --host=0.0.0.0 --port=80"
+            SUPERVISOR_PHP_COMMAND: '/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan octane:start --watch --server=swoole --host=0.0.0.0 --port=80'
         volumes:
             - '.:/var/www/html'
         networks:
@@ -26,6 +26,7 @@ services:
             - redis
             - minio
             - mailpit
+            - typesense
     pgsql:
         image: 'postgres:17'
         ports:
@@ -66,16 +67,14 @@ services:
                 - ping
             retries: 3
             timeout: 5s
-
     worker:
         image: sail-8.4/app
         volumes:
-        - '.:/var/www/html'
-        entrypoint: php artisan queue:work
+            - '.:/var/www/html'
+        entrypoint: 'php artisan queue:work'
         restart: always
-        stop_grace_period: 1h
         networks:
-        - sail
+            - sail
         depends_on:
             pgsql:
                 condition: service_healthy
@@ -85,20 +84,18 @@ services:
                 condition: service_healthy
             mailpit:
                 condition: service_started
-
     frontend:
         image: sail-8.4/app
         ports:
-        - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
         environment:
             WWWUSER: '${WWWUSER}'
             LARAVEL_SAIL: 1
             VITE_PORT: '${VITE_PORT:-5173}'
         volumes:
-        - '.:/var/www/html'
-        entrypoint: npm run dev
+            - '.:/var/www/html'
+        entrypoint: 'npm run dev'
         restart: always
-        stop_grace_period: 1h
         networks:
             - sail
         depends_on:
@@ -138,52 +135,27 @@ services:
             - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
         networks:
             - sail
-
-    es01:
-        image: docker.elastic.co/elasticsearch/elasticsearch:8.17.2
+    typesense:
+        image: 'typesense/typesense:27.1'
+        ports:
+            - '${FORWARD_TYPESENSE_PORT:-8108}:8108'
         environment:
-            - node.name=es01
-            - cluster.name=es-docker-cluster
-            - discovery.type=single-node
-            - bootstrap.memory_lock=true
-            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-            - xpack.security.enabled=false
-        ulimits:
-            memlock:
-                soft: -1
-                hard: -1
+            TYPESENSE_DATA_DIR: '${TYPESENSE_DATA_DIR:-/typesense-data}'
+            TYPESENSE_API_KEY: '${TYPESENSE_API_KEY:-xyz}'
+            TYPESENSE_ENABLE_CORS: '${TYPESENSE_ENABLE_CORS:-true}'
         volumes:
-            - data01:/usr/share/elasticsearch/data
-        ports:
-            - 9200:9200
+            - 'sail-typesense:/typesense-data'
         networks:
             - sail
-
-    es.testing:
-        image: docker.elastic.co/elasticsearch/elasticsearch:8.17.2
-        environment:
-            - node.name=es01
-            - cluster.name=es-docker-cluster
-            - discovery.type=single-node
-            - bootstrap.memory_lock=true
-            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-            - xpack.security.enabled=false
-        ulimits:
-            memlock:
-                soft: -1
-                hard: -1
-        networks:
-            - sail
-
-    kib01:
-        image: docker.elastic.co/kibana/kibana:8.17.2
-        ports:
-            - 5601:5601
-        environment:
-            ELASTICSEARCH_URL: http://es01:9200
-            ELASTICSEARCH_HOSTS: http://es01:9200
-        networks:
-            - sail
+        healthcheck:
+            test:
+                - CMD
+                - wget
+                - '--no-verbose'
+                - '--spider'
+                - 'http://localhost:8108/health'
+            retries: 5
+            timeout: 7s
 networks:
     sail:
         driver: bridge
@@ -195,4 +167,6 @@ volumes:
     sail-minio:
         driver: local
     data01:
+        driver: local
+    sail-typesense:
         driver: local
