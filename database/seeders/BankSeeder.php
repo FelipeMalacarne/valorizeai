@@ -249,7 +249,6 @@ class BankSeeder extends Seeder
                 'id' => Str::uuid7(),
                 'code' => $bank['code'],
                 'name' => $bank['name'],
-                'website' => null, // Assuming no website data is provided
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
