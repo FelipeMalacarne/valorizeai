@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\Account\DestroyAccount;
 use App\Actions\Account\StoreAccount;
 use App\Actions\Account\UpdateAccount;
 use App\Http\Requests\Account\IndexAccountsRequest;
@@ -13,7 +14,6 @@ use App\Http\Resources\AccountResource;
 use App\Models\Account;
 use App\Queries\ListAccountsQuery;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -59,9 +59,15 @@ final class AccountController extends Controller
         ]);
     }
 
-    public function destroy(Account $account): RedirectResponse
+    public function destroy(Account $account, DestroyAccount $action): RedirectResponse
     {
         Gate::authorize('delete', $account);
+
+        if (! $action->handle($account)) {
+            return back()->with([
+                'error' => __('Failed to delete account :name', ['name' => $account->name]),
+            ]);
+        }
 
         return back()->with([
             'success' => __('Account :name deleted successfully', ['name' => $account->name]),
