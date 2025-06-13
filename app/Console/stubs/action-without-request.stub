@@ -1,0 +1,14 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+{{ modelNamespace }}
+final class {{ class }}
+{
+    public function handle({{ modelClass }} $model)
+    {
+        // Implementation goes here
+    }
+}

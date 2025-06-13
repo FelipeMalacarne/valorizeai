@@ -1,0 +1,30 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\Validation\ValidationContext;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+
+#[TypeScript]
+final class {{ class }} extends Data
+{
+    public function __construct(
+        // Define your properties here
+        // Example:
+        // public string $name,
+        // public ?string $description = null,
+    ) {}
+
+    public static function rules(): array
+    {
+        return [
+            // Define your validation rules here
+            // Example:
+            // 'name' => ['required', 'string', 'max:255'],
+            // 'description' => ['nullable', 'string'],
+        ];
+    }
+}

@@ -1,0 +1,16 @@
+<?php
+
+declare(strict_types=1);
+
+namespace {{ namespace }};
+
+use App\Http\Requests{{ namespaceStatement }}\{{ requestClass }};
+{{ modelNamespace }}use App\Models\User;
+
+final class {{ class }}
+{
+    public function handle({{ requestClass }} $data, User $user)
+    {
+        // Implementation goes here
+    }
+}
