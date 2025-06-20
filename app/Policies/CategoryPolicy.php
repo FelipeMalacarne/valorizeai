@@ -9,10 +9,19 @@ use App\Models\User;
 
 final class CategoryPolicy
 {
+    public function viewAny(User $user): bool
+    {
+        return true;
+    }
+
+    public function create(User $user): bool
+    {
+        return true;
+    }
+
     public function view(User $user, Category $category): bool
     {
         return $category->user_id === null || $user->id === $category->user_id;
-
     }
 
     public function update(User $user, Category $category): bool

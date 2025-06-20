@@ -16,5 +16,6 @@ final class CategoryResource extends Data
         public string $name,
         public Color $color,
         public ?string $description = null,
+        public bool $is_default = false,
     ) {}
 }
