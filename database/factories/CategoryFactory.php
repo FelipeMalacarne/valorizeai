@@ -24,6 +24,7 @@ final class CategoryFactory extends Factory
             'name'        => $this->faker->word(),
             'description' => $this->faker->sentence(),
             'color'       => $this->faker->randomElement(Color::cases()),
+            'is_default'  => false,
             'user_id'     => User::factory(),
         ];
     }
@@ -32,6 +33,7 @@ final class CategoryFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
+                'is_default' => true,
                 'user_id' => null,
             ];
         });

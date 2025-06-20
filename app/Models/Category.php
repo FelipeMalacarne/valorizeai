@@ -19,6 +19,7 @@ final class Category extends Model
         'name',
         'description',
         'color',
+        'is_default',
         'user_id',
     ];
 
@@ -27,10 +28,24 @@ final class Category extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function scopeDefault($query): void
+    {
+        $query->where('is_default', true);
+    }
+
+    public function scopeWhereUser($query, string $user_id): void
+    {
+        $query->where(function ($query) use ($user_id) {
+            $query->where('user_id', $user_id)
+                ->orWhereNull('user_id');
+        });
+    }
+
     protected function casts(): array
     {
         return [
-            'color' => Color::class,
+            'color'      => Color::class,
+            'is_default' => 'boolean',
         ];
     }
 }

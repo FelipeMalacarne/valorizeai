@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('description')->nullable();
             $table->string('color');
+            $table->boolean('is_default')->default(false);
             $table->foreignUuid('user_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->timestamps();
 
