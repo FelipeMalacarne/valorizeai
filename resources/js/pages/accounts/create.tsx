@@ -70,11 +70,27 @@ const AccountCreate = (props: SharedData<AccountCreateProps>) => {
                     </div>
 
                     <div className="grid space-y-2">
+                        <Label>Banco</Label>
                         <Combobox
                             items={props.banks.map((bank) => ({ value: bank.id, label: bank.name }))}
                             value={data.bank_id}
                             onChange={(value) => setData('bank_id', value)}
                         />
+                    </div>
+
+                    <div className="grid space-y-2">
+                        <Label>Tipo</Label>
+                        <Select onValueChange={(value) => setData('type', value as App.Enums.AccountType)} value={data.type}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Selectione uma moeda" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="checking">Conta Corrente</SelectItem>
+                                <SelectItem value="savings">Poupança</SelectItem>
+                                <SelectItem value="investment">Investimentos</SelectItem>
+                                <SelectItem value="credit">Cartão de crédito</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <Button type="submit" disabled={processing} className="w-full">

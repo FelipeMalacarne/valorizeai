@@ -15,9 +15,9 @@ export function Combobox({
     items,
     value,
     onChange,
-    placeholder = 'Select an item',
-    searchPlaceholder = 'Search...',
-    noResultsText = 'No results found.',
+    placeholder = 'Selecione um item',
+    searchPlaceholder = 'Busca...',
+    noResultsText = 'Nenhum resultado encontrado.',
     className,
 }: {
     items: ComboboxItem[];
@@ -65,7 +65,7 @@ export function Combobox({
                         <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className=" p-0" align="start">
+                <PopoverContent className="p-0" align="start">
                     {itemList}
                 </PopoverContent>
             </Popover>
