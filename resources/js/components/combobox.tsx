@@ -42,9 +42,9 @@ export function Combobox({
                     {items.map((item) => (
                         <CommandItem
                             key={item.value}
-                            value={item.value}
-                            onSelect={(currentValue) => {
-                                onChange(currentValue === value ? '' : currentValue);
+                            value={item.label}
+                            onSelect={() => {
+                                onChange(item.value === value ? '' : item.value);
                                 setOpen(false);
                             }}
                         >
@@ -65,7 +65,7 @@ export function Combobox({
                         <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[200px] p-0" align="start">
+                <PopoverContent className=" p-0" align="start">
                     {itemList}
                 </PopoverContent>
             </Popover>
