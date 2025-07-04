@@ -1,0 +1,32 @@
+import AppLayout from '@/layouts/app-layout';
+import { BreadcrumbItem, SharedData } from '@/types';
+import { Head } from '@inertiajs/react';
+import React from 'react';
+
+export type {{className}}Props = {};
+
+const {{className}} = (props: SharedData<{{className}}Props>) => {
+  return (
+    <>
+      <Head title="{{title}}" />
+      <div className="container mx-auto flex h-full flex-1 flex-col space-y-6 p-4">
+        {/* ... */}
+      </div>
+    </>
+  );
+};
+
+const breadcrumbs: BreadcrumbItem[] = [
+  {
+    title: '{{breadcrumbTitle}}',
+    href: route('{{breadcrumbRoute}}'),
+  },
+  {
+    title: '{{breadcrumbChildTitle}}',
+    href: route('{{breadcrumbChildRoute}}'),
+  },
+];
+
+{{className}}.layout = (page: React.ReactNode) => <AppLayout breadcrumbs={breadcrumbs} children={page} />;
+
+export default {{className}};
