@@ -6,7 +6,7 @@ import { router } from '@inertiajs/react';
 import { X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
-export function AccountFilters() {
+export function AccountFilters({ className = '' }: { className?: string }) {
     const initialQuery: App.Http.Requests.Account.IndexAccountsRequest = {
         search: '',
         type: null,
@@ -36,7 +36,7 @@ export function AccountFilters() {
     };
 
     return (
-        <Card>
+        <Card className={className}>
             <CardContent>
                 <div className="grid grid-cols-2 items-center justify-between gap-4 md:grid-cols-5">
                     <Input
