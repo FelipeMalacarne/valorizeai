@@ -16,7 +16,7 @@ final class TransactionController extends Controller
     public function index()
     {
         return Inertia::render('transactions/index', [
-            'transactions' => Transaction::with(['account', 'category'])->paginate(10),
+            // ..
         ]);
     }
 

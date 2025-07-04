@@ -1,3 +1,4 @@
+import { ActionButtonLink } from '@/components/action-button-link';
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, PaginatedResource, SharedData } from '@/types';
 import { Head } from '@inertiajs/react';
@@ -14,6 +15,12 @@ const AccountIndex = (props: SharedData<AccountIndexProps>) => {
         <>
             <Head title="Contas" />
             <div className="container mx-auto flex h-full flex-1 flex-col space-y-6 p-4">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-3xl font-bold tracking-tight">Contas Bancárias</h2>
+
+                    <ActionButtonLink action="create" href={route('accounts.create')} prefetch/>
+                </div>
+
                 <SectionCards />
 
                 <AccountFilters />
