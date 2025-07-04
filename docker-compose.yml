@@ -1,172 +1,212 @@
+x-laravel-depends: &common-depends
+  pgsql:
+    condition: service_healthy
+  redis:
+    condition: service_healthy
+  minio:
+    condition: service_healthy
+  mailpit:
+    condition: service_started
+  composer:
+    condition: service_completed_successfully
+  npm:
+    condition: service_completed_successfully
+
 services:
-    laravel.test:
-        build:
-            context: ./docker/8.4
-            dockerfile: Dockerfile
-            args:
-                WWWGROUP: '${WWWGROUP}'
-        image: sail-8.4/app
-        extra_hosts:
-            - 'host.docker.internal:host-gateway'
-        ports:
-            - '${APP_PORT:-80}:80'
-        environment:
-            WWWUSER: '${WWWUSER}'
-            LARAVEL_SAIL: 1
-            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
-            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
-            IGNITION_LOCAL_SITES_PATH: '${PWD}'
-            SUPERVISOR_PHP_COMMAND: '/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan octane:start --watch --server=swoole --host=0.0.0.0 --port=80'
-        volumes:
-            - '.:/var/www/html'
-        networks:
-            - sail
-        depends_on:
-            - pgsql
-            - redis
-            - minio
-            - mailpit
-            - typesense
-    pgsql:
-        image: 'postgres:17'
-        ports:
-            - '${FORWARD_DB_PORT:-5432}:5432'
-        environment:
-            PGPASSWORD: '${DB_PASSWORD:-secret}'
-            POSTGRES_DB: '${DB_DATABASE}'
-            POSTGRES_USER: '${DB_USERNAME}'
-            POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
-        volumes:
-            - 'sail-pgsql:/var/lib/postgresql/data'
-            - './docker/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
-        networks:
-            - sail
-        healthcheck:
-            test:
-                - CMD
-                - pg_isready
-                - '-q'
-                - '-d'
-                - '${DB_DATABASE}'
-                - '-U'
-                - '${DB_USERNAME}'
-            retries: 3
-            timeout: 5s
-    redis:
-        image: 'redis:alpine'
-        ports:
-            - '${FORWARD_REDIS_PORT:-6379}:6379'
-        volumes:
-            - 'sail-redis:/data'
-        networks:
-            - sail
-        healthcheck:
-            test:
-                - CMD
-                - redis-cli
-                - ping
-            retries: 3
-            timeout: 5s
-    worker:
-        image: sail-8.4/app
-        volumes:
-            - '.:/var/www/html'
-        entrypoint: 'php artisan queue:work'
-        restart: always
-        networks:
-            - sail
-        depends_on:
-            pgsql:
-                condition: service_healthy
-            redis:
-                condition: service_healthy
-            minio:
-                condition: service_healthy
-            mailpit:
-                condition: service_started
-    frontend:
-        image: sail-8.4/app
-        ports:
-            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
-        environment:
-            WWWUSER: '${WWWUSER}'
-            LARAVEL_SAIL: 1
-            VITE_PORT: '${VITE_PORT:-5173}'
-        volumes:
-            - '.:/var/www/html'
-        entrypoint: 'npm run dev'
-        restart: always
-        networks:
-            - sail
-        depends_on:
-            pgsql:
-                condition: service_healthy
-            redis:
-                condition: service_healthy
-            minio:
-                condition: service_healthy
-            mailpit:
-                condition: service_started
-    minio:
-        image: 'minio/minio:latest'
-        ports:
-            - '${FORWARD_MINIO_PORT:-9000}:9000'
-            - '${FORWARD_MINIO_CONSOLE_PORT:-8900}:8900'
-        environment:
-            MINIO_ROOT_USER: sail
-            MINIO_ROOT_PASSWORD: password
-        volumes:
-            - 'sail-minio:/data'
-        networks:
-            - sail
-        command: 'minio server /data --console-address ":8900"'
-        healthcheck:
-            test:
-                - CMD
-                - mc
-                - ready
-                - local
-            retries: 3
-            timeout: 5s
-    mailpit:
-        image: 'axllent/mailpit:latest'
-        ports:
-            - '${FORWARD_MAILPIT_PORT:-1025}:1025'
-            - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
-        networks:
-            - sail
-    typesense:
-        image: 'typesense/typesense:27.1'
-        ports:
-            - '${FORWARD_TYPESENSE_PORT:-8108}:8108'
-        environment:
-            TYPESENSE_DATA_DIR: '${TYPESENSE_DATA_DIR:-/typesense-data}'
-            TYPESENSE_API_KEY: '${TYPESENSE_API_KEY:-xyz}'
-            TYPESENSE_ENABLE_CORS: '${TYPESENSE_ENABLE_CORS:-true}'
-        volumes:
-            - 'sail-typesense:/typesense-data'
-        networks:
-            - sail
-        healthcheck:
-            test:
-                - CMD
-                - wget
-                - '--no-verbose'
-                - '--spider'
-                - 'http://localhost:8108/health'
-            retries: 5
-            timeout: 7s
+  laravel.test:
+    build:
+      context: ./docker/8.4
+      dockerfile: Dockerfile
+      args:
+        WWWGROUP: '${WWWGROUP}'
+    image: sail-8.4/app
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '${APP_PORT:-80}:80'
+    environment:
+      WWWUSER: '${WWWUSER}'
+      LARAVEL_SAIL: 1
+      XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+      XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+      IGNITION_LOCAL_SITES_PATH: '${PWD}'
+      SUPERVISOR_PHP_COMMAND: '/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan octane:start --watch --server=swoole --host=0.0.0.0 --port=80'
+    volumes:
+      - '.:/var/www/html'
+    networks:
+      - sail
+    depends_on:
+        <<: *common-depends
+
+  worker:
+    image: sail-8.4/app
+    volumes:
+      - '.:/var/www/html'
+    entrypoint: 'php artisan queue:work'
+    restart: always
+    networks:
+      - sail
+    depends_on:
+        <<: *common-depends
+
+  nightwatch:
+    image: sail-8.4/app
+    volumes:
+      - '.:/var/www/html'
+    ports:
+      - 2407:2407
+    entrypoint: 'php artisan nightwatch:agent --listen-on=0.0.0.0:2407'
+    restart: always
+    networks:
+      - sail
+    depends_on:
+        <<: *common-depends
+
+  pgsql:
+    image: 'postgres:17'
+    ports:
+      - '${FORWARD_DB_PORT:-5432}:5432'
+    environment:
+      PGPASSWORD: '${DB_PASSWORD:-secret}'
+      POSTGRES_DB: '${DB_DATABASE}'
+      POSTGRES_USER: '${DB_USERNAME}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+    volumes:
+      - 'sail-pgsql:/var/lib/postgresql/data'
+      - './docker/pgsql/create-testing-database.sql:/docker-entrypoint-initdb.d/10-create-testing-database.sql'
+    networks:
+      - sail
+    healthcheck:
+      test:
+        - CMD
+        - pg_isready
+        - '-q'
+        - '-d'
+        - '${DB_DATABASE}'
+        - '-U'
+        - '${DB_USERNAME}'
+      retries: 3
+      timeout: 5s
+
+  redis:
+    image: 'redis:alpine'
+    ports:
+      - '${FORWARD_REDIS_PORT:-6379}:6379'
+    volumes:
+      - 'sail-redis:/data'
+    networks:
+      - sail
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      retries: 3
+      timeout: 5s
+
+  frontend:
+    image: sail-8.4/app
+    ports:
+      - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+    environment:
+      WWWUSER: '${WWWUSER}'
+      LARAVEL_SAIL: 1
+      VITE_PORT: '${VITE_PORT:-5173}'
+    volumes:
+      - '.:/var/www/html'
+    entrypoint: 'npm run dev'
+    restart: always
+    networks:
+      - sail
+    depends_on:
+      pgsql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+
+  minio:
+    image: 'minio/minio:latest'
+    ports:
+      - '${FORWARD_MINIO_PORT:-9000}:9000'
+      - '${FORWARD_MINIO_CONSOLE_PORT:-8900}:8900'
+    environment:
+      MINIO_ROOT_USER: sail
+      MINIO_ROOT_PASSWORD: password
+    volumes:
+      - 'sail-minio:/data'
+    networks:
+      - sail
+    command: 'minio server /data --console-address ":8900"'
+    healthcheck:
+      test:
+        - CMD
+        - mc
+        - ready
+        - local
+      retries: 3
+      timeout: 5s
+
+  mailpit:
+    image: 'axllent/mailpit:latest'
+    ports:
+      - '${FORWARD_MAILPIT_PORT:-1025}:1025'
+      - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
+    networks:
+      - sail
+
+  typesense:
+    image: 'typesense/typesense:27.1'
+    ports:
+      - '${FORWARD_TYPESENSE_PORT:-8108}:8108'
+    environment:
+      TYPESENSE_DATA_DIR: '${TYPESENSE_DATA_DIR:-/typesense-data}'
+      TYPESENSE_API_KEY: '${TYPESENSE_API_KEY:-xyz}'
+      TYPESENSE_ENABLE_CORS: '${TYPESENSE_ENABLE_CORS:-true}'
+    volumes:
+      - 'sail-typesense:/typesense-data'
+    networks:
+      - sail
+    healthcheck:
+      test:
+        - CMD
+        - wget
+        - '--no-verbose'
+        - '--spider'
+        - 'http://localhost:8108/health'
+      retries: 5
+      timeout: 7s
+
+  composer:
+    image: sail-8.4/app
+    volumes:
+      - '.:/var/www/html'
+    entrypoint: composer install
+    networks:
+      - sail
+
+  npm:
+    image: sail-8.4/app
+    volumes:
+      - '.:/var/www/html'
+    entrypoint: npm install
+    networks:
+      - sail
+
 networks:
-    sail:
-        driver: bridge
+  sail:
+    driver: bridge
 volumes:
-    sail-pgsql:
-        driver: local
-    sail-redis:
-        driver: local
-    sail-minio:
-        driver: local
-    data01:
-        driver: local
-    sail-typesense:
-        driver: local
+  sail-pgsql:
+    driver: local
+  sail-redis:
+    driver: local
+  sail-minio:
+    driver: local
+  data01:
+    driver: local
+  sail-typesense:
+    driver: local
