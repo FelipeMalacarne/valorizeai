@@ -15,11 +15,11 @@ final class CreateCategory
     {
         return DB::transaction(function () use ($data, $user) {
             return Category::create([
-                'name' => $data->name,
+                'name'        => $data->name,
                 'description' => $data->description,
-                'color' => $data->color,
-                'is_default' => $data->is_default,
-                'user_id' => $user->id,
+                'color'       => $data->color,
+                'is_default'  => $data->is_default,
+                'user_id'     => $user->id,
             ]);
         });
     }

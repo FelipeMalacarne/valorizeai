@@ -6,9 +6,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Str;
 
-class MakeActionCommand extends Command
+final class MakeActionCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -29,14 +28,13 @@ class MakeActionCommand extends Command
     protected $description = 'Create a new action class with an optional corresponding request';
 
     /**
-     * @var \Illuminate\Filesystem\Filesystem
+     * @var Filesystem
      */
     protected $files;
 
     /**
      * Create a new command instance.
      *
-     * @param  \Illuminate\Filesystem\Filesystem  $files
      * @return void
      */
     public function __construct(Filesystem $files)
@@ -60,7 +58,7 @@ class MakeActionCommand extends Command
         $this->generateAction($name, $namespace, $withoutRequest, $model);
 
         // Generate request if not skipped
-        if (!$withoutRequest) {
+        if (! $withoutRequest) {
             $this->generateRequest($name, $namespace);
             $this->info('Action and Request created successfully!');
         } else {
@@ -83,6 +81,7 @@ class MakeActionCommand extends Command
 
         if ($this->files->exists($actionPath)) {
             $this->error("Action {$name} already exists!");
+
             return;
         }
 
@@ -95,7 +94,7 @@ class MakeActionCommand extends Command
 
         $stub = str_replace(
             ['{{ namespace }}', '{{ namespaceStatement }}', '{{ class }}', '{{ requestClass }}', '{{ modelClass }}', '{{ modelNamespace }}'],
-            ['App\\Actions' . $namespaceStatement, $namespaceStatement, $name, $requestName, $modelClass, $modelNamespace],
+            ['App\\Actions'.$namespaceStatement, $namespaceStatement, $name, $requestName, $modelClass, $modelNamespace],
             $stub
         );
 
@@ -117,6 +116,7 @@ class MakeActionCommand extends Command
 
         if ($this->files->exists($requestPath)) {
             $this->error("Request {$requestName} already exists!");
+
             return;
         }
 
@@ -126,7 +126,7 @@ class MakeActionCommand extends Command
 
         $stub = str_replace(
             ['{{ namespace }}', '{{ namespaceStatement }}', '{{ class }}'],
-            ['App\\Http\\Requests' . $namespaceStatement, $namespaceStatement, $requestName],
+            ['App\\Http\\Requests'.$namespaceStatement, $namespaceStatement, $requestName],
             $stub
         );
 
@@ -164,7 +164,7 @@ class MakeActionCommand extends Command
      */
     protected function makeDirectory(string $path): string
     {
-        if (!$this->files->isDirectory(dirname($path))) {
+        if (! $this->files->isDirectory(dirname($path))) {
             $this->files->makeDirectory(dirname($path), 0755, true, true);
         }
 

@@ -7,7 +7,6 @@ namespace App\Http\Resources;
 use App\Enums\TransactionType;
 use App\ValueObjects\Money;
 use Carbon\Carbon;
-use Illuminate\Support\Number;
 use Spatie\LaravelData\Attributes\Computed;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;

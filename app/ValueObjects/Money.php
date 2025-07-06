@@ -71,7 +71,7 @@ final class Money implements Arrayable, Castable, DataCastable, JsonSerializable
                 // Allow setting null to clear balance and currency
                 if ($value === null) {
                     return [
-                        'amount'  => null,
+                        'amount'   => null,
                         'currency' => null,
                     ];
                 }
@@ -94,7 +94,7 @@ final class Money implements Arrayable, Castable, DataCastable, JsonSerializable
                 }
 
                 return [
-                    'amount'  => $value->amount, // Integer (smallest unit)
+                    'amount'   => $value->amount, // Integer (smallest unit)
                     'currency' => $value->currency->value, // Enum value (string)
                 ];
             }
@@ -164,9 +164,9 @@ final class Money implements Arrayable, Castable, DataCastable, JsonSerializable
     public function toArray(): array
     {
         return [
-            'amount'          => $this->amount, // Integer (smallest unit)
-            'formatted'       => $this->format(), // Formatted string (e.g., "$10.50")
-            'currency'        => $this->currency->value, // String value of the enum
+            'amount'    => $this->amount, // Integer (smallest unit)
+            'formatted' => $this->format(), // Formatted string (e.g., "$10.50")
+            'currency'  => $this->currency->value, // String value of the enum
         ];
     }
 

@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 
-class MakePageCommand extends Command
+final class MakePageCommand extends Command
 {
     protected $signature = 'make:page {name : The name of the page to create (e.g. accounts/index)}';
 
@@ -38,6 +38,7 @@ class MakePageCommand extends Command
 
         if ($this->files->exists($path)) {
             $this->error("Page {$name} already exists!");
+
             return;
         }
 
@@ -48,9 +49,9 @@ class MakePageCommand extends Command
         $className = Str::studly(str_replace('/', ' ', $name));
         $title = Str::headline(class_basename($name));
         $breadcrumbTitle = Str::plural(Str::headline(dirname($name)));
-        $breadcrumbRoute = strtolower(Str::plural(dirname($name))) . '.index';
+        $breadcrumbRoute = mb_strtolower(Str::plural(dirname($name))).'.index';
         $breadcrumbChildTitle = $title;
-        $breadcrumbChildRoute = strtolower(Str::plural(dirname($name))) . '.' . strtolower(Str::kebab(class_basename($name)));
+        $breadcrumbChildRoute = mb_strtolower(Str::plural(dirname($name))).'.'.mb_strtolower(Str::kebab(class_basename($name)));
 
         $stub = str_replace(
             ['{{className}}', '{{title}}', '{{breadcrumbTitle}}', '{{breadcrumbRoute}}', '{{breadcrumbChildTitle}}', '{{breadcrumbChildRoute}}'],
@@ -70,7 +71,7 @@ class MakePageCommand extends Command
 
     protected function makeDirectory(string $path): string
     {
-        if (!$this->files->isDirectory(dirname($path))) {
+        if (! $this->files->isDirectory(dirname($path))) {
             $this->files->makeDirectory(dirname($path), 0755, true, true);
         }
 

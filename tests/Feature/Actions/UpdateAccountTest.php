@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Actions\Account\UpdateAccount;
 use App\Enums\AccountType;
 use App\Http\Requests\Account\UpdateAccountRequest;
@@ -19,7 +21,7 @@ test('it updates the account name', function () {
     $account = $action->handle($data, $account);
 
     $this->assertDatabaseHas('accounts', [
-        'id' => $account->id,
+        'id'   => $account->id,
         'name' => 'updated',
     ]);
 
@@ -35,7 +37,7 @@ test('it updates the account number', function () {
     $account = $action->handle($data, $account);
 
     $this->assertDatabaseHas('accounts', [
-        'id' => $account->id,
+        'id'     => $account->id,
         'number' => '123456789',
     ]);
     $this->assertEquals('123456789', $account->number);
@@ -50,7 +52,7 @@ test('it updates the account type', function () {
     $account = $action->handle($data, $account);
 
     $this->assertDatabaseHas('accounts', [
-        'id' => $account->id,
+        'id'   => $account->id,
         'type' => 'savings',
     ]);
     $this->assertEquals('savings', $account->type->value);
@@ -69,10 +71,10 @@ test('it updates the account with all fields', function () {
     $account = $action->handle($data, $account);
 
     $this->assertDatabaseHas('accounts', [
-        'id' => $account->id,
-        'name' => 'updated',
+        'id'     => $account->id,
+        'name'   => 'updated',
         'number' => '123456789',
-        'type' => 'savings',
+        'type'   => 'savings',
     ]);
 
     $this->assertEquals('updated', $account->name);
@@ -90,14 +92,13 @@ test('it does not update the account if no data is provided', function () {
     $account = $action->handle($data, $account);
 
     $this->assertDatabaseHas('accounts', [
-        'id' => $account->id,
-        'name' => $account->name,
+        'id'     => $account->id,
+        'name'   => $account->name,
         'number' => $account->number,
-        'type' => $account->type->value,
+        'type'   => $account->type->value,
     ]);
 
     $this->assertEquals($account->name, $account->name);
     $this->assertEquals($account->number, $account->number);
     $this->assertEquals($account->type->value, $account->type->value);
 });
-

@@ -34,7 +34,7 @@ final class CategoryFactory extends Factory
         return $this->state(function (array $attributes) {
             return [
                 'is_default' => true,
-                'user_id' => null,
+                'user_id'    => null,
             ];
         });
     }

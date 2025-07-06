@@ -10,16 +10,15 @@ use App\Http\Requests\Category\CreateCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
 use App\Models\Category;
 use App\Models\User;
-use Illuminate\Validation\ValidationException;
 
 test('user can create a category', function () {
     $user = User::factory()->create();
 
     $data = CreateCategoryRequest::from([
-        'name' => 'Test Category',
+        'name'        => 'Test Category',
         'description' => 'A test category',
-        'color' => Color::BLUE,
-        'is_default' => false,
+        'color'       => Color::BLUE,
+        'is_default'  => false,
     ]);
 
     $category = app(CreateCategory::class)->handle($data, $user);
@@ -37,10 +36,10 @@ test('user can update their own category', function () {
     ]);
 
     $data = UpdateCategoryRequest::from([
-        'name' => 'Updated Name',
+        'name'        => 'Updated Name',
         'description' => 'Updated description',
-        'color' => Color::RED,
-        'is_default' => false,
+        'color'       => Color::RED,
+        'is_default'  => false,
     ]);
 
     $updatedCategory = app(UpdateCategory::class)->handle($data, $category);
@@ -67,10 +66,10 @@ test('different users can have categories with the same name', function () {
     Category::factory()->for($user1)->create(['name' => 'Same Name']);
 
     $data = CreateCategoryRequest::from([
-        'name' => 'Same Name',
+        'name'        => 'Same Name',
         'description' => 'Different user category',
-        'color' => Color::YELLOW,
-        'is_default' => false,
+        'color'       => Color::YELLOW,
+        'is_default'  => false,
     ]);
 
     $category = app(CreateCategory::class)->handle($data, $user2);

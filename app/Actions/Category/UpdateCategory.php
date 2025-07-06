@@ -14,10 +14,10 @@ final class UpdateCategory
     {
         return DB::transaction(function () use ($data, $category) {
             $category->update([
-                'name' => $data->name,
+                'name'        => $data->name,
                 'description' => $data->description,
-                'color' => $data->color,
-                'is_default' => $data->is_default,
+                'color'       => $data->color,
+                'is_default'  => $data->is_default,
             ]);
 
             return $category->fresh();

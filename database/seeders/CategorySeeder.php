@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Actions\Category\SeedDefaultCategories;
 use App\Enums\Color;
 use App\Models\Category;
 use Illuminate\Database\Seeder;
@@ -20,71 +19,71 @@ final class CategorySeeder extends Seeder
         DB::transaction(function () {
             $defaultCategories = [
                 [
-                    'name' => 'Food & Dining',
+                    'name'        => 'Food & Dining',
                     'description' => 'Restaurants, groceries, and dining expenses',
-                    'color' => Color::RED,
-                    'is_default' => true,
+                    'color'       => Color::RED,
+                    'is_default'  => true,
                 ],
                 [
-                    'name' => 'Transportation',
+                    'name'        => 'Transportation',
                     'description' => 'Gas, public transport, car maintenance',
-                    'color' => Color::BLUE,
-                    'is_default' => true,
+                    'color'       => Color::BLUE,
+                    'is_default'  => true,
                 ],
                 [
-                    'name' => 'Shopping',
+                    'name'        => 'Shopping',
                     'description' => 'Clothing, electronics, and general purchases',
-                    'color' => Color::MAUVE,
-                    'is_default' => true,
+                    'color'       => Color::MAUVE,
+                    'is_default'  => true,
                 ],
                 [
-                    'name' => 'Entertainment',
+                    'name'        => 'Entertainment',
                     'description' => 'Movies, games, hobbies, and leisure activities',
-                    'color' => Color::PINK,
-                    'is_default' => true,
+                    'color'       => Color::PINK,
+                    'is_default'  => true,
                 ],
                 [
-                    'name' => 'Bills & Utilities',
+                    'name'        => 'Bills & Utilities',
                     'description' => 'Electricity, water, internet, phone bills',
-                    'color' => Color::PEACH,
-                    'is_default' => true,
+                    'color'       => Color::PEACH,
+                    'is_default'  => true,
                 ],
                 [
-                    'name' => 'Healthcare',
+                    'name'        => 'Healthcare',
                     'description' => 'Medical expenses, pharmacy, insurance',
-                    'color' => Color::GREEN,
-                    'is_default' => true,
+                    'color'       => Color::GREEN,
+                    'is_default'  => true,
                 ],
                 [
-                    'name' => 'Education',
+                    'name'        => 'Education',
                     'description' => 'Books, courses, training, and learning',
-                    'color' => Color::SAPPHIRE,
-                    'is_default' => true,
+                    'color'       => Color::SAPPHIRE,
+                    'is_default'  => true,
                 ],
                 [
-                    'name' => 'Travel',
+                    'name'        => 'Travel',
                     'description' => 'Vacations, hotels, and travel expenses',
-                    'color' => Color::TEAL,
-                    'is_default' => true,
+                    'color'       => Color::TEAL,
+                    'is_default'  => true,
                 ],
                 [
-                    'name' => 'Income',
+                    'name'        => 'Income',
                     'description' => 'Salary, freelance, and other income sources',
-                    'color' => Color::SKY,
-                    'is_default' => true,
+                    'color'       => Color::SKY,
+                    'is_default'  => true,
                 ],
                 [
-                    'name' => 'Savings',
+                    'name'        => 'Savings',
                     'description' => 'Emergency fund, investments, and savings',
-                    'color' => Color::LAVENDER,
-                    'is_default' => true,
+                    'color'       => Color::LAVENDER,
+                    'is_default'  => true,
                 ],
             ];
 
             foreach ($defaultCategories as $categoryData) {
                 Category::firstOrCreate(
                     [
-                        'name' => $categoryData['name'],
+                        'name'    => $categoryData['name'],
                         'user_id' => null, // Default categories have no user_id
                     ],
                     $categoryData

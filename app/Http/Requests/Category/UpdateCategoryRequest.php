@@ -45,8 +45,8 @@ final class UpdateCategoryRequest extends Data
                 },
             ],
             'description' => ['nullable', 'string', 'max:500'],
-            'color' => ['required'],
-            'is_default' => ['boolean'],
+            'color'       => ['required'],
+            'is_default'  => ['boolean'],
         ];
     }
 }

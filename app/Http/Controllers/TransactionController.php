@@ -18,8 +18,13 @@ final class TransactionController extends Controller
     {
         $transactions = Auth::user()->transactions()->paginate()->withQueryString();
 
+        $transactions->load([
+            'category',
+            'account.bank',
+        ]);
+
         return Inertia::render('transactions/index', [
-            'transactions' => TransactionResource::collect($transactions->load(['category', 'account.bank'])),
+            'transactions' => TransactionResource::collect($transactions),
         ]);
     }
 

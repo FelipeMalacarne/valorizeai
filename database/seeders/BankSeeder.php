@@ -1,14 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Bank;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
-class BankSeeder extends Seeder
+final class BankSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -249,7 +249,7 @@ class BankSeeder extends Seeder
             Bank::firstOrCreate(
                 ['code' => $bankData['code']],
                 [
-                    'id' => Str::uuid7(),
+                    'id'   => Str::uuid7(),
                     'name' => $bankData['name'],
                 ]
             );
