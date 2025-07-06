@@ -2,6 +2,8 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, SharedData } from '@/types';
 import { Head } from '@inertiajs/react';
 import React from 'react';
+import { AddTransactionCard } from './components/add-transaction-card';
+import { BalanceCard } from './components/balance-card';
 
 export type TransactionsIndexProps = {};
 
@@ -9,7 +11,15 @@ const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {
     return (
         <>
             <Head title="Index" />
-            <div className="container mx-auto flex h-full flex-1 flex-col space-y-6 p-4">{/* ... */}</div>
+            <div className="container mx-auto flex h-full flex-1 flex-col space-y-6 p-4">
+
+                    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                        <AddTransactionCard />
+                        <BalanceCard />
+                        <BalanceCard />
+                    </div>
+                {/* ... */}
+            </div>
         </>
     );
 };
