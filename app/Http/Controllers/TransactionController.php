@@ -4,19 +4,22 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\Transaction\CreateTransaction;
+use App\Http\Requests\Transaction\StoreTransactionRequest;
+use App\Http\Resources\TransactionResource;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 final class TransactionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
+        $transactions = Auth::user()->transactions()->paginate()->withQueryString();
+
         return Inertia::render('transactions/index', [
-            // ..
+            'transactions' => TransactionResource::collect($transactions),
         ]);
     }
 
@@ -31,9 +34,11 @@ final class TransactionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTransactionRequest $request, CreateTransaction $action)
     {
-        //
+        $action->handle($request);
+
+        return redirect()->route('transactions.index');
     }
 
     /**

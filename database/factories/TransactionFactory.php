@@ -8,6 +8,7 @@ use App\Enums\Currency;
 use App\Enums\TransactionType;
 use App\Models\Account;
 use App\Models\Category;
+use App\ValueObjects\Money;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,14 +24,13 @@ final class TransactionFactory extends Factory
     public function definition(): array
     {
         return [
-            'amount'      => $this->faker->numberBetween(-10000, 10000),
+            'amount'      => new Money($this->faker->numberBetween(-10000, 10000), $this->faker->randomElement(Currency::cases())),
             'fitid'       => $this->faker->uuid(),
             'memo'        => $this->faker->sentence(),
-            'currency'    => $this->faker->randomElement(Currency::cases()),
             'type'        => $this->faker->randomElement(TransactionType::cases()),
             'date'        => $this->faker->dateTimeBetween('-1 year', 'now'),
-            'category_id' => Category::factory()->create(),
-            'account_id'  => Account::factory()->create(),
+            'category_id' => Category::factory(),
+            'account_id'  => Account::factory(),
         ];
     }
 }

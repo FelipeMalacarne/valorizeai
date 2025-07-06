@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\Currency;
 use App\Enums\TransactionType;
+use App\ValueObjects\Money;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -40,7 +41,7 @@ final class Transaction extends Model
     protected function casts(): array
     {
         return [
-            'amount'   => 'integer',
+            'amount'   => Money::class,
             'type'     => TransactionType::class,
             'currency' => Currency::class,
             'date'     => 'datetime',

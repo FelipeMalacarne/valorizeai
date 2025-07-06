@@ -17,6 +17,7 @@ declare namespace App.Enums {
         | 'sapphire';
     export type Currency = 'BRL' | 'USD';
     export type OrganizationRole = 'owner' | 'admin' | 'member';
+    export type TransactionType = 'debit' | 'credit';
 }
 declare namespace App.Http.Requests {
     export type RegisterUserRequest = {
@@ -46,6 +47,36 @@ declare namespace App.Http.Requests.Account {
         type: App.Enums.AccountType | null;
     };
 }
+declare namespace App.Http.Requests.Category {
+    export type CreateCategoryRequest = {
+        name: string;
+        color: App.Enums.Color;
+        description: string | null;
+        is_default: boolean;
+    };
+    export type ListCategoriesRequest = {
+        search: string | null;
+        is_default: boolean | null;
+        per_page: number;
+        page: number;
+    };
+    export type UpdateCategoryRequest = {
+        name: string;
+        color: App.Enums.Color;
+        description: string | null;
+        is_default: boolean;
+    };
+}
+declare namespace App.Http.Requests.Transaction {
+    export type StoreTransactionRequest = {
+        account_id: string;
+        category_id: string | null;
+        amount: App.ValueObjects.Money;
+        type: App.Enums.TransactionType;
+        date: string;
+        memo: string | null;
+    };
+}
 declare namespace App.Http.Resources {
     export type AccountResource = {
         id: string;
@@ -65,5 +96,23 @@ declare namespace App.Http.Resources {
         name: string;
         color: App.Enums.Color;
         description: string | null;
+        is_default: boolean;
+    };
+    export type TransactionResource = {
+        amount_formatted: string;
+        id: string;
+        amount: App.ValueObjects.Money;
+        fitid: string | null;
+        memo: string | null;
+        type: App.Enums.TransactionType;
+        date: string;
+        category: App.Http.Resources.CategoryResource | null;
+        account: App.Http.Resources.AccountResource;
+    };
+}
+declare namespace App.ValueObjects {
+    export type Money = {
+        amount: number;
+        currency: App.Enums.Currency;
     };
 }

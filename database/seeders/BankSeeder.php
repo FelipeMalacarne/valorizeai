@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Bank;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -244,16 +245,14 @@ class BankSeeder extends Seeder
             ['code' => '754', 'name' => 'Banco Sistema S.A.'],
         ];
 
-        $banks = collect($banks)->map(function ($bank) {
-            return [
-                'id' => Str::uuid7(),
-                'code' => $bank['code'],
-                'name' => $bank['name'],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-        })->toArray();
-
-        DB::table('banks')->insert($banks);
+        foreach ($banks as $bankData) {
+            Bank::firstOrCreate(
+                ['code' => $bankData['code']],
+                [
+                    'id' => Str::uuid7(),
+                    'name' => $bankData['name'],
+                ]
+            );
+        }
     }
 }

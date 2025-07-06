@@ -17,11 +17,23 @@ final class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory()->create([
+        $user = User::factory()->create([
             'name'               => 'Test User',
             'email'              => 'test@example.com',
             'preferred_currency' => 'BRL',
         ]);
+
+        // Create accounts for the user
+        $accounts = \App\Models\Account::factory(3)->create([
+            'user_id' => $user->id,
+        ]);
+
+        // Create transactions for each account
+        foreach ($accounts as $account) {
+            \App\Models\Transaction::factory(10)->create([
+                'account_id' => $account->id,
+            ]);
+        }
 
         $this->call([
             BankSeeder::class,
