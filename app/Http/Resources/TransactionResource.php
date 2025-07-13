@@ -7,9 +7,12 @@ namespace App\Http\Resources;
 use App\Enums\TransactionType;
 use App\ValueObjects\Money;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Spatie\LaravelData\Attributes\Computed;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Optional;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
+use App\Http\Resources\TransactionSplitResource; // New import
 
 #[TypeScript]
 final class TransactionResource extends Data
@@ -25,7 +28,9 @@ final class TransactionResource extends Data
         public TransactionType $type,
         public Carbon $date,
         public ?CategoryResource $category,
-        public AccountResource $account
+        public AccountResource $account,
+        /** @var TransactionSplitResource[] $splits */ // Updated type hint
+        public Optional|Collection $splits, // Changed property name
     ) {
         $this->amount_formatted = $this->amount->format();
     }

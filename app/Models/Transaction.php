@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\TransactionSplit;
 
 final class Transaction extends Model
 {
@@ -36,6 +38,11 @@ final class Transaction extends Model
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
+    }
+
+    public function splits(): HasMany
+    {
+        return $this->hasMany(TransactionSplit::class);
     }
 
     protected function casts(): array

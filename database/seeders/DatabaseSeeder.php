@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\TransactionSplit; // Added this line
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -30,7 +31,20 @@ final class DatabaseSeeder extends Seeder
 
         // Create transactions for each account
         foreach ($accounts as $account) {
-            \App\Models\Transaction::factory(10)->create([
+            // Create some transactions
+            \App\Models\Transaction::factory(5)->create([
+                'account_id' => $account->id,
+            ])->each(function (\App\Models\Transaction $transaction) {
+                // Create splits for some transactions
+                if (rand(0, 1)) { // Randomly create splits for half of the transactions
+                    \App\Models\TransactionSplit::factory(rand(2, 3))->create([
+                        'transaction_id' => $transaction->id,
+                    ]);
+                }
+            });
+
+            // Create some transactions without splits
+            \App\Models\Transaction::factory(3)->create([
                 'account_id' => $account->id,
             ]);
         }

@@ -19,6 +19,7 @@ final class TransactionController extends Controller
         $transactions = Auth::user()->transactions()->paginate()->withQueryString();
 
         $transactions->load([
+            'splits.category',
             'category',
             'account.bank',
         ]);
