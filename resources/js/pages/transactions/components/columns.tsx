@@ -1,13 +1,30 @@
 import { CategoryBadge } from '@/components/category-badge';
+import { Button } from '@/components/ui/button';
 import { ColumnDef } from '@tanstack/react-table';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import { TransactionActionDropdown } from './transaction-actions-dropdown';
 
 export const columns: ColumnDef<App.Http.Resources.TransactionResource>[] = [
+    {
+        id: 'expander',
+        header: '',
+        cell: ({ row }) => {
+            return row.getCanExpand() ? (
+                <Button variant="ghost" size="sm" onClick={row.getToggleExpandedHandler()} className="h-6 w-6 p-0">
+                    {row.getIsExpanded() ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                </Button>
+            ) : null;
+        },
+        size: 40,
+    },
     {
         accessorKey: 'date',
         header: 'Date',
         cell: ({ row }) => {
-            const date = new Date(row.getValue('date'));
-            return new Intl.DateTimeFormat(navigator.language).format(date);
+            if (row.getValue('date')) {
+                const date = new Date(row.getValue('date'));
+                return new Intl.DateTimeFormat(navigator.language).format(date);
+            }
         },
     },
     {
@@ -30,5 +47,11 @@ export const columns: ColumnDef<App.Http.Resources.TransactionResource>[] = [
     {
         accessorKey: 'memo',
         header: 'Memo',
+    },
+    {
+        id: 'actions',
+        cell: ({ row }) => (
+            <TransactionActionDropdown transaction={row.original} />
+        ),
     },
 ];

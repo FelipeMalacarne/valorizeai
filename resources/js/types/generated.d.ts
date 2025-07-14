@@ -98,6 +98,13 @@ declare namespace App.Http.Resources {
         description: string | null;
         is_default: boolean;
     };
+    export type TransactionSplitResource = { // Added this
+        amount_formatted: string;
+        id: string;
+        amount: App.ValueObjects.Money;
+        memo: string | null;
+        category: App.Http.Resources.CategoryResource;
+    };
     export type TransactionResource = {
         amount_formatted: string;
         id: string;
@@ -108,6 +115,7 @@ declare namespace App.Http.Resources {
         date: string;
         category: App.Http.Resources.CategoryResource | null;
         account: App.Http.Resources.AccountResource;
+        splits: Array<App.Http.Resources.TransactionSplitResource>; // Changed from children to splits
     };
 }
 declare namespace App.ValueObjects {
