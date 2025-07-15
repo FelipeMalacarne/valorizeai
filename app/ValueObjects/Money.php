@@ -23,7 +23,7 @@ use Stringable;
 final class Money implements Arrayable, Castable, DataCastable, JsonSerializable, Stringable // , DataCastable
 {
     public function __construct(
-        public readonly int $amount, // Stored in the smallest unit (e.g., cents)
+        public readonly int $value, // Stored in the smallest unit (e.g., cents)
         public readonly Currency $currency
     ) {}
 
@@ -94,7 +94,7 @@ final class Money implements Arrayable, Castable, DataCastable, JsonSerializable
                 }
 
                 return [
-                    'amount'   => $value->amount, // Integer (smallest unit)
+                    'amount'   => $value->value, // Integer (smallest unit)
                     'currency' => $value->currency->value, // Enum value (string)
                 ];
             }
@@ -125,12 +125,12 @@ final class Money implements Arrayable, Castable, DataCastable, JsonSerializable
 
     public function format(): string
     {
-        return Number::currency(round($this->amount / 100, 2), $this->currency->value);
+        return Number::currency(round($this->value / 100, 2), $this->currency->value);
     }
 
     public function equals(self $other): bool
     {
-        return $this->amount === $other->amount && $this->currency === $other->currency;
+        return $this->value === $other->value && $this->currency === $other->currency;
     }
 
     public function add(self $other): self
@@ -141,7 +141,7 @@ final class Money implements Arrayable, Castable, DataCastable, JsonSerializable
         }
 
         // Returns a NEW instance because value objects are immutable
-        return new self($this->amount + $other->amount, $this->currency);
+        return new self($this->value + $other->value, $this->currency);
     }
 
     public function subtract(self $other): self
@@ -152,7 +152,7 @@ final class Money implements Arrayable, Castable, DataCastable, JsonSerializable
         }
 
         // Returns a NEW instance
-        return new self($this->amount - $other->amount, $this->currency);
+        return new self($this->value - $other->value, $this->currency);
     }
 
     /**
@@ -164,7 +164,7 @@ final class Money implements Arrayable, Castable, DataCastable, JsonSerializable
     public function toArray(): array
     {
         return [
-            'amount'    => $this->amount, // Integer (smallest unit)
+            'value'     => $this->value, // Integer (smallest unit)
             'formatted' => $this->format(), // Formatted string (e.g., "$10.50")
             'currency'  => $this->currency->value, // String value of the enum
         ];

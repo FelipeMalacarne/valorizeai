@@ -29,7 +29,7 @@ test('user can create a transaction', function () {
     $transaction = app(StoreTransaction::class)->handle($data);
 
     expect($transaction)->toBeInstanceOf(Transaction::class);
-    expect($transaction->amount->amount)->toBe(10000);
+    expect($transaction->amount->value)->toBe(10000);
     expect($transaction->amount->currency)->toBe(Currency::BRL);
     expect($transaction->account_id)->toBe($account->id);
 });

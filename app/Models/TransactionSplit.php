@@ -39,7 +39,7 @@ final class TransactionSplit extends Model
     {
         return Attribute::make(
             get: fn (int $value) => new Money($value, $this->transaction->currency),
-            set: fn (Money $value) => $value->amount,
+            set: fn (Money $value) => $value->value,
         );
     }
 
