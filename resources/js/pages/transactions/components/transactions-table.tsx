@@ -31,7 +31,7 @@ export function TransactionsTable({ columns, transactions }: TransactionsTablePr
             <TableCell></TableCell>
 
             <TableCell>
-                <div className="font-medium">${subRow.amount.amount.toFixed(2)}</div>
+                <div className="font-medium">${subRow.amount.value.toFixed(2)}</div>
             </TableCell>
 
             <TableCell>
