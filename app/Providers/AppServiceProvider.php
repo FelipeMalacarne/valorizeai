@@ -47,6 +47,7 @@ final class AppServiceProvider extends ServiceProvider
     {
         Model::shouldBeStrict();
         Model::unguard();
+        Model::automaticallyEagerLoadRelationships();
     }
 
     private function configureVite(): void
