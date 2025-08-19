@@ -15,7 +15,7 @@ x-laravel-depends: &common-depends
 services:
   laravel.test:
     build:
-      context: ./docker/8.4
+      context: ./docker/8.4/
       dockerfile: Dockerfile
       args:
         WWWGROUP: '${WWWGROUP}'
@@ -23,20 +23,23 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     ports:
-      - '${APP_PORT:-80}:80'
+      - '${APP_PORT:-80}:${APP_PORT:-80}'
     environment:
       WWWUSER: '${WWWUSER}'
       LARAVEL_SAIL: 1
       XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
       XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
       IGNITION_LOCAL_SITES_PATH: '${PWD}'
-      SUPERVISOR_PHP_COMMAND: '/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan octane:start --watch --server=swoole --host=0.0.0.0 --port=80'
+      SUPERVISOR_PHP_COMMAND: "/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan octane:start --watch --server=frankenphp --host=0.0.0.0 --admin-port=2019 --port='${APP_PORT:-80}'"
+      XDG_CONFIG_HOME: /var/www/html/config
+      XDG_DATA_HOME: /var/www/html/data
+
     volumes:
       - '.:/var/www/html'
     networks:
       - sail
     depends_on:
-        <<: *common-depends
+      <<: *common-depends
 
   worker:
     image: sail-8.4/app
@@ -47,7 +50,7 @@ services:
     networks:
       - sail
     depends_on:
-        <<: *common-depends
+      <<: *common-depends
 
   nightwatch:
     image: sail-8.4/app
@@ -60,7 +63,7 @@ services:
     networks:
       - sail
     depends_on:
-        <<: *common-depends
+      <<: *common-depends
 
   pgsql:
     image: 'postgres:17'
