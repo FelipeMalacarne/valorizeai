@@ -18,7 +18,6 @@ export function Combobox({
     placeholder = 'Selecione um item',
     searchPlaceholder = 'Busca...',
     noResultsText = 'Nenhum resultado encontrado.',
-    className,
 }: {
     items: ComboboxItem[];
     value: any;

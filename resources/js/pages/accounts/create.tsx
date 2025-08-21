@@ -25,7 +25,9 @@ const AccountCreate = (props: SharedData<AccountCreateProps>) => {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('accounts.store'));
+        post(route('accounts.store'), {
+            onSuccess: () => reset(),
+        });
     };
 
     return (
