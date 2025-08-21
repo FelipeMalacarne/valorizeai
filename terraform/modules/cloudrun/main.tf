@@ -18,8 +18,11 @@ resource "google_cloud_run_v2_service" "valorizeai_api" {
   template {
     max_instance_request_concurrency = var.concurrency
 
+    timeout = "300s"
+
     scaling {
       max_instance_count = var.max_instances
+      min_instance_count = var.min_instances
     }
 
     containers {
@@ -121,6 +124,7 @@ resource "google_cloud_run_v2_job" "artisan_job" {
 }
 
 resource "google_cloud_run_v2_service_iam_member" "public_invoker" {
+  count    = var.enable_public_access ? 1 : 0
   name     = google_cloud_run_v2_service.valorizeai_api.name
   project  = var.project_id
   location = var.region

@@ -36,3 +36,9 @@ variable "pgsql_password" {
   type        = string
   sensitive   = true
 }
+
+variable "domain" {
+  description = "Custom domain for the application"
+  type        = string
+  default     = "valorizeai.felipemalacarne.com.br"
+}

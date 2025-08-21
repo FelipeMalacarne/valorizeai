@@ -40,6 +40,12 @@ variable "max_instances" {
   default     = 100
 }
 
+variable "min_instances" {
+  description = "Minimum number of instances for the Cloud Run service (helps reduce cold starts)"
+  type        = number
+  default     = 0
+}
+
 variable "cpu" {
   description = "CPU allocation for the Cloud Run service"
   type        = number
@@ -55,6 +61,18 @@ variable "memory" {
 variable "image" {
   description = "Container image for the Cloud Run service"
   type        = string
+}
+
+variable "enable_public_access" {
+  description = "Enable public access to Cloud Run service (disable if using Firebase Hosting)"
+  type        = bool
+  default     = false
+}
+
+variable "domain" {
+  description = "Custom domain for the application"
+  type        = string
+  default     = "valorizeai.felipemalacarne.com.br"
 }
 
 variable "job_max_retries" {
@@ -78,7 +96,7 @@ locals {
   common_env_vars = [
     {
       name  = "APP_URL"
-      value = "https://valorize-api-567577815977.southamerica-east1.run.app"
+      value = "https://${var.domain}"
     },
     {
       name  = "APP_NAME"
@@ -150,7 +168,7 @@ locals {
     },
     {
       name  = "SESSION_DOMAIN"
-      value = null
+      value = ".${var.domain}"
     },
     {
       name  = "SESSION_LIFETIME"
@@ -175,6 +193,14 @@ locals {
     {
       name  = "OCTANE_SERVER"
       value = "frankenphp"
+    },
+    {
+      name  = "TRUSTED_PROXIES"
+      value = "*"
+    },
+    {
+      name  = "TRUSTED_HOSTS"
+      value = var.domain
     },
   ]
 
