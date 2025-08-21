@@ -112,7 +112,7 @@ locals {
     },
     {
       name  = "APP_DEBUG"
-      value = true
+      value = false
     },
     {
       name  = "APP_LOCALE"
