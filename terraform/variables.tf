@@ -1,0 +1,44 @@
+variable "gcp_project_id" {
+  description = "GCP Project ID"
+  type        = string
+  default     = "valorizeai"
+}
+
+variable "gcp_region" {
+  description = "GCP Region"
+  type        = string
+  default     = "southamerica-east1"
+}
+
+variable "gcp_zone" {
+  description = "Compute Engine zone for zonal resources (VMs)"
+  type        = string
+  default     = "southamerica-east1-a"
+}
+
+variable "pgsql_host" {
+  description = "Hostname of the PostgreSQL database"
+  type        = string
+}
+
+variable "pgsql_database" {
+  description = "Name of the PostgreSQL database"
+  type        = string
+}
+
+variable "pgsql_username" {
+  description = "Username for the PostgreSQL database"
+  type        = string
+}
+
+variable "pgsql_password" {
+  description = "Password for the PostgreSQL database"
+  type        = string
+  sensitive   = true
+}
+
+variable "domain" {
+  description = "Custom domain for the application"
+  type        = string
+  default     = "valorizeai.felipemalacarne.com.br"
+}

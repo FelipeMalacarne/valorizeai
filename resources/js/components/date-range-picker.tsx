@@ -1,13 +1,12 @@
-import * as React from "react";
-import { addDays, addHours, endOfDay, format, startOfDay } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { DateRange } from "react-day-picker";
+import { addDays, endOfDay, format, startOfDay } from 'date-fns';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { DateRange } from 'react-day-picker';
 
-import { cn } from "@/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Button } from "./ui/button";
-import { Calendar } from "./ui/calendar";
-import { Separator } from "./ui/separator";
+import { cn } from '@/lib/utils';
+import { Button } from './ui/button';
+import { Calendar } from './ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Separator } from './ui/separator';
 
 type DatePreset = {
     label: string;
@@ -17,69 +16,55 @@ type DatePreset = {
 
 const presets = [
     {
-        label: "Today",
+        label: 'Today',
         from: startOfDay(new Date()),
         to: endOfDay(new Date()),
     },
     {
-        label: "Yesterday",
+        label: 'Yesterday',
         from: startOfDay(addDays(new Date(), -1)),
         to: endOfDay(addDays(new Date(), -1)),
     },
     {
-        label: "Last 7 days",
+        label: 'Last 7 days',
         from: startOfDay(addDays(new Date(), -7)),
         to: endOfDay(new Date()),
     },
     {
-        label: "Last 14 days",
+        label: 'Last 14 days',
         from: startOfDay(addDays(new Date(), -14)),
         to: endOfDay(new Date()),
     },
     {
-        label: "Last 30 days",
+        label: 'Last 30 days',
         from: startOfDay(addDays(new Date(), -30)),
         to: endOfDay(new Date()),
     },
     {
-        label: "Last 90 days",
+        label: 'Last 90 days',
         from: startOfDay(addDays(new Date(), -90)),
         to: endOfDay(new Date()),
     },
     {
-        label: "Last year",
+        label: 'Last year',
         from: startOfDay(addDays(new Date(), -365)),
         to: endOfDay(new Date()),
     },
 ] satisfies DatePreset[];
 
-export function DatePickerWithRange({
-    date,
-    setDate,
-}: {
-    date?: DateRange;
-    setDate: (date: DateRange | undefined) => void;
-}) {
+export function DatePickerWithRange({ date, setDate }: { date?: DateRange; setDate: (date: DateRange | undefined) => void }) {
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <Button
-                    id="date"
-                    variant={"outline"}
-                    className={cn(
-                        "h-8 justify-start text-left font-normal",
-                        !date && "text-muted-foreground",
-                    )}
-                >
+                <Button id="date" variant={'outline'} className={cn('h-8 justify-start text-left font-normal', !date && 'text-muted-foreground')}>
                     <CalendarIcon />
                     {date?.from ? (
                         date.to ? (
                             <>
-                                {format(date.from, "LLL dd, y")} -{" "}
-                                {format(date.to, "LLL dd, y")}
+                                {format(date.from, 'LLL dd, y')} - {format(date.to, 'LLL dd, y')}
                             </>
                         ) : (
-                            format(date.from, "LLL dd, y")
+                            format(date.from, 'LLL dd, y')
                         )
                     ) : (
                         <span>Selecione a data</span>
@@ -88,23 +73,9 @@ export function DatePickerWithRange({
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
                 <div className="flex justify-between">
-                    <DatePresets
-                        onSelect={setDate}
-                        selected={date}
-                        presets={presets}
-                    />
-                    <Separator
-                        orientation="vertical"
-                        className="h-auto w-[px]"
-                    />
-                    <Calendar
-                        initialFocus
-                        mode="range"
-                        defaultMonth={date?.from}
-                        selected={date}
-                        onSelect={setDate}
-                        numberOfMonths={2}
-                    />
+                    <DatePresets onSelect={setDate} selected={date} presets={presets} />
+                    <Separator orientation="vertical" className="h-auto w-[px]" />
+                    <Calendar initialFocus mode="range" defaultMonth={date?.from} selected={date} onSelect={setDate} numberOfMonths={2} />
                 </div>
             </PopoverContent>
         </Popover>
@@ -122,23 +93,17 @@ function DatePresets({
 }) {
     return (
         <div className="flex flex-col gap-2 p-3">
-            <p className="mx-3 text-xs uppercase text-muted-foreground">
-                Date Range
-            </p>
+            <p className="text-muted-foreground mx-3 text-xs uppercase">Date Range</p>
             <div className="grid gap-1">
                 {presets.map(({ label, from, to }) => {
-                    const isActive =
-                        selected?.from === from && selected?.to === to;
+                    const isActive = selected?.from === from && selected?.to === to;
                     return (
                         <Button
                             key={label}
-                            variant={isActive ? "outline" : "ghost"}
+                            variant={isActive ? 'outline' : 'ghost'}
                             size="sm"
                             onClick={() => onSelect({ from, to })}
-                            className={cn(
-                                "flex items-center justify-between gap-6",
-                                !isActive && "border border-transparent",
-                            )}
+                            className={cn('flex items-center justify-between gap-6', !isActive && 'border border-transparent')}
                         >
                             <span className="mr-auto">{label}</span>
                         </Button>

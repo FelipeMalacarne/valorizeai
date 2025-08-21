@@ -1,8 +1,6 @@
 import { ResponsiveDialog } from '@/components/responsive-dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Progress } from '@/components/ui/progress';
 import { formatCurrency } from '@/lib/formatCurrency';
 import { Link } from '@inertiajs/react';
 import { Delete, Edit, Eye, MoreHorizontal, Split } from 'lucide-react';
@@ -55,7 +53,6 @@ export function TransactionActionDropdown({ transaction }: { transaction: App.Ht
                 title="Dividir transação"
                 description="Divida esta transação em várias partes."
             >
-
                 <SplitTransactionForm transaction={transaction} />
             </ResponsiveDialog>
 

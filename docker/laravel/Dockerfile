@@ -48,9 +48,8 @@ COPY . .
 
 RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
 
-COPY ./docker/laravel/start-container.sh .
-RUN chmod +x ./docker/laravel/start-container.sh
+COPY --chmod=755 ./docker/laravel/start-container.sh ./start-container.sh
 
 ENTRYPOINT [ "./start-container.sh" ]
 
-EXPOSE 8000
+EXPOSE 8080
