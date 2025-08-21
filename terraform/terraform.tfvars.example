@@ -1,0 +1,12 @@
+# Copy this file to terraform.tfvars and fill in your actual values
+# terraform.tfvars is gitignored for security
+
+gcp_project_id = "valorizeai"
+gcp_region     = "southamerica-east1"
+gcp_zone       = "southamerica-east1-a"
+
+# PostgreSQL connection details
+pgsql_host     = "your-postgres-host"
+pgsql_database = "your-database-name"
+pgsql_username = "your-username"
+pgsql_password = "your-secure-password"  # This will be stored in Secret Manager
