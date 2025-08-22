@@ -75,7 +75,7 @@ deploy: submit update_service update_artisan
 .PHONY: local_build
 local_build:
 	@echo "$(YELLOW)Building Docker image locally...$(NC)"
-	@docker build -f docker/laravel/Dockerfile -t $(LATEST_IMAGE) .
+	@docker build -f docker/laravel/Dockerfile -t $(LATEST_IMAGE) --platform=linux/amd64 .
 	@echo "$(GREEN)✓ Docker image built locally$(NC)"
 
 .PHONY: local_push
