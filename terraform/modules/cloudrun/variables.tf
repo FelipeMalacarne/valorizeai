@@ -188,7 +188,7 @@ locals {
     },
     {
       name  = "CACHE_STORE"
-      value = "array"
+      value = "database"
     },
     {
       name  = "OCTANE_SERVER"
