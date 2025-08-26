@@ -1,3 +1,4 @@
+import AppLogoIcon from '@/components/app-logo-icon';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,7 +23,7 @@ export default function Welcome() {
                         <div className="flex h-16 items-center justify-between">
                             <div className="flex items-center space-x-2">
                                 <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-lg">
-                                    <TrendingUp className="text-primary-foreground h-5 w-5" />
+                                    <AppLogoIcon className="text-primary-foreground h-5 w-5" />
                                 </div>
                                 <span className="text-foreground text-xl font-bold">ValorizeAI</span>
                             </div>
