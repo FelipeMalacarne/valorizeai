@@ -48,7 +48,7 @@ O fluxo de importação foi desenhado para ser robusto e permitir que o usuário
 - **Jobs:**
     - `ProcessBankStatementFileJob`: Um job que roda em background. Ele é responsável por fazer o parsing do arquivo (usando `OfxParserService` ou `CsvParserService`) e pela lógica de identificação de duplicatas.
 
-- **Services (Serviços):
+- **Services (Serviços):**
     - `OfxParserService`: Responsável por interpretar arquivos OFX.
     - `CsvParserService`: Responsável por interpretar arquivos CSV, incluindo a lógica de mapeamento de colunas.
 
