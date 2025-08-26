@@ -1,11 +1,9 @@
-# Service Account for GitHub Actions
 resource "google_service_account" "github_actions" {
   account_id   = "github-actions"
   display_name = "GitHub Actions"
   project      = var.gcp_project_id
 }
 
-# Permissions for the GitHub Actions Service Account
 resource "google_project_iam_member" "github_cloud_run_admin" {
   project = var.gcp_project_id
   role    = "roles/run.admin"
