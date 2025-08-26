@@ -43,3 +43,9 @@ output "dns_setup_instructions" {
     https://${var.domain}
   EOT
 }
+
+output "github_actions_service_account_key" {
+  description = "The service account key for GitHub Actions."
+  value       = base64decode(google_service_account_key.github_actions.private_key)
+  sensitive   = true
+}

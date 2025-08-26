@@ -42,3 +42,5 @@ variable "domain" {
   type        = string
   default     = "valorizeai.felipemalacarne.com.br"
 }
+
+
