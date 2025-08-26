@@ -75,7 +75,7 @@ export default function Welcome() {
                                 tranquilidade financeira.
                             </p>
                             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-                                <Button size="lg" className="px-8 py-6 text-lg">
+                                <Button size="lg" className="px-8 py-6 text-lg" asChild>
                                     <Link href={route('register')}>Começar Gratuitamente</Link>
                                 </Button>
                                 <Button variant="outline" size="lg" className="bg-transparent px-8 py-6 text-lg">
