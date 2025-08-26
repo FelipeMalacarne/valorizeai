@@ -30,13 +30,16 @@ help:
 	@echo "  $(GREEN)update_service$(NC)    - Update Cloud Run service with latest image"
 	@echo "  $(GREEN)update_artisan$(NC)    - Update Cloud Run job (artisan) with latest image"
 	@echo "  $(GREEN)deploy$(NC)            - Complete deployment (submit + update_service + update_artisan)"
-	@echo "  $(GREEN)local_build$(NC)       - Build Docker image locally"
+	@echo "  $(GREEN)local_build$(NC)       - Build Docker image locally for AMD64 (Cloud Run compatible)"
+	@echo "  $(GREEN)local_build_native$(NC) - Build Docker image for native platform (development)"
+	@echo "  $(GREEN)multi_platform_build$(NC) - Build and push multi-platform image (AMD64 + ARM64)"
 	@echo "  $(GREEN)local_push$(NC)        - Push locally built image to registry"
 	@echo "  $(GREEN)terraform_apply$(NC)   - Apply Terraform configuration"
 	@echo "  $(GREEN)terraform_plan$(NC)    - Plan Terraform changes"
 	@echo "  $(GREEN)status$(NC)            - Check deployment status"
 	@echo "  $(GREEN)logs$(NC)              - Show Cloud Run service logs"
 	@echo "  $(GREEN)run_migration$(NC)     - Run database migrations using Cloud Run job"
+	@echo "  $(GREEN)setup_buildx$(NC)      - Setup Docker buildx for multi-platform builds"
 	@echo "  $(GREEN)help$(NC)              - Show this help message"
 
 .PHONY: submit
@@ -74,9 +77,35 @@ deploy: submit update_service update_artisan
 
 .PHONY: local_build
 local_build:
-	@echo "$(YELLOW)Building Docker image locally...$(NC)"
-	@docker build -f docker/laravel/Dockerfile -t $(LATEST_IMAGE) --platform=linux/amd64 .
-	@echo "$(GREEN)✓ Docker image built locally$(NC)"
+	@echo "$(YELLOW)Building Docker image locally for AMD64 (Cloud Run compatible)...$(NC)"
+	@docker buildx create --name multiarch-builder --use 2>/dev/null || true
+	@docker buildx inspect --bootstrap
+	@docker buildx build \
+		--platform linux/amd64 \
+		-f docker/laravel/Dockerfile \
+		-t $(LATEST_IMAGE) \
+		--load \
+		.
+	@echo "$(GREEN)✓ Docker image built locally for AMD64$(NC)"
+
+.PHONY: multi_platform_build
+multi_platform_build:
+	@echo "$(YELLOW)Building multi-platform Docker image (AMD64 + ARM64)...$(NC)"
+	@docker buildx create --name multiarch-builder --use 2>/dev/null || true
+	@docker buildx inspect --bootstrap
+	@docker buildx build \
+		--platform linux/amd64,linux/arm64 \
+		-f docker/laravel/Dockerfile \
+		-t $(LATEST_IMAGE) \
+		--push \
+		.
+	@echo "$(GREEN)✓ Multi-platform image built and pushed$(NC)"
+
+.PHONY: local_build_native
+local_build_native:
+	@echo "$(YELLOW)Building Docker image for native platform (development)...$(NC)"
+	@docker build -f docker/laravel/Dockerfile -t $(IMAGE_NAME):local .
+	@echo "$(GREEN)✓ Native platform image built locally as $(IMAGE_NAME):local$(NC)"
 
 .PHONY: local_push
 local_push:
@@ -132,6 +161,13 @@ setup_artifact_registry:
 		--project=$(PROJECT_ID) \
 		2>/dev/null && echo "$(GREEN)✓ Repository created$(NC)" || echo "$(YELLOW)Repository already exists$(NC)"
 	@gcloud auth configure-docker $(REGION)-docker.pkg.dev
+
+.PHONY: setup_buildx
+setup_buildx:
+	@echo "$(YELLOW)Setting up Docker buildx for multi-platform builds...$(NC)"
+	@docker buildx create --name multiarch-builder --use 2>/dev/null || echo "$(YELLOW)Builder already exists$(NC)"
+	@docker buildx inspect --bootstrap
+	@echo "$(GREEN)✓ Docker buildx configured$(NC)"
 
 .PHONY: clean
 clean:

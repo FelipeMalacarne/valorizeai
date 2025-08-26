@@ -1,22 +1,36 @@
 steps:
+    # Enable Docker buildx for multi-platform builds
+    - name: 'gcr.io/cloud-builders/docker'
+      id: 'setup-buildx'
+      entrypoint: 'bash'
+      args:
+          - '-c'
+          - |
+              docker buildx create --name multiarch-builder --use || true
+              docker buildx inspect --bootstrap
+
     - name: 'gcr.io/cloud-builders/docker'
       id: 'pull-cache'
       entrypoint: 'bash'
       args:
           - '-c'
           - 'docker pull southamerica-east1-docker.pkg.dev/valorizeai/valorize-repo/valorizeai:latest || exit 0'
+      waitFor: ['setup-buildx']
 
+    # Multi-platform build targeting AMD64 for Cloud Run
     - name: 'gcr.io/cloud-builders/docker'
-      args:
-          - 'build'
-          - '-f'
-          - 'docker/laravel/Dockerfile'
-          - '--cache-from'
-          - 'southamerica-east1-docker.pkg.dev/valorizeai/valorize-repo/valorizeai:latest'
-          - '-t'
-          - 'southamerica-east1-docker.pkg.dev/valorizeai/valorize-repo/valorizeai:latest'
-          - '.'
       id: 'build-image'
+      entrypoint: 'bash'
+      args:
+          - '-c'
+          - |
+              docker buildx build \
+                --platform linux/amd64 \
+                -f docker/laravel/Dockerfile \
+                --cache-from southamerica-east1-docker.pkg.dev/valorizeai/valorize-repo/valorizeai:latest \
+                -t southamerica-east1-docker.pkg.dev/valorizeai/valorize-repo/valorizeai:latest \
+                --load \
+                .
       waitFor: ['pull-cache']
       env:
           - 'DOCKER_BUILDKIT=1'
