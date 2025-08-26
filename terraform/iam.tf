@@ -33,3 +33,21 @@ resource "google_project_iam_member" "github_service_account_user" {
 resource "google_service_account_key" "github_actions" {
   service_account_id = google_service_account.github_actions.name
 }
+
+resource "google_project_iam_member" "github_service_usage_admin" {
+  project = var.gcp_project_id
+  role    = "roles/serviceusage.serviceUsageAdmin"
+  member  = "serviceAccount:${google_service_account.github_actions.email}"
+}
+
+resource "google_storage_bucket_iam_member" "github_cloudbuild_bucket_access" {
+  bucket = "valorizeai_cloudbuild"
+  role   = "roles/storage.objectAdmin"
+  member = "serviceAccount:${google_service_account.github_actions.email}"
+}
+
+resource "google_project_iam_member" "github_viewer" {
+  project = var.gcp_project_id
+  role    = "roles/viewer"
+  member  = "serviceAccount:${google_service_account.github_actions.email}"
+}
