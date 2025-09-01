@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Casts\MoneyCast;
 use App\Enums\Currency;
 use App\Enums\TransactionType;
 use App\ValueObjects\Money;
@@ -91,7 +92,7 @@ final class Transaction extends Model
     protected function casts(): array
     {
         return [
-            'amount'   => Money::class,
+            'amount'   => MoneyCast::class,
             'type'     => TransactionType::class,
             'currency' => Currency::class,
             'date'     => 'datetime',

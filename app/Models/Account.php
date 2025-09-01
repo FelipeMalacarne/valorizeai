@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Casts\MoneyCast;
 use App\Enums\AccountType;
 use App\Enums\Color;
 use App\Enums\Currency;
@@ -61,7 +62,7 @@ final class Account extends Model
     ];
 
     protected $casts = [
-        'balance'    => 'integer',
+        'balance'    => MoneyCast::class,
         'currency'   => Currency::class,
         'type'       => AccountType::class,
         'created_at' => 'immutable_datetime',

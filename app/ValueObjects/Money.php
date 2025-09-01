@@ -20,7 +20,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 use Stringable;
 
 #[TypeScript]
-final class Money implements Arrayable, Castable, DataCastable, JsonSerializable, Stringable // , DataCastable
+final class Money implements Arrayable, DataCastable, JsonSerializable, Stringable // , DataCastable
 {
     public function __construct(
         public readonly int $value, // Stored in the smallest unit (e.g., cents)
@@ -44,62 +44,7 @@ final class Money implements Arrayable, Castable, DataCastable, JsonSerializable
         }
     }
 
-    public static function castUsing(array $arguments): CastsAttributes
-    {
-        return new class implements CastsAttributes
-        {
-            public function get(Model $model, string $key, mixed $value, array $attributes): ?Money
-            {
-                $amount = $attributes['amount'] ?? null;
-                $currencyValue = $attributes['currency'] ?? null;
-
-                if ($amount === null || $currencyValue === null) {
-                    return null;
-                }
-
-                if (! ($currency = Currency::tryFrom($currencyValue))) {
-                    report(new InvalidArgumentException("Invalid currency value '{$currencyValue}' for account {$model->id}"));
-
-                    return null;
-                }
-
-                return new Money((int) $amount, $currency);
-            }
-
-            public function set(Model $model, string $key, mixed $value, array $attributes): array
-            {
-                // Allow setting null to clear balance and currency
-                if ($value === null) {
-                    return [
-                        'amount'   => null,
-                        'currency' => null,
-                    ];
-                }
-
-                // Allow setting from an integer amount and string currency
-                if (is_array($value) && isset($value['amount'], $value['currency'])) {
-                    $currency = Currency::tryFrom($value['currency']);
-                    if ($currency === null) {
-                        throw new InvalidArgumentException("Invalid currency value '{$value['currency']}' provided for setting Money.");
-                    }
-                    $value = new Money((int) $value['amount'], $currency);
-                }
-                // Allow setting from an integer amount and enum currency
-                if (is_array($value) && isset($value['amount'], $value['currency']) && $value['currency'] instanceof Currency) {
-                    $value = new Money((int) $value['amount'], $value['currency']);
-                }
-
-                if (! $value instanceof Money) {
-                    throw new InvalidArgumentException('The value must be an instance of App\ValueObjects\Money or a valid array.');
-                }
-
-                return [
-                    'amount'   => $value->value, // Integer (smallest unit)
-                    'currency' => $value->currency->value, // Enum value (string)
-                ];
-            }
-        };
-    }
+    
 
     // If using Spatie Laravel Data, uncomment and implement dataCastUsing
     public static function dataCastUsing(array $arguments): Cast

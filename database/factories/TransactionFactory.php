@@ -24,13 +24,17 @@ final class TransactionFactory extends Factory
     public function definition(): array
     {
         return [
-            'amount'      => new Money($this->faker->numberBetween(-10000, 10000), $this->faker->randomElement(Currency::cases())),
             'fitid'       => $this->faker->uuid(),
             'memo'        => $this->faker->sentence(),
             'type'        => $this->faker->randomElement(TransactionType::cases()),
             'date'        => $this->faker->dateTimeBetween('-1 year', 'now'),
             'category_id' => Category::factory(),
             'account_id'  => Account::factory(),
+            'currency'    => fn (array $attributes) => Account::find($attributes['account_id'])->currency,
+            'amount'      => fn (array $attributes) => new Money(
+                $this->faker->numberBetween(-10000, 10000),
+                $attributes['currency']
+            ),
         ];
     }
 }
