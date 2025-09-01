@@ -20,7 +20,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 use Stringable;
 
 #[TypeScript]
-final class Money implements Arrayable, DataCastable, JsonSerializable, Stringable // , DataCastable
+final class Money implements Arrayable, JsonSerializable, Stringable // , DataCastable
 {
     public function __construct(
         public readonly int $value, // Stored in the smallest unit (e.g., cents)
@@ -46,27 +46,7 @@ final class Money implements Arrayable, DataCastable, JsonSerializable, Stringab
 
     
 
-    // If using Spatie Laravel Data, uncomment and implement dataCastUsing
-    public static function dataCastUsing(array $arguments): Cast
-    {
-        return new class implements Cast
-        {
-            public function cast(DataProperty $property, mixed $value, array $properties, CreationContext $context): mixed
-            {
-                // This logic depends on how your data is structured when casting to a Data Object.
-                // Assuming the input data has 'amount' and 'currency' keys:
-                if (is_array($value) && isset($value['amount'], $value['currency'])) {
-                    $currency = Currency::tryFrom($value['currency']);
-                    if ($currency) {
-                        return new Money((int) $value['amount'], $currency);
-                    }
-                }
-
-                // Handle other potential input formats or return null/throw error
-                return null; // Or throw new Exception("Could not cast data to Money object");
-            }
-        };
-    }
+    
 
     public function format(): string
     {
