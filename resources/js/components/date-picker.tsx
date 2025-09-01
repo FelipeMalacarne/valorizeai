@@ -37,7 +37,8 @@ export function DatePicker({
                     mode="single"
                     selected={date}
                     onSelect={setDate}
-                    initialFocus
+                    className="rounded-md border shadow-sm"
+                    captionLayout="dropdown"
                 />
             </PopoverContent>
         </Popover>
