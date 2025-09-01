@@ -4,23 +4,16 @@ declare(strict_types=1);
 
 namespace App\ValueObjects;
 
-use App\Enums\Currency; // Make sure to import your Currency enum
-use Illuminate\Contracts\Database\Eloquent\Castable;
-use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use App\Enums\Currency;
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Number;
 use InvalidArgumentException;
 use JsonSerializable;
-use Spatie\LaravelData\Casts\Cast;
-use Spatie\LaravelData\Casts\Castable as DataCastable;
-use Spatie\LaravelData\Support\Creation\CreationContext;
-use Spatie\LaravelData\Support\DataProperty;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 use Stringable;
 
 #[TypeScript]
-final class Money implements Arrayable, JsonSerializable, Stringable // , DataCastable
+final class Money implements Arrayable, JsonSerializable, Stringable
 {
     public function __construct(
         public readonly int $value, // Stored in the smallest unit (e.g., cents)
@@ -43,10 +36,6 @@ final class Money implements Arrayable, JsonSerializable, Stringable // , DataCa
             return null;
         }
     }
-
-    
-
-    
 
     public function format(): string
     {

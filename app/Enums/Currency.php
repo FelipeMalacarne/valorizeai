@@ -8,7 +8,7 @@ enum Currency: string
 {
     case BRL = 'BRL'; // Brazilian real
     case USD = 'USD'; // United States dollar
-
+    case EUR = 'EUR';
     // case AED = 'AED'; // United Arab Emirates dirham
     // case AFN = 'AFN'; // Afghan afghani
     // case ALL = 'ALL'; // Albanian lek

@@ -66,7 +66,7 @@ final class AccountController extends Controller
 
         $account = $action->handle($data, $account);
 
-        return back()->with([
+        return to_route('accounts.index')->with([
             'success' => __('Account :name updated successfully', ['name' => $account->name]),
         ]);
     }
@@ -81,7 +81,7 @@ final class AccountController extends Controller
             ]);
         }
 
-        return back()->with([
+        return to_route('accounts.index')->with([
             'success' => __('Account :name deleted successfully', ['name' => $account->name]),
         ]);
 

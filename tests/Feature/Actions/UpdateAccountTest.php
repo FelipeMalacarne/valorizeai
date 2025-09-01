@@ -4,101 +4,78 @@ declare(strict_types=1);
 
 use App\Actions\Account\UpdateAccount;
 use App\Enums\AccountType;
+use App\Enums\Currency;
 use App\Http\Requests\Account\UpdateAccountRequest;
 use App\Models\Account;
+use App\Models\Bank;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('it updates the account name', function () {
-
+test('it updates the account with full data', function () {
     $account = Account::factory()->create();
-
-    $data = new UpdateAccountRequest(name: 'updated');
-
-    $action = app(UpdateAccount::class);
-
-    $account = $action->handle($data, $account);
-
-    $this->assertDatabaseHas('accounts', [
-        'id'   => $account->id,
-        'name' => 'updated',
-    ]);
-
-    $this->assertEquals('updated', $account->name);
-});
-
-test('it updates the account number', function () {
-
-    $account = Account::factory()->create();
-
-    $data = new UpdateAccountRequest(number: '123456789');
-    $action = app(UpdateAccount::class);
-    $account = $action->handle($data, $account);
-
-    $this->assertDatabaseHas('accounts', [
-        'id'     => $account->id,
-        'number' => '123456789',
-    ]);
-    $this->assertEquals('123456789', $account->number);
-});
-
-test('it updates the account type', function () {
-
-    $account = Account::factory()->create();
-
-    $data = new UpdateAccountRequest(type: AccountType::SAVINGS);
-    $action = app(UpdateAccount::class);
-    $account = $action->handle($data, $account);
-
-    $this->assertDatabaseHas('accounts', [
-        'id'   => $account->id,
-        'type' => 'savings',
-    ]);
-    $this->assertEquals('savings', $account->type->value);
-});
-test('it updates the account with all fields', function () {
-
-    $account = Account::factory()->create();
+    $bank = Bank::factory()->create();
 
     $data = new UpdateAccountRequest(
-        name: 'updated',
-        number: '123456789',
+        name: 'Updated Name',
+        number: '987654321',
+        currency: Currency::EUR,
         type: AccountType::SAVINGS,
+        bank_id: $bank->id,
     );
 
     $action = app(UpdateAccount::class);
-    $account = $action->handle($data, $account);
+    $updatedAccount = $action->handle($data, $account);
 
     $this->assertDatabaseHas('accounts', [
-        'id'     => $account->id,
-        'name'   => 'updated',
-        'number' => '123456789',
-        'type'   => 'savings',
+        'id'       => $updatedAccount->id,
+        'name'     => 'Updated Name',
+        'number'   => '987654321',
+        'currency' => Currency::EUR->value,
+        'type'     => AccountType::SAVINGS->value,
+        'bank_id'  => $bank->id,
     ]);
 
-    $this->assertEquals('updated', $account->name);
-    $this->assertEquals('123456789', $account->number);
-    $this->assertEquals('savings', $account->type->value);
+    $this->assertEquals('Updated Name', $updatedAccount->name);
+    $this->assertEquals('987654321', $updatedAccount->number);
+    $this->assertEquals(Currency::EUR, $updatedAccount->currency);
+    $this->assertEquals(AccountType::SAVINGS, $updatedAccount->type);
+    $this->assertEquals($bank->id, $updatedAccount->bank_id);
 });
 
-test('it does not update the account if no data is provided', function () {
+test('it updates the account with only some fields changed', function () {
+    $account = Account::factory()->create([
+        'name'     => 'Original Name',
+        'number'   => '111111111',
+        'currency' => Currency::USD,
+        'type'     => AccountType::CHECKING,
+    ]);
+    $bank = Bank::factory()->create();
 
-    $account = Account::factory()->create();
-
-    $data = new UpdateAccountRequest();
+    // Send full data, but only change the name
+    $data = new UpdateAccountRequest(
+        name: 'New Name',
+        number: $account->number,
+        currency: $account->currency,
+        type: $account->type,
+        bank_id: $account->bank_id,
+    );
 
     $action = app(UpdateAccount::class);
-    $account = $action->handle($data, $account);
+    $updatedAccount = $action->handle($data, $account);
 
     $this->assertDatabaseHas('accounts', [
-        'id'     => $account->id,
-        'name'   => $account->name,
-        'number' => $account->number,
-        'type'   => $account->type->value,
+        'id'       => $updatedAccount->id,
+        'name'     => 'New Name',
+        'number'   => '111111111',
+        'currency' => Currency::USD->value,
+        'type'     => AccountType::CHECKING->value,
+        'bank_id'  => $account->bank_id,
     ]);
 
-    $this->assertEquals($account->name, $account->name);
-    $this->assertEquals($account->number, $account->number);
-    $this->assertEquals($account->type->value, $account->type->value);
+    $this->assertEquals('New Name', $updatedAccount->name);
+    $this->assertEquals('111111111', $updatedAccount->number);
+    $this->assertEquals(Currency::USD, $updatedAccount->currency);
+    $this->assertEquals(AccountType::CHECKING, $updatedAccount->type);
+    $this->assertEquals($account->bank_id, $updatedAccount->bank_id);
 });
