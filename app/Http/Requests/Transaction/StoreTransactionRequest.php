@@ -36,7 +36,7 @@ final class StoreTransactionRequest extends Data
             'account_id'      => ['required', 'uuid', 'exists:accounts,id'],
             'category_id'     => ['nullable', 'uuid', 'exists:categories,id'],
             'amount'          => ['required', 'array'],
-            'amount.amount'   => ['required', 'integer'],
+            'amount.value'    => ['required', 'integer'],
             'amount.currency' => ['required', 'string'],
             'type'            => ['required', 'in:debit,credit'],
             'date'            => ['required', 'date'],

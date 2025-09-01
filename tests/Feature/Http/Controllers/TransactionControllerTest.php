@@ -22,7 +22,7 @@ test('user can create a transaction via http', function () {
     $transactionData = [
         'account_id'  => $account->id,
         'amount'      => [
-            'amount' => -15000, // -R$150,00
+            'value' => -15000, // -R$150,00
             'currency' => 'BRL',
         ],
         'type'        => 'debit',

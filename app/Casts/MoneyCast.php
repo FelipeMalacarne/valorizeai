@@ -64,6 +64,6 @@ final class MoneyCast implements CastsAttributes, Cast
     {
         $currency = Currency::tryFrom($value['currency']);
 
-        return new Money((int) $value['amount'], $currency);
+        return new Money((int) $value['value'], $currency);
     }
 }
