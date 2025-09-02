@@ -15,7 +15,7 @@ declare namespace App.Enums {
         | 'teal'
         | 'sky'
         | 'sapphire';
-    export type Currency = 'BRL' | 'USD';
+    export type Currency = 'BRL' | 'USD' | 'EUR';
     export type OrganizationRole = 'owner' | 'admin' | 'member';
     export type TransactionType = 'debit' | 'credit';
 }
@@ -42,9 +42,11 @@ declare namespace App.Http.Requests.Account {
         bank_id: string;
     };
     export type UpdateAccountRequest = {
-        name: string | null;
+        name: string;
         number: string | null;
-        type: App.Enums.AccountType | null;
+        currency: App.Enums.Currency;
+        type: App.Enums.AccountType;
+        bank_id: string;
     };
 }
 declare namespace App.Http.Requests.Category {
@@ -75,6 +77,13 @@ declare namespace App.Http.Requests.Transaction {
         type: App.Enums.TransactionType;
         date: string;
         memo: string | null;
+    };
+    export type UpdateTransactionRequest = {
+        amount: App.ValueObjects.Money;
+        type: App.Enums.TransactionType;
+        date: string;
+        memo: string | null;
+        category_id: string | null;
     };
 }
 declare namespace App.Http.Resources {

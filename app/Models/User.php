@@ -24,12 +24,13 @@ use Illuminate\Notifications\Notifiable;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property Currency $preferred_currency
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Account> $accounts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Account> $accounts
  * @property-read int|null $accounts_count
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Transaction> $transactions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Transaction> $transactions
  * @property-read int|null $transactions_count
+ *
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
@@ -43,6 +44,7 @@ use Illuminate\Notifications\Notifiable;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePreferredCurrency($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 final class User extends Authenticatable
@@ -80,6 +82,11 @@ final class User extends Authenticatable
     public function transactions(): HasManyThrough
     {
         return $this->hasManyThrough(Transaction::class, Account::class);
+    }
+
+    public function categories(): HasMany
+    {
+        return $this->hasMany(Category::class);
     }
 
     /**
