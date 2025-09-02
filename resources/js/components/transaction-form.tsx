@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getAccountIcon, getAccountTypeColor } from '@/lib/accounts';
 import { useForm } from '@inertiajs/react';
-import { LoaderCircle, Tag } from 'lucide-react';
+import { LoaderCircle, Tag, TrendingDown, TrendingUp } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 import { DatePicker } from '@/components/date-picker';
 import { format } from 'date-fns';
@@ -56,12 +56,28 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
 
     return (
         <form className="space-y-4" onSubmit={submit}>
-            <div className="grid space-y-2">
+            <div className='grid grid-cols-2 gap-4'>
+            <div className="space-y-2">
                 <Label htmlFor="account_id">Conta</Label>
                 <Combobox
                     items={accounts.map((account) => ({ ...account, value: account.id, label: account.name }))}
                     value={data.account_id}
                     onChange={(value) => setData('account_id', value)}
+                    onChange={(value) => {
+                        const selectedAccount = accounts.find((account) => account.id === value);
+                        if (selectedAccount) {
+                            setData((prev) => ({
+                                ...prev,
+                                account_id: selectedAccount.id,
+                                amount: {
+                                    ...prev.amount,
+                                    currency: selectedAccount.currency
+                                }
+                            }))
+                        } else {
+                            setData('account_id', '');
+                        }
+                    }}
                     placeholder="Selecione uma conta"
                     renderItem={(account: App.Http.Resources.AccountResource) => {
                         const Icon = getAccountIcon(account.type);
@@ -103,6 +119,8 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
                 <InputError message={errors.category_id} />
             </div>
 
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
                 <div className="grid space-y-2">
                     <Label htmlFor="amount_value">Valor</Label>
@@ -113,44 +131,38 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
                         placeholder='0.00'
                         value={data.amount.value}
                         onChange={(e) => setData('amount', { ...data.amount, value: parseFloat(e.target.value) })}
+                    disabled={!data.account_id}
                     />
                     <InputError message={errors['amount.value']} />
                 </div>
 
                 <div className="grid space-y-2">
-                    <Label htmlFor="amount_currency">Moeda</Label>
-                    <Select
-                        onValueChange={(value) => setData('amount', { ...data.amount, currency: value as App.Enums.Currency })}
-                        value={data.amount.currency}
-                    >
-                        <SelectTrigger>
-                            <SelectValue placeholder="Selecione uma moeda" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="BRL">BRL</SelectItem>
-                            <SelectItem value="USD">USD</SelectItem>
-                            <SelectItem value="EUR">EUR</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <InputError message={errors['amount.currency']} />
-                </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-                <div className="grid space-y-2">
                     <Label htmlFor="type">Tipo</Label>
-                    <Select onValueChange={(value) => setData('type', value as App.Enums.TransactionType)} value={data.type}>
+                    <Select onValueChange={(value) => setData('type', value as App.Enums.TransactionType)} value={data.type} disabled={!data.account_id}>
                         <SelectTrigger>
                             <SelectValue placeholder="Selecione o tipo" />
                         </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="debit">Débito</SelectItem>
-                            <SelectItem value="credit">Crédito</SelectItem>
-                        </SelectContent>
+                    <SelectContent>
+                      <SelectItem value="debit">
+                        <div className="flex items-center space-x-2">
+                          <TrendingDown className="h-4 w-4 text-destructive" />
+                          <span>Debito</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="credit">
+                        <div className="flex items-center space-x-2">
+                          <TrendingUp className="h-4 w-4 text-primary" />
+                          <span>Credito</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
                     </Select>
                     <InputError message={errors.type} />
                 </div>
 
+            </div>
+
+            <div className="grid gap-4">
                 <div className="grid space-y-2">
                     <Label htmlFor="date">Data</Label>
                     <DatePicker date={selectedDate} setDate={handleDateChange} />

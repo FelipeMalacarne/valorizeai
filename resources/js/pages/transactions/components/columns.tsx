@@ -40,8 +40,9 @@ export const columns: ColumnDef<App.Http.Resources.TransactionResource>[] = [
         header: 'Category',
         cell: ({ row }) => {
             const category = row.getValue('category') as App.Http.Resources.CategoryResource;
-
-            return <CategoryBadge key={category.id} category={category} />;
+            if (category) {
+                return <CategoryBadge key={category.id} category={category} />;
+            }
         },
     },
     {

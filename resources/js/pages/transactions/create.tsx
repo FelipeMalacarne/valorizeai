@@ -4,6 +4,7 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, SharedData } from '@/types';
 import { Head } from '@inertiajs/react';
 import { format } from 'date-fns';
+import { Plus } from 'lucide-react';
 
 export type TransactionCreateProps = {
     accounts: App.Http.Resources.AccountResource[];
@@ -44,15 +45,18 @@ const TransactionCreate = (props: SharedData<TransactionCreateProps>) => {
         <>
             <Head title="Criar Transação" />
             <div className="container mx-auto flex h-full flex-1 flex-col space-y-6 p-4">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-3xl font-bold tracking-tight">Criar Nova Transação</h2>
-                </div>
+                {/* <div className="flex items-center justify-between"> */}
+                {/*     <h2 className="text-3xl font-bold tracking-tight">Criar Nova Transação</h2> */}
+                {/* </div> */}
 
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                     <div className="lg:col-span-2">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Nova Transação</CardTitle>
+                                <CardTitle className='flex items-center space-x-2'>
+                                    <Plus className="h-5 w-5" />
+                                    <span>Nova Transação</span>
+                                </CardTitle>
                                 <CardDescription>Preencha os campos abaixo para criar uma nova transação.</CardDescription>
                             </CardHeader>
                             <CardContent>
