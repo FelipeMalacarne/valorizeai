@@ -11,21 +11,23 @@ export type ComboboxItem = {
     label: string;
 };
 
-export function Combobox({
+export function Combobox<T extends ComboboxItem>({
     items,
     value,
     onChange,
     placeholder = 'Selecione um item',
     searchPlaceholder = 'Busca...',
     noResultsText = 'Nenhum resultado encontrado.',
+    renderItem,
 }: {
-    items: ComboboxItem[];
+    items: T[];
     value: any;
     onChange: (value: any) => void;
     placeholder?: string;
     searchPlaceholder?: string;
     noResultsText?: string;
     className?: string;
+    renderItem?: (item: T) => React.ReactNode;
 }) {
     const [open, setOpen] = useState(false);
     const isDesktop = !useIsMobile();
@@ -47,7 +49,7 @@ export function Combobox({
                                 setOpen(false);
                             }}
                         >
-                            {item.label}
+                            {renderItem ? renderItem(item) : item.label}
                         </CommandItem>
                     ))}
                 </CommandGroup>

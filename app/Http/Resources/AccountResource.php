@@ -6,6 +6,7 @@ namespace App\Http\Resources;
 
 use App\Enums\AccountType;
 use App\Enums\Currency;
+use App\ValueObjects\Money;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
@@ -16,6 +17,7 @@ final class AccountResource extends Data
         public string $id,
         public string $name,
         public ?string $number,
+        public Money $balance,
         public Currency $currency,
         public AccountType $type,
         public BankResource $bank

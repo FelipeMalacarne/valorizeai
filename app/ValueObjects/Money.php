@@ -15,6 +15,8 @@ use Stringable;
 #[TypeScript]
 final class Money implements Arrayable, JsonSerializable, Stringable
 {
+    public string $formatted;
+
     public function __construct(
         public readonly int $value, // Stored in the smallest unit (e.g., cents)
         public readonly Currency $currency

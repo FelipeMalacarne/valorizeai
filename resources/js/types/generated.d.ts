@@ -91,6 +91,7 @@ declare namespace App.Http.Resources {
         id: string;
         name: string;
         number: string | null;
+        balance: App.ValueObjects.Money;
         currency: App.Enums.Currency;
         type: App.Enums.AccountType;
         bank: App.Http.Resources.BankResource;
@@ -129,6 +130,7 @@ declare namespace App.Http.Resources {
 }
 declare namespace App.ValueObjects {
     export type Money = {
+        formatted: string;
         value: number;
         currency: App.Enums.Currency;
     };

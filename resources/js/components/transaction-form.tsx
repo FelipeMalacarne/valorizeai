@@ -1,15 +1,18 @@
 import { Combobox } from '@/components/combobox';
 import InputError from '@/components/input-error';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { getAccountIcon, getAccountTypeColor } from '@/lib/accounts';
 import { useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 import { DatePicker } from '@/components/date-picker';
 import { format } from 'date-fns';
 import { FormDescription } from '@/components/form-description';
+import { Badge } from '@/components/ui/badge';
 
 type TransactionFormProps = {
     accounts: App.Http.Resources.AccountResource[];
@@ -54,10 +57,26 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
             <div className="grid space-y-2">
                 <Label htmlFor="account_id">Conta</Label>
                 <Combobox
-                    items={accounts.map((account) => ({ value: account.id, label: account.name }))}
+                    items={accounts.map((account) => ({ ...account, value: account.id, label: account.name }))}
                     value={data.account_id}
                     onChange={(value) => setData('account_id', value)}
                     placeholder="Selecione uma conta"
+                    renderItem={(account: App.Http.Resources.AccountResource) => {
+                        const Icon = getAccountIcon(account.type);
+                        return (
+                            <div className="flex w-full items-center justify-between">
+                                <div className="flex items-center space-x-2">
+                                    <Avatar className="h-6 w-6">
+                                        <AvatarFallback className={getAccountTypeColor(account.type)}>
+                                            <Icon className="h-4 w-4" />
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <span>{account.name}</span>
+                                </div>
+                                <Badge variant="outline">{account.balance.formatted}</Badge>
+                            </div>
+                        );
+                    }}
                 />
                 <InputError message={errors.account_id} />
             </div>
