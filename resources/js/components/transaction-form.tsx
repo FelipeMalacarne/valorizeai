@@ -7,12 +7,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getAccountIcon, getAccountTypeColor } from '@/lib/accounts';
 import { useForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, Tag } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 import { DatePicker } from '@/components/date-picker';
 import { format } from 'date-fns';
 import { FormDescription } from '@/components/form-description';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { categoryBadgeVariants } from '@/lib/categories';
 
 type TransactionFormProps = {
     accounts: App.Http.Resources.AccountResource[];
@@ -84,11 +86,19 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
             <div className="grid space-y-2">
                 <Label htmlFor="category_id">Categoria</Label>
                 <Combobox
-                    items={categories.map((category) => ({ value: category.id, label: category.name }))}
+                    items={categories.map((category) => ({ ...category, value: category.id, label: category.name }))}
                     value={data.category_id}
                     onChange={(value) => setData('category_id', value)}
                     placeholder="Selecione uma categoria (opcional)"
                     noResultsText="Nenhuma categoria encontrada."
+                    renderItem={(category: App.Http.Resources.CategoryResource) => {
+                        return (
+                            <div className="flex items-center space-x-2">
+                                <Tag className={`h-4 w-4 text-${category.color}`} />
+                                <span>{category.name}</span>
+                            </div>
+                        );
+                    }}
                 />
                 <InputError message={errors.category_id} />
             </div>
@@ -100,6 +110,7 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
                         id="amount_value"
                         type="number"
                         step="0.01"
+                        placeholder='0.00'
                         value={data.amount.value}
                         onChange={(e) => setData('amount', { ...data.amount, value: parseFloat(e.target.value) })}
                     />
