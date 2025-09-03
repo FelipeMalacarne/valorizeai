@@ -23,3 +23,21 @@ module "load_balancer" {
 
   depends_on = [module.cloudrun]
 }
+
+module "swarm" {
+  source = "./modules/swarm"
+
+  stack_name          = var.swarm_stack_name
+  compose_files       = length(var.swarm_compose_files) > 0 ? var.swarm_compose_files : ["${path.root}/docker/stack-db.yml"]
+  with_registry_auth  = var.swarm_with_registry_auth
+  prune               = var.swarm_prune
+
+  // Map existing pgsql_* vars to DB settings
+  db_name                 = var.pgsql_database
+  db_user                 = var.pgsql_username
+  db_password             = var.pgsql_password
+  db_published_port       = var.swarm_db_published_port
+  db_data_volume          = var.swarm_db_data_volume
+  db_password_secret_name = var.swarm_db_password_secret_name
+  postgres_image          = var.swarm_postgres_image
+}

@@ -11,6 +11,10 @@ terraform {
       source  = "hashicorp/google"
       version = "6.49.0"
     }
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "~> 3.0"
+    }
   }
 }
 
@@ -19,3 +23,8 @@ provider "google" {
   region  = var.gcp_region
   zone    = var.gcp_zone
 }
+
+# provider "docker" {
+#   // Uses local SSH agent and ~/.ssh/config for auth
+#   host = "ssh://ubuntu@${var.vm_host}"
+# }
