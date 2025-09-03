@@ -46,11 +46,42 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        console.log('Amount before transform (from data state):', data.amount.value);
+
+        // Store the original value to revert later
+        const originalAmountValue = data.amount.value;
+
+        // Calculate the transformed integer value
+        const transformedAmountValue = Math.round(originalAmountValue * 100);
+
+        // Update the form's internal data state with the transformed value
+        // This is the key change to ensure Inertia sends the correct value
+        setData('amount', {
+            ...data.amount,
+            value: transformedAmountValue,
+        });
+
+        console.log('Amount after updating data state (should be integer):', data.amount.value);
+
+        // Now, call post. Inertia will use the updated 'data' state.
         post(route('transactions.store'), {
             onSuccess: () => {
-                reset();
+                reset(); // This will reset the form, including amount.value
                 onSuccess?.();
             },
+            onFinish: () => {
+                // If onSuccess is not called (e.g., validation error),
+                // we need to revert the amount.value in the data state
+                // back to its original decimal form for display.
+                // If reset() is called on success, this might not be strictly necessary for success case.
+                // But for validation errors, it's crucial.
+                if (!processing) { // Check if processing is false, meaning request finished
+                    setData('amount', {
+                        ...data.amount, // Use current data.amount to preserve currency
+                        value: originalAmountValue, // Revert to original decimal for display
+                    });
+                }
+            }
         });
     };
 
@@ -62,7 +93,6 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
                 <Combobox
                     items={accounts.map((account) => ({ ...account, value: account.id, label: account.name }))}
                     value={data.account_id}
-                    onChange={(value) => setData('account_id', value)}
                     onChange={(value) => {
                         const selectedAccount = accounts.find((account) => account.id === value);
                         if (selectedAccount) {
@@ -124,15 +154,25 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
             <div className="grid grid-cols-2 gap-4">
                 <div className="grid space-y-2">
                     <Label htmlFor="amount_value">Valor</Label>
-                    <Input
-                        id="amount_value"
-                        type="number"
-                        step="0.01"
-                        placeholder='0.00'
-                        value={data.amount.value}
-                        onChange={(e) => setData('amount', { ...data.amount, value: parseFloat(e.target.value) })}
-                    disabled={!data.account_id}
-                    />
+                    <div className="relative">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <span className="text-muted-foreground">{data.amount.currency}</span>
+                        </div>
+                        <Input
+                            id="amount_value"
+                            type="number"
+                            step="0.01"
+                            placeholder="0.00"
+                            value={data.amount.value / 100} // Display as decimal
+                            onChange={(e) => {
+                                const decimalValue = parseFloat(e.target.value);
+                                const integerValue = Math.round(decimalValue * 100);
+                                setData('amount', { ...data.amount, value: integerValue || 0 }); // Store as integer
+                            }}
+                            disabled={!data.account_id}
+                            className="pl-14"
+                        />
+                    </div>
                     <InputError message={errors['amount.value']} />
                 </div>
 

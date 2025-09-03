@@ -30,15 +30,6 @@ export const AddTransactionCard = () => {
 
                         <Separator className="my-4" />
 
-                        <Tabs defaultValue="manual">
-                            <TabsList>
-                                <TabsTrigger value="manual">Manual</TabsTrigger>
-                                <TabsTrigger value="ofx"> Ofx</TabsTrigger>
-                                <TabsTrigger value="csv">Csv</TabsTrigger>
-                            </TabsList>
-                            {/* <OfxTab close={() => setOpen(false)} /> */}
-                            {/* <ManualTab close={() => setOpen(false)} /> */}
-                        </Tabs>
                     </SheetContent>
                 </Sheet>
             </CardFooter>
