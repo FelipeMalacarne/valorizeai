@@ -1,50 +1,81 @@
-
 terraform {
   required_providers {
     docker = {
       source  = "kreuzwerker/docker"
       version = "~> 3.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "3.6.2"
+    }
   }
 }
 
-locals {
-  // Root should provide compose files with absolute paths (e.g., using path.root)
-  compose_files = var.compose_files
+# PostgreSQL
+resource "random_password" "postgres" {
+  length           = 32
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
 resource "docker_secret" "postgres_password" {
-  name = var.db_password_secret_name
-  data = var.db_password
-}
-
-resource "docker_secret" "app_key" {
-  count = var.app_key == "" ? 0 : 1
-  name  = "app_key"
-  data  = var.app_key
+  name = "valorize_postgres_password"
+  data = base64encode(random_password.postgres.result)
 }
 
 resource "docker_volume" "db_data" {
-  name = var.db_data_volume
+  name = "valorize_postgres_data"
 }
 
-resource "docker_stack" "this" {
-  name               = var.stack_name
-  compose_files      = local.compose_files
-  with_registry_auth = var.with_registry_auth
-  prune              = var.prune
+# Minio
+resource "random_password" "minio_password" {
+  length           = 32
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
 
-  env = [
-    "DB_NAME=${var.db_name}",
-    "DB_USER=${var.db_user}",
-    "DB_PUBLISHED_PORT=${var.db_published_port}",
-    "DB_DATA_VOLUME=${var.db_data_volume}",
-    "POSTGRES_PASSWORD_SECRET_NAME=${var.db_password_secret_name}",
-    "POSTGRES_IMAGE=${var.postgres_image}",
-  ]
+resource "random_string" "minio_user" {
+  length  = 16
+  special = false
+}
 
-  depends_on = [
-    docker_secret.postgres_password,
-    docker_volume.db_data,
-  ]
+resource "docker_secret" "minio_root_user" {
+  name = "valorize_minio_root_user"
+  data = base64encode(random_string.minio_user.result)
+}
+
+resource "docker_secret" "minio_root_password" {
+  name = "valorize_minio_root_password"
+  data = base64encode(random_password.minio_password.result)
+}
+
+resource "docker_volume" "minio_data" {
+  name = "valorize_minio_data"
+}
+
+# Typesense
+resource "random_password" "typesense_api_key" {
+  length           = 32
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+resource "docker_secret" "typesense_api_key" {
+  name = "valorize_typesense_api_key"
+  data = base64encode(random_password.typesense_api_key.result)
+}
+
+resource "docker_volume" "typesense_data" {
+  name = "valorize_typesense_data"
+}
+
+# Redis
+resource "docker_volume" "redis_data" {
+  name = "valorize_redis_data"
+}
+
+# App
+resource "docker_secret" "app_key" {
+  name  = "valorize_app_key"
+  data  = base64encode(var.app_key)
 }

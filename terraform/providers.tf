@@ -15,6 +15,10 @@ terraform {
       source  = "kreuzwerker/docker"
       version = "~> 3.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "3.6.2"
+    }
   }
 }
 
@@ -24,7 +28,7 @@ provider "google" {
   zone    = var.gcp_zone
 }
 
-# provider "docker" {
-#   // Uses local SSH agent and ~/.ssh/config for auth
-#   host = "ssh://ubuntu@${var.vm_host}"
-# }
+provider "docker" {
+  // Uses local SSH agent and ~/.ssh/config for auth
+  host = "ssh://ubuntu@${var.vm_host}"
+}
