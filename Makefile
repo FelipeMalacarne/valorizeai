@@ -75,6 +75,15 @@ deploy: submit update_service update_artisan
 	@echo "$(GREEN)✓ Complete deployment finished successfully$(NC)"
 	@make status
 
+.PHONY: build_arm
+build_arm:
+	docker build \
+		--platform linux/arm64 \
+        -f docker/laravel/Dockerfile \
+        -t $(LATEST_IMAGE) \
+        --push \
+        .
+
 .PHONY: local_build
 local_build:
 	@echo "$(YELLOW)Building Docker image locally for AMD64 (Cloud Run compatible)...$(NC)"
@@ -132,14 +141,14 @@ status:
 	@gcloud run services describe $(SERVICE_NAME) \
 		--region $(REGION) \
 		--project $(PROJECT_ID) \
-		--format="table(metadata.name,status.url,status.traffic[0].percent,spec.template.spec.containers[0].image)" \
+		--format=\"table(metadata.name,status.url,status.traffic[0].percent,spec.template.spec.containers[0].image)\" \
 		2>/dev/null || echo "$(RED)Service not found$(NC)"
 	@echo ""
 	@echo "$(YELLOW)Cloud Run Job:$(NC)"
 	@gcloud run jobs describe $(JOB_NAME) \
 		--region $(REGION) \
 		--project $(PROJECT_ID) \
-		--format="table(metadata.name,spec.template.spec.template.spec.containers[0].image)" \
+		--format=\"table(metadata.name,spec.template.spec.template.spec.containers[0].image)\" \
 		2>/dev/null || echo "$(RED)Job not found$(NC)"
 
 
@@ -149,7 +158,7 @@ run_migration:
 	@gcloud run jobs execute $(JOB_NAME) \
 		--region $(REGION) \
 		--project $(PROJECT_ID) \
-		--args="migrate,--force"
+		--args=\"migrate,--force\"
 	@echo "$(GREEN)✓ Migration job executed$(NC)"
 
 .PHONY: setup_artifact_registry
@@ -182,7 +191,7 @@ deploy_with_health_check: submit
 	@make update_service
 	@echo "$(YELLOW)Waiting for service to be ready...$(NC)"
 	@sleep 30
-	@SERVICE_URL=$$(gcloud run services describe $(SERVICE_NAME) --region $(REGION) --project $(PROJECT_ID) --format="value(status.url)"); \
+	@SERVICE_URL=$$(gcloud run services describe $(SERVICE_NAME) --region $(REGION) --project $(PROJECT_ID) --format=\"value(status.url)\"); \
 	if curl -f "$$SERVICE_URL/up" > /dev/null 2>&1; then \
 		echo "$(GREEN)✓ Service is healthy$(NC)"; \
 		make update_artisan; \
@@ -202,9 +211,27 @@ artisan:
 	@gcloud run jobs execute $(JOB_NAME) \
 		--region $(REGION) \
 		--project $(PROJECT_ID) \
-		--args="$(CMD)"
+		--args=\"$(CMD)\"
 
 # Quick deploy for development (local build + push + update)
 .PHONY: quick_deploy
 quick_deploy: local_build local_push update_service
 	@echo "$(GREEN)✓ Quick deployment completed$(NC)"
+
+.PHONY: deploy_swarm
+deploy_swarm:
+	docker --context zamorak stack deploy --with-registry-auth -c docker/stack-app.yml valorizeai
+	docker --context zamorak system prune -f
+
+# Get a shell inside a running app container on Swarm
+.PHONY: shell-swarm
+shell-swarm:
+	@echo "$(YELLOW)Finding a running app container on Swarm...$(NC)"
+	@CONTAINER_ID=$$(docker --context zamorak ps -q --filter "name=valorizeai_app" | head -n 1); \
+	if [ -z "$$CONTAINER_ID" ]; then \
+		echo "$(RED)Error: No running container found for 'valorizeai_app' service.$(NC)"; \
+		exit 1; \
+	fi; \
+	echo "$(GREEN)✓ Found container: $$CONTAINER_ID$(NC)"; \
+	echo "$(YELLOW)Opening shell...$(NC)"; \
+	docker --context zamorak exec -it $$CONTAINER_ID /bin/sh

@@ -3,48 +3,48 @@ version: '3.8'
 x-laravel-service: &laravel-common
   image: southamerica-east1-docker.pkg.dev/valorizeai/valorize-repo/valorizeai:latest
   environment:
-    APP_URL: "https://valorizeai.felipemalacarne.com.br"
-    APP_NAME: "ValorizeAI"
-    APP_ENV: "production"
-    APP_DEBUG: "false"
-    APP_LOCALE: "pt_BR"
-    APP_FALLBACK_LOCALE: "en_US"
+    APP_URL: 'https://valorizeai.felipemalacarne.com.br'
+    APP_NAME: 'ValorizeAI'
+    APP_ENV: 'production'
+    APP_DEBUG: 'false'
+    APP_LOCALE: 'pt_BR'
+    APP_FALLBACK_LOCALE: 'en_US'
     BCRYPT_ROUNDS: 12
-    LOG_CHANNEL: "stderr"
-    LOG_LEVEL: "debug"
-    DB_CONNECTION: "pgsql"
-    DB_HOST: "postgres"
-    DB_PORT: "5432"
-    DB_DATABASE: "valorizeai"
-    DB_USERNAME: "laravel"
-    SESSION_DRIVER: "redis"
-    SESSION_ENCRYPT: "false"
-    SESSION_PATH: "/"
-    SESSION_DOMAIN: "valorizeai.felipemalacarne.com.br"
+    LOG_CHANNEL: 'stderr'
+    LOG_LEVEL: 'debug'
+    DB_CONNECTION: 'pgsql'
+    DB_HOST: 'postgres'
+    DB_PORT: '5432'
+    DB_DATABASE: 'valorizeai'
+    DB_USERNAME: 'laravel'
+    SESSION_DRIVER: 'redis'
+    SESSION_ENCRYPT: 'false'
+    SESSION_PATH: '/'
+    SESSION_DOMAIN: 'valorizeai.felipemalacarne.com.br'
     SESSION_LIFETIME: 120
-    BROADCAST_CONNECTION: "log"
-    FILESYSTEM_DISK: "s3" # Use s3 for minio
-    QUEUE_CONNECTION: "redis"
-    CACHE_STORE: "redis"
-    OCTANE_SERVER: "frankenphp"
-    TRUSTED_PROXIES: "*"
-    TRUSTED_HOSTS: "valorizeai.felipemalacarne.com.br"
+    BROADCAST_CONNECTION: 'log'
+    FILESYSTEM_DISK: 's3' # Use s3 for minio
+    QUEUE_CONNECTION: 'redis'
+    CACHE_STORE: 'redis'
+    OCTANE_SERVER: 'frankenphp'
+    TRUSTED_PROXIES: '*'
+    TRUSTED_HOSTS: 'valorizeai.felipemalacarne.com.br'
     REDIS_HOST: redis
     # --- File-based secrets for Laravel ---
     APP_KEY_FILE: /run/secrets/app_key
     DB_PASSWORD_FILE: /run/secrets/postgres_password
     # --- S3/Minio Config ---
-    AWS_ENDPOINT: "http://minio:9000"
-    AWS_USE_PATH_STYLE_ENDPOINT: "true"
-    AWS_BUCKET: "default"
-    AWS_DEFAULT_REGION: "us-east-1"
+    AWS_ENDPOINT: 'http://minio:9000'
+    AWS_USE_PATH_STYLE_ENDPOINT: 'true'
+    AWS_BUCKET: 'default'
+    AWS_DEFAULT_REGION: 'us-east-1'
     AWS_ACCESS_KEY_ID_FILE: /run/secrets/minio_root_user
     AWS_SECRET_ACCESS_KEY_FILE: /run/secrets/minio_root_password
     # --- Typesense Config ---
     TYPESENSE_API_KEY_FILE: /run/secrets/typesense_api_key
-    TYPESENSE_HOST: "typesense"
-    TYPESENSE_PORT: "8108"
-    TYPESENSE_PROTOCOL: "http"
+    TYPESENSE_HOST: 'typesense'
+    TYPESENSE_PORT: '8108'
+    TYPESENSE_PROTOCOL: 'http'
   secrets:
     - source: app_key
       target: app_key
@@ -72,17 +72,23 @@ services:
 
   worker:
     <<: *laravel-common
-    command: ["php", "artisan", "queue:work"]
+    command: ['php', 'artisan', 'horizon']
+    healthcheck:
+      test: ['CMD-SHELL', 'php artisan horizon:status']
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     deploy:
       replicas: 1
       restart_policy:
         condition: on-failure
 
-  artisan:
+  migrate:
     <<: *laravel-common
-    command: ["php", "artisan", "list"]
+    entrypoint: 'php artisan migrate --force'
     deploy:
-      replicas: 0
+      replicas: 1
       restart_policy:
         condition: none
 
@@ -121,6 +127,7 @@ services:
       TYPESENSE_DATA_DIR: /typesense-data
       TYPESENSE_API_KEY_FILE: /run/secrets/typesense_api_key
       TYPESENSE_ENABLE_CORS: 'true'
+    command: --api-key=/run/secrets/typesense_api_key
     volumes:
       - typesense_data:/data
     secrets:
