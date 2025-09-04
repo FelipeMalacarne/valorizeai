@@ -9,6 +9,8 @@ FROM composer:2.7.6 AS composer
 
 WORKDIR /app
 
+RUN docker-php-ext-install pcntl
+
 COPY composer.json composer.lock ./
 RUN composer install --prefer-dist --no-dev --no-scripts --no-progress --no-interaction
 
