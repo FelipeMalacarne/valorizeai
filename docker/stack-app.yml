@@ -56,12 +56,13 @@ x-laravel-service: &laravel-common
       target: minio_root_password
     - source: typesense_api_key
       target: typesense_api_key
-  networks:
-    - valorizeai
 
 services:
   app:
     <<: *laravel-common
+    networks:
+      - valorizeai
+      - public
     deploy:
       replicas: 2
       restart_policy:
@@ -69,10 +70,19 @@ services:
       update_config:
         parallelism: 1
         order: start-first
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.valorizeai.entrypoints=websecure"
+        - "traefik.http.routers.valorizeai.rule=Host(`valorizeai.felipemalacarne.com.br`)"
+        - "traefik.http.routers.valorizeai.tls=true"
+        - "traefik.http.routers.valorizeai.tls.certresolver=cloudflare"
+        - "traefik.http.services.valorizeai.loadbalancer.server.port=8080"
 
   worker:
     <<: *laravel-common
     command: ['php', 'artisan', 'horizon']
+    networks:
+      - valorizeai
     healthcheck:
       test: ['CMD-SHELL', 'php artisan horizon:status']
       interval: 60s
@@ -87,6 +97,8 @@ services:
   migrate:
     <<: *laravel-common
     entrypoint: 'php artisan migrate --force'
+    networks:
+      - valorizeai
     deploy:
       replicas: 1
       restart_policy:
@@ -205,3 +217,5 @@ networks:
   valorizeai:
     driver: overlay
     attachable: true
+  public:
+    external: true
