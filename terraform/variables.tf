@@ -53,3 +53,9 @@ variable "laravel_app_key" {
   type        = string
   sensitive   = true
 }
+
+variable "enable_gcp_infra" {
+  description = "Enable provisioning of GCP infrastructure (Cloud Run, Load Balancer, IAM, Secrets). Set to false to keep only Artifact Registry (not managed here)."
+  type        = bool
+  default     = true
+}
