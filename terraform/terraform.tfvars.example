@@ -10,3 +10,7 @@ pgsql_host     = "your-postgres-host"
 pgsql_database = "your-database-name"
 pgsql_username = "your-username"
 pgsql_password = "your-secure-password"  # This will be stored in Secret Manager
+
+# Toggle to enable/disable GCP infrastructure provisioning
+# Set to false to keep only Artifact Registry (not managed here)
+enable_gcp_infra = true

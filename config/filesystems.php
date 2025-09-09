@@ -51,8 +51,8 @@ return [
 
         's3' => [
             'driver'                  => 's3',
-            'key'                     => env('AWS_ACCESS_KEY_ID'),
-            'secret'                  => env('AWS_SECRET_ACCESS_KEY'),
+            'key'                     => env('AWS_ACCESS_KEY_ID_FILE') ? file_get_contents(env('AWS_ACCESS_KEY_ID_FILE')) : env('AWS_ACCESS_KEY_ID'),
+            'secret'                  => env('AWS_SECRET_ACCESS_KEY_FILE') ? file_get_contents(env('AWS_SECRET_ACCESS_KEY_FILE')) : env('AWS_SECRET_ACCESS_KEY'),
             'region'                  => env('AWS_DEFAULT_REGION'),
             'bucket'                  => env('AWS_BUCKET'),
             'url'                     => env('AWS_URL'),
