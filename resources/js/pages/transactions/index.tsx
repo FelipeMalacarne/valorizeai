@@ -44,7 +44,7 @@ const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Transactions',
+        title: 'Transações',
         href: route('transactions.index'),
     },
 ];

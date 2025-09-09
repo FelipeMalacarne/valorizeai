@@ -20,7 +20,7 @@ TransactionsShow.layout = (page: any) => {
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: 'Transactions',
+            title: 'Transações',
             href: route('transactions.index'),
         },
         {
