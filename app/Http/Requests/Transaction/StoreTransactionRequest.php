@@ -24,7 +24,6 @@ final class StoreTransactionRequest extends Data
         public ?string $category_id,
         #[WithCast(MoneyCast::class)]
         public Money $amount,
-        public TransactionType $type,
         #[WithCast(DateTimeInterfaceCast::class, timeZone: 'UTC')]
         public Carbon $date,
         public ?string $memo = null
@@ -38,7 +37,6 @@ final class StoreTransactionRequest extends Data
             'amount'          => ['required', 'array'],
             'amount.value'    => ['required', 'integer'],
             'amount.currency' => ['required', 'string'],
-            'type'            => ['required', 'in:debit,credit'],
             'date'            => ['required', 'date'],
             'memo'            => ['nullable', 'string', 'max:255'],
         ];

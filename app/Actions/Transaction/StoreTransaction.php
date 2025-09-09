@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Transaction;
 
+use App\Enums\TransactionType;
 use App\Http\Requests\Transaction\StoreTransactionRequest;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,7 @@ final class StoreTransaction
                 'category_id' => $args->category_id,
                 'amount'      => $args->amount,
                 'currency'    => $args->amount->currency,
-                'type'        => $args->type,
+                'type'        => $args->amount->value >= 0 ? TransactionType::CREDIT : TransactionType::DEBIT,
                 'date'        => $args->date,
                 'memo'        => $args->memo,
             ]);

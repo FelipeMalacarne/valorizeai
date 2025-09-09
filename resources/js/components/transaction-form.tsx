@@ -13,8 +13,6 @@ import { DatePicker } from '@/components/date-picker';
 import { format } from 'date-fns';
 import { FormDescription } from '@/components/form-description';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-import { categoryBadgeVariants } from '@/lib/categories';
 
 type TransactionFormProps = {
     accounts: App.Http.Resources.AccountResource[];
@@ -23,17 +21,25 @@ type TransactionFormProps = {
 };
 
 export const TransactionForm = ({ accounts, categories, onSuccess }: TransactionFormProps) => {
-    const { data, setData, post, processing, errors, reset } = useForm<Required<App.Http.Requests.Transaction.StoreTransactionRequest>>({
+    const [type, setType] = useState<'debit' | 'credit'>('debit');
+    const { data, setData, post, processing, errors, reset, transform } = useForm({
         account_id: '',
         category_id: null,
         amount: {
             value: 0,
             currency: 'BRL',
         },
-        type: 'debit',
         date: format(new Date(), 'yyyy-MM-dd'),
         memo: null,
     });
+
+    transform((data) => ({
+        ...data,
+        amount: {
+            ...data.amount,
+            value: type === 'debit' ? data.amount.value * -1 : data.amount.value,
+        },
+    }));
 
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
@@ -44,44 +50,21 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
         }
     };
 
+    const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const inputValue = e.target.value;
+        const digitsOnly = inputValue.replace(/\D/g, '');
+        const integerValue = parseInt(digitsOnly, 10);
+        setData('amount', { ...data.amount, value: integerValue || 0 });
+    };
+
+    // The submit handler is now clean
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        console.log('Amount before transform (from data state):', data.amount.value);
-
-        // Store the original value to revert later
-        const originalAmountValue = data.amount.value;
-
-        // Calculate the transformed integer value
-        const transformedAmountValue = Math.round(originalAmountValue * 100);
-
-        // Update the form's internal data state with the transformed value
-        // This is the key change to ensure Inertia sends the correct value
-        setData('amount', {
-            ...data.amount,
-            value: transformedAmountValue,
-        });
-
-        console.log('Amount after updating data state (should be integer):', data.amount.value);
-
-        // Now, call post. Inertia will use the updated 'data' state.
         post(route('transactions.store'), {
             onSuccess: () => {
-                reset(); // This will reset the form, including amount.value
+                reset();
                 onSuccess?.();
             },
-            onFinish: () => {
-                // If onSuccess is not called (e.g., validation error),
-                // we need to revert the amount.value in the data state
-                // back to its original decimal form for display.
-                // If reset() is called on success, this might not be strictly necessary for success case.
-                // But for validation errors, it's crucial.
-                if (!processing) { // Check if processing is false, meaning request finished
-                    setData('amount', {
-                        ...data.amount, // Use current data.amount to preserve currency
-                        value: originalAmountValue, // Revert to original decimal for display
-                    });
-                }
-            }
         });
     };
 
@@ -160,15 +143,10 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
                         </div>
                         <Input
                             id="amount_value"
-                            type="number"
-                            step="0.01"
+                            type="text"
                             placeholder="0.00"
-                            value={data.amount.value / 100} // Display as decimal
-                            onChange={(e) => {
-                                const decimalValue = parseFloat(e.target.value);
-                                const integerValue = Math.round(decimalValue * 100);
-                                setData('amount', { ...data.amount, value: integerValue || 0 }); // Store as integer
-                            }}
+                            value={(data.amount.value / 100).toFixed(2)}
+                            onChange={handleAmountChange}
                             disabled={!data.account_id}
                             className="pl-14"
                         />
@@ -178,7 +156,7 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
 
                 <div className="grid space-y-2">
                     <Label htmlFor="type">Tipo</Label>
-                    <Select onValueChange={(value) => setData('type', value as App.Enums.TransactionType)} value={data.type} disabled={!data.account_id}>
+                    <Select onValueChange={(value) => setType(value as 'debit' | 'credit')} value={type} disabled={!data.account_id}>
                         <SelectTrigger>
                             <SelectValue placeholder="Selecione o tipo" />
                         </SelectTrigger>
@@ -197,7 +175,6 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
                       </SelectItem>
                     </SelectContent>
                     </Select>
-                    <InputError message={errors.type} />
                 </div>
 
             </div>
