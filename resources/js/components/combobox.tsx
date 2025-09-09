@@ -61,8 +61,8 @@ export function Combobox<T extends ComboboxItem>({
         return (
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-between">
-                        {selected ? <>{selected.label}</> : <>{placeholder}</>}
+                    <Button variant="outline" className="w-full justify-between truncate">
+                        <span className="truncate">{selected ? selected.label : placeholder}</span>
                         <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                 </PopoverTrigger>
@@ -76,8 +76,8 @@ export function Combobox<T extends ComboboxItem>({
     return (
         <Drawer open={open} onOpenChange={setOpen}>
             <DrawerTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
-                    {selected ? <>{selected.label}</> : <>{placeholder}</>}
+                <Button variant="outline" className="w-full justify-between truncate">
+                    <span className="truncate">{selected ? selected.label : placeholder}</span>
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </DrawerTrigger>
