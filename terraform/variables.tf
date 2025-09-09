@@ -16,6 +16,11 @@ variable "gcp_zone" {
   default     = "southamerica-east1-a"
 }
 
+variable "vm_host" {
+  description = "Public IP or hostname of the Docker Swarm VM (e.g., 137.131.204.251)"
+  type        = string
+}
+
 variable "pgsql_host" {
   description = "Hostname of the PostgreSQL database"
   type        = string
@@ -43,4 +48,14 @@ variable "domain" {
   default     = "valorizeai.felipemalacarne.com.br"
 }
 
+variable "laravel_app_key" {
+  description = "Laravel encryption app key"
+  type        = string
+  sensitive   = true
+}
 
+variable "enable_gcp_infra" {
+  description = "Enable provisioning of GCP infrastructure (Cloud Run, Load Balancer, IAM, Secrets). Set to false to keep only Artifact Registry (not managed here)."
+  type        = bool
+  default     = true
+}

@@ -1,47 +1,47 @@
 # Cloud Run outputs
 output "cloud_run_service_url" {
   description = "URL of the Cloud Run service"
-  value       = module.cloudrun.service_url
+  value       = var.enable_gcp_infra ? module.cloudrun[0].service_url : null
 }
 
 output "cloud_run_service_name" {
   description = "Name of the Cloud Run service"
-  value       = module.cloudrun.service_name
+  value       = var.enable_gcp_infra ? module.cloudrun[0].service_name : null
 }
 
 # Load Balancer outputs
 output "load_balancer_ip" {
   description = "Static IP address of the load balancer"
-  value       = module.load_balancer.load_balancer_ip
+  value       = var.enable_gcp_infra ? module.load_balancer[0].load_balancer_ip : null
 }
 
 output "application_url" {
   description = "HTTPS URL for the application"
-  value       = module.load_balancer.https_url
+  value       = var.enable_gcp_infra ? module.load_balancer[0].https_url : null
 }
 
 output "ssl_certificate_status" {
   description = "Status of the managed SSL certificate"
-  value       = module.load_balancer.ssl_certificate_status
+  value       = var.enable_gcp_infra ? module.load_balancer[0].ssl_certificate_status : null
 }
 
 output "domains_configured" {
   description = "Domains configured for SSL certificate"
-  value       = module.load_balancer.domains
+  value       = var.enable_gcp_infra ? module.load_balancer[0].domains : []
 }
 
 # DNS setup instructions
 output "dns_setup_instructions" {
   description = "Instructions for setting up DNS"
-  value       = <<-EOT
-    To complete domain setup, add the following DNS records:
-    1. Add an A record pointing ${var.domain} to ${module.load_balancer.load_balancer_ip}
-    2. SSL certificate will be automatically provisioned once DNS is configured
-    3. The certificate status can be checked with: gcloud compute ssl-certificates list
-
-    Once DNS propagates (5-30 minutes), your app will be available at:
-    https://${var.domain}
-  EOT
+  value       = var.enable_gcp_infra ? join("\n", [
+    "To complete domain setup, add the following DNS records:",
+    format("1. Add an A record pointing %s to %s", var.domain, module.load_balancer[0].load_balancer_ip),
+    "2. SSL certificate will be automatically provisioned once DNS is configured",
+    "3. The certificate status can be checked with: gcloud compute ssl-certificates list",
+    "",
+    "Once DNS propagates (5-30 minutes), your app will be available at:",
+    format("https://%s", var.domain),
+  ]) : null
 }
 
 output "github_actions_service_account_key" {
