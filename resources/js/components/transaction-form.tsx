@@ -1,18 +1,18 @@
 import { Combobox } from '@/components/combobox';
+import { DatePicker } from '@/components/date-picker';
+import { FormDescription } from '@/components/form-description';
 import InputError from '@/components/input-error';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getAccountIcon, getAccountTypeColor } from '@/lib/accounts';
 import { useForm } from '@inertiajs/react';
+import { format } from 'date-fns';
 import { LoaderCircle, Tag, TrendingDown, TrendingUp } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
-import { DatePicker } from '@/components/date-picker';
-import { format } from 'date-fns';
-import { FormDescription } from '@/components/form-description';
-import { Badge } from '@/components/ui/badge';
 
 type TransactionFormProps = {
     accounts: App.Http.Resources.AccountResource[];
@@ -70,68 +70,69 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
 
     return (
         <form className="space-y-4" onSubmit={submit}>
-            <div className='grid grid-cols-2 gap-4'>
-            <div className="space-y-2">
-                <Label htmlFor="account_id">Conta</Label>
-                <Combobox
-                    items={accounts.map((account) => ({ ...account, value: account.id, label: account.name }))}
-                    value={data.account_id}
-                    onChange={(value) => {
-                        const selectedAccount = accounts.find((account) => account.id === value);
-                        if (selectedAccount) {
-                            setData((prev) => ({
-                                ...prev,
-                                account_id: selectedAccount.id,
-                                amount: {
-                                    ...prev.amount,
-                                    currency: selectedAccount.currency
-                                }
-                            }))
-                        } else {
-                            setData('account_id', '');
-                        }
-                    }}
-                    placeholder="Selecione uma conta"
-                    renderItem={(account: App.Http.Resources.AccountResource) => {
-                        const Icon = getAccountIcon(account.type);
-                        return (
-                            <div className="flex w-full items-center justify-between">
-                                <div className="flex items-center space-x-2">
-                                    <Avatar className="h-6 w-6">
-                                        <AvatarFallback className={getAccountTypeColor(account.type)}>
-                                            <Icon className="h-4 w-4" />
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <span>{account.name}</span>
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="account_id">Conta</Label>
+                    <Combobox
+                        items={accounts.map((account) => ({ ...account, value: account.id, label: account.name }))}
+                        value={data.account_id}
+                        onChange={(value) => {
+                            const selectedAccount = accounts.find((account) => account.id === value);
+                            if (selectedAccount) {
+                                setData((prev) => ({
+                                    ...prev,
+                                    account_id: selectedAccount.id,
+                                    amount: {
+                                        ...prev.amount,
+                                        currency: selectedAccount.currency,
+                                    },
+                                }));
+                            } else {
+                                setData('account_id', '');
+                            }
+                        }}
+                        placeholder="Selecione uma conta"
+                        renderItem={(account: App.Http.Resources.AccountResource) => {
+                            const Icon = getAccountIcon(account.type);
+                            return (
+                                <div className="flex w-full items-center justify-between">
+                                    <div className="flex items-center space-x-2">
+                                        <Avatar className="h-6 w-6">
+                                            <AvatarFallback className={getAccountTypeColor(account.type)}>
+                                                <Icon className="h-4 w-4" />
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <span>{account.name}</span>
+                                    </div>
+                                    <Badge variant="outline">{account.balance.formatted}</Badge>
                                 </div>
-                                <Badge variant="outline">{account.balance.formatted}</Badge>
-                            </div>
-                        );
-                    }}
-                />
-                <InputError message={errors.account_id} />
-            </div>
+                            );
+                        }}
+                    />
+                    <InputError message={errors.account_id} />
+                    <FormDescription>Selecione a conta para a qual esta transação pertence.</FormDescription>
+                </div>
 
-            <div className="grid space-y-2">
-                <Label htmlFor="category_id">Categoria</Label>
-                <Combobox
-                    items={categories.map((category) => ({ ...category, value: category.id, label: category.name }))}
-                    value={data.category_id}
-                    onChange={(value) => setData('category_id', value)}
-                    placeholder="Selecione uma categoria (opcional)"
-                    noResultsText="Nenhuma categoria encontrada."
-                    renderItem={(category: App.Http.Resources.CategoryResource) => {
-                        return (
-                            <div className="flex items-center space-x-2">
-                                <Tag className={`h-4 w-4 text-${category.color}`} />
-                                <span>{category.name}</span>
-                            </div>
-                        );
-                    }}
-                />
-                <InputError message={errors.category_id} />
-            </div>
-
+                <div className="grid space-y-2">
+                    <Label htmlFor="category_id">Categoria</Label>
+                    <Combobox
+                        items={categories.map((category) => ({ ...category, value: category.id, label: category.name }))}
+                        value={data.category_id}
+                        onChange={(value) => setData('category_id', value)}
+                        placeholder="Selecione uma categoria (opcional)"
+                        noResultsText="Nenhuma categoria encontrada."
+                        renderItem={(category: App.Http.Resources.CategoryResource) => {
+                            return (
+                                <div className="flex items-center space-x-2">
+                                    <Tag className={`h-4 w-4 text-${category.color}`} />
+                                    <span>{category.name}</span>
+                                </div>
+                            );
+                        }}
+                    />
+                    <InputError message={errors.category_id} />
+                    <FormDescription>Selecione uma categoria para esta transação (opcional).</FormDescription>
+                </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -160,23 +161,22 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
                         <SelectTrigger>
                             <SelectValue placeholder="Selecione o tipo" />
                         </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="debit">
-                        <div className="flex items-center space-x-2">
-                          <TrendingDown className="h-4 w-4 text-destructive" />
-                          <span>Debito</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="credit">
-                        <div className="flex items-center space-x-2">
-                          <TrendingUp className="h-4 w-4 text-primary" />
-                          <span>Credito</span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
+                        <SelectContent>
+                            <SelectItem value="debit">
+                                <div className="flex items-center space-x-2">
+                                    <TrendingDown className="text-destructive h-4 w-4" />
+                                    <span>Debito</span>
+                                </div>
+                            </SelectItem>
+                            <SelectItem value="credit">
+                                <div className="flex items-center space-x-2">
+                                    <TrendingUp className="text-primary h-4 w-4" />
+                                    <span>Credito</span>
+                                </div>
+                            </SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
-
             </div>
 
             <div className="grid gap-4">
@@ -184,18 +184,15 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
                     <Label htmlFor="date">Data</Label>
                     <DatePicker date={selectedDate} setDate={handleDateChange} />
                     <InputError message={errors.date} />
+                    <FormDescription>Selecione a data em que a transação foi efetuada.</FormDescription>
                 </div>
             </div>
 
             <div className="grid space-y-2">
                 <Label htmlFor="memo">Memo (opcional)</Label>
-                <Input
-                    id="memo"
-                    type="text"
-                    value={data.memo ?? ''}
-                    onChange={(e) => setData('memo', e.target.value)}
-                />
+                <Input id="memo" type="text" value={data.memo ?? ''} onChange={(e) => setData('memo', e.target.value)} />
                 <InputError message={errors.memo} />
+                <FormDescription>Adicione uma descrição para identificar esta transação.</FormDescription>
             </div>
 
             <Button type="submit" disabled={processing} className="w-full">
