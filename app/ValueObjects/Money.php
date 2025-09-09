@@ -27,13 +27,21 @@ final class Money implements Arrayable, JsonSerializable, Stringable
         return $this->format();
     }
 
-    public static function try(?int $amount, ?Currency $currency): ?self
+    public static function from(int|float $amount, Currency $currency): self
     {
-        if ($amount === null || $currency === null) {
-            return null;
+        if (! is_int($amount) && ! is_float($amount)) {
+            throw new InvalidArgumentException('Amount must be an integer or float.');
         }
+
+        $value = (int) round($amount * 100);
+
+        return new self($value, $currency);
+    }
+
+    public static function try(int|float $amount, Currency $currency): ?self
+    {
         try {
-            return new self($amount, $currency);
+            return self::from($amount, $currency);
         } catch (InvalidArgumentException $e) {
             return null;
         }
