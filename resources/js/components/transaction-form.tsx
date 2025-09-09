@@ -195,7 +195,6 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
                     value={data.memo ?? ''}
                     onChange={(e) => setData('memo', e.target.value)}
                 />
-                <FormDescription>Uma breve descrição da transação.</FormDescription>
                 <InputError message={errors.memo} />
             </div>
 

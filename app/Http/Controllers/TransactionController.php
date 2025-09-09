@@ -73,7 +73,13 @@ final class TransactionController extends Controller
      */
     public function show(Transaction $transaction)
     {
-        //
+        Gate::authorize('view', $transaction);
+
+        $transaction->load(['splits.category', 'category', 'account.bank']);
+
+        return Inertia::render('transactions/show', [
+            'transaction' => TransactionResource::from($transaction),
+        ]);
     }
 
     /**
