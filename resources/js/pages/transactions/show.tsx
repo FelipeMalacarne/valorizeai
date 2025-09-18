@@ -7,6 +7,7 @@ export type TransactionsShowProps = {
 };
 
 const TransactionsShow = (props: SharedData<TransactionsShowProps>) => {
+    console.log(props.transaction);
     return (
         <>
             <Head title="Vizualizar" />
