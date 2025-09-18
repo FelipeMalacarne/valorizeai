@@ -33,7 +33,8 @@ FROM dunglas/frankenphp:php8.4-alpine
 
 WORKDIR /app
 
-RUN install-php-extensions \
+RUN apk add --no-cache bash && \
+    install-php-extensions \
     redis \
     pdo_pgsql \
     zip \
