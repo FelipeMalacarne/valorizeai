@@ -2,10 +2,11 @@ import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { formatCurrency } from '@/lib/formatCurrency';
-import { Link } from '@inertiajs/react';
+import { Form, Link } from '@inertiajs/react';
 import { Delete, Edit, Eye, MoreHorizontal, Split } from 'lucide-react';
 import { useState } from 'react';
 import { SplitTransactionForm } from './split-transaction-form';
+import { destroy } from '@/routes/transactions';
 
 export function TransactionActionDropdown({ transaction }: { transaction: App.Http.Resources.TransactionResource }) {
     const [splitDialogOpen, setSplitDialogOpen] = useState(false);
@@ -62,12 +63,11 @@ export function TransactionActionDropdown({ transaction }: { transaction: App.Ht
                 title="Deletar transação"
                 description="Tem certeza de que deseja deletar esta transação? Esta ação não pode ser desfeita."
             >
-                <form>
-                    <div>{formatCurrency(transaction.amount.value, transaction.amount.currency)}</div>
+                <Form action={destroy(transaction.id)} onSuccess={() => setDeleteDialogOpen(false)}>
                     <Button type="submit" className="w-full" variant="destructive">
                         Deletar
                     </Button>
-                </form>
+                </Form>
             </ResponsiveDialog>
         </>
     );
