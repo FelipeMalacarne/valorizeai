@@ -63,7 +63,11 @@ export function TransactionActionDropdown({ transaction }: { transaction: App.Ht
                 title="Deletar transação"
                 description="Tem certeza de que deseja deletar esta transação? Esta ação não pode ser desfeita."
             >
-                <Form action={destroy(transaction.id)} onSuccess={() => setDeleteDialogOpen(false)}>
+                <Form
+                    action={route('transactions.destroy', transaction.id)}
+                    method='DELETE'
+                    onSuccess={() => setDeleteDialogOpen(false)}
+                >
                     <Button type="submit" className="w-full" variant="destructive">
                         Deletar
                     </Button>
