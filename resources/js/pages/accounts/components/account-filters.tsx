@@ -1,5 +1,6 @@
+import { ActionButtonLink } from '@/components/action-button-link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { router } from '@inertiajs/react';
@@ -37,6 +38,16 @@ export function AccountFilters({ className = '' }: { className?: string }) {
 
     return (
         <Card className={className}>
+            <CardHeader>
+                <div className="flex items-center justify-between">
+                    <div className='space-y-1'>
+                        <CardTitle>Contas Bancárias</CardTitle>
+                        <CardDescription> Vizualize e gerencie suas contas Bancárias </CardDescription>
+                    </div>
+
+                    <ActionButtonLink action="create" href={route('accounts.create')} prefetch/>
+                </div>
+            </CardHeader>
             <CardContent>
                 <div className="grid grid-cols-2 items-center justify-between gap-4 md:grid-cols-5">
                     <Input

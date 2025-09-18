@@ -4,24 +4,19 @@ declare(strict_types=1);
 
 namespace App\ValueObjects;
 
-use App\Enums\Currency; // Make sure to import your Currency enum
-use Illuminate\Contracts\Database\Eloquent\Castable;
-use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
+use App\Enums\Currency;
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Number;
 use InvalidArgumentException;
 use JsonSerializable;
-use Spatie\LaravelData\Casts\Cast;
-use Spatie\LaravelData\Casts\Castable as DataCastable;
-use Spatie\LaravelData\Support\Creation\CreationContext;
-use Spatie\LaravelData\Support\DataProperty;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 use Stringable;
 
 #[TypeScript]
-final class Money implements Arrayable, Castable, DataCastable, JsonSerializable, Stringable // , DataCastable
+final class Money implements Arrayable, JsonSerializable, Stringable
 {
+    public string $formatted;
+
     public function __construct(
         public readonly int $value, // Stored in the smallest unit (e.g., cents)
         public readonly Currency $currency
@@ -32,95 +27,24 @@ final class Money implements Arrayable, Castable, DataCastable, JsonSerializable
         return $this->format();
     }
 
-    public static function try(?int $amount, ?Currency $currency): ?self
+    public static function from(int|float $amount, Currency $currency): self
     {
-        if ($amount === null || $currency === null) {
-            return null;
+        if (! is_int($amount) && ! is_float($amount)) {
+            throw new InvalidArgumentException('Amount must be an integer or float.');
         }
+
+        $value = (int) round($amount * 100);
+
+        return new self($value, $currency);
+    }
+
+    public static function try(int|float $amount, Currency $currency): ?self
+    {
         try {
-            return new self($amount, $currency);
+            return self::from($amount, $currency);
         } catch (InvalidArgumentException $e) {
             return null;
         }
-    }
-
-    public static function castUsing(array $arguments): CastsAttributes
-    {
-        return new class implements CastsAttributes
-        {
-            public function get(Model $model, string $key, mixed $value, array $attributes): ?Money
-            {
-                $amount = $attributes['amount'] ?? null;
-                $currencyValue = $attributes['currency'] ?? null;
-
-                if ($amount === null || $currencyValue === null) {
-                    return null;
-                }
-
-                if (! ($currency = Currency::tryFrom($currencyValue))) {
-                    report(new InvalidArgumentException("Invalid currency value '{$currencyValue}' for account {$model->id}"));
-
-                    return null;
-                }
-
-                return new Money((int) $amount, $currency);
-            }
-
-            public function set(Model $model, string $key, mixed $value, array $attributes): array
-            {
-                // Allow setting null to clear balance and currency
-                if ($value === null) {
-                    return [
-                        'amount'   => null,
-                        'currency' => null,
-                    ];
-                }
-
-                // Allow setting from an integer amount and string currency
-                if (is_array($value) && isset($value['amount'], $value['currency'])) {
-                    $currency = Currency::tryFrom($value['currency']);
-                    if ($currency === null) {
-                        throw new InvalidArgumentException("Invalid currency value '{$value['currency']}' provided for setting Money.");
-                    }
-                    $value = new Money((int) $value['amount'], $currency);
-                }
-                // Allow setting from an integer amount and enum currency
-                if (is_array($value) && isset($value['amount'], $value['currency']) && $value['currency'] instanceof Currency) {
-                    $value = new Money((int) $value['amount'], $value['currency']);
-                }
-
-                if (! $value instanceof Money) {
-                    throw new InvalidArgumentException('The value must be an instance of App\ValueObjects\Money or a valid array.');
-                }
-
-                return [
-                    'amount'   => $value->value, // Integer (smallest unit)
-                    'currency' => $value->currency->value, // Enum value (string)
-                ];
-            }
-        };
-    }
-
-    // If using Spatie Laravel Data, uncomment and implement dataCastUsing
-    public static function dataCastUsing(array $arguments): Cast
-    {
-        return new class implements Cast
-        {
-            public function cast(DataProperty $property, mixed $value, array $properties, CreationContext $context): mixed
-            {
-                // This logic depends on how your data is structured when casting to a Data Object.
-                // Assuming the input data has 'amount' and 'currency' keys:
-                if (is_array($value) && isset($value['amount'], $value['currency'])) {
-                    $currency = Currency::tryFrom($value['currency']);
-                    if ($currency) {
-                        return new Money((int) $value['amount'], $currency);
-                    }
-                }
-
-                // Handle other potential input formats or return null/throw error
-                return null; // Or throw new Exception("Could not cast data to Money object");
-            }
-        };
     }
 
     public function format(): string

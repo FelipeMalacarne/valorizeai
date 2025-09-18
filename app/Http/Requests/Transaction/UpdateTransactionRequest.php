@@ -15,30 +15,30 @@ use Spatie\LaravelData\WithData;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
-final class StoreTransactionRequest extends Data
+final class UpdateTransactionRequest extends Data
 {
     use WithData;
 
     public function __construct(
-        public string $account_id,
-        public ?string $category_id,
         #[WithCast(MoneyCast::class)]
         public Money $amount,
+        public TransactionType $type,
         #[WithCast(DateTimeInterfaceCast::class, timeZone: 'UTC')]
         public Carbon $date,
-        public ?string $memo = null
+        public ?string $memo = null,
+        public ?string $category_id = null,
     ) {}
 
     public static function rules(): array
     {
         return [
-            'account_id'      => ['required', 'uuid', 'exists:accounts,id'],
-            'category_id'     => ['nullable', 'uuid', 'exists:categories,id'],
             'amount'          => ['required', 'array'],
             'amount.value'    => ['required', 'integer'],
             'amount.currency' => ['required', 'string'],
+            'type'            => ['required', 'in:debit,credit'],
             'date'            => ['required', 'date'],
             'memo'            => ['nullable', 'string', 'max:255'],
+            'category_id'     => ['nullable', 'uuid', 'exists:categories,id'],
         ];
     }
 }

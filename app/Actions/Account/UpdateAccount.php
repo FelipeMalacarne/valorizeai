@@ -6,25 +6,22 @@ namespace App\Actions\Account;
 
 use App\Http\Requests\Account\UpdateAccountRequest;
 use App\Models\Account;
+use Illuminate\Support\Facades\DB;
 
 final class UpdateAccount
 {
     public function handle(UpdateAccountRequest $data, Account $account): Account
     {
-        if ($data->name) {
+        return DB::transaction(function () use ($data, $account) {
             $account->name = $data->name;
-        }
-
-        if ($data->number) {
             $account->number = $data->number;
-        }
-
-        if ($data->type) {
+            $account->currency = $data->currency;
             $account->type = $data->type;
-        }
+            $account->bank_id = $data->bank_id;
 
-        $account->save();
+            $account->save();
 
-        return $account;
+            return $account;
+        });
     }
 }

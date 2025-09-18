@@ -33,7 +33,7 @@ const AccountCreate = (props: SharedData<AccountCreateProps>) => {
     return (
         <>
             <Head title="Criar nova" />
-            <div className="container mx-auto flex h-full flex-1 flex-col space-y-6 p-4">
+            <div className="container flex h-full flex-1 flex-col space-y-6 p-4">
                 {/* ... */}
 
                 <form className="space-y-4" onSubmit={submit}>

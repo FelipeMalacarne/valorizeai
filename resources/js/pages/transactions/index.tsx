@@ -3,10 +3,10 @@ import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, PaginatedResource, SharedData } from '@/types';
 import { Head } from '@inertiajs/react';
 import React from 'react';
-import { AddTransactionCard } from './components/add-transaction-card';
 import { BalanceCard } from './components/balance-card';
 import { columns } from './components/columns';
 import { TransactionsTable } from './components/transactions-table';
+import { ActionButtonLink } from '@/components/action-button-link';
 
 export type TransactionsIndexProps = {
     transactions: PaginatedResource<App.Http.Resources.TransactionResource>;
@@ -18,15 +18,20 @@ const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {
             <Head title="Transações" />
             <div className="container mx-auto flex h-full flex-1 flex-col space-y-6 p-4">
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                    <AddTransactionCard />
+                    <BalanceCard />
                     <BalanceCard />
                     <BalanceCard />
                 </div>
                 <Card>
                     <CardHeader>
-                        <CardTitle>Suas Transações</CardTitle>
+                        <div className="flex items-center justify-between">
+                            <div className='space-y-2'>
+                                <CardTitle>Suas Transações</CardTitle>
+                                <CardDescription> Veja e gerencie suas transações abaixo </CardDescription>
+                            </div>
 
-                        <CardDescription>View and manage your transactions below.</CardDescription>
+                            <ActionButtonLink action="create" href={route('transactions.create')} prefetch />
+                        </div>
                     </CardHeader>
 
                     <CardContent>
@@ -40,7 +45,7 @@ const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Transactions',
+        title: 'Transações',
         href: route('transactions.index'),
     },
 ];

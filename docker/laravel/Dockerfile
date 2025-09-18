@@ -21,7 +21,6 @@ WORKDIR /app
 COPY --from=node_deps /app/node_modules ./node_modules
 COPY --from=composer /app/vendor ./vendor
 COPY package.json .
-
 COPY vite.config.ts .
 COPY tsconfig.json .
 COPY components.json .
@@ -30,7 +29,7 @@ COPY resources/ ./resources/
 
 RUN npm run build:ssr
 
-FROM dunglas/frankenphp
+FROM dunglas/frankenphp:php8.4-alpine
 
 WORKDIR /app
 

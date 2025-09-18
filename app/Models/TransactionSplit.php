@@ -11,6 +11,30 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property string $id
+ * @property string $transaction_id
+ * @property string|null $category_id
+ * @property Money $amount
+ * @property string|null $memo
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Category|null $category
+ * @property-read mixed $date
+ * @property-read \App\Models\Transaction $transaction
+ * @method static \Database\Factories\TransactionSplitFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit whereCategoryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit whereMemo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit whereTransactionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 final class TransactionSplit extends Model
 {
     use HasFactory, HasUuids;

@@ -4,15 +4,50 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Casts\MoneyCast;
 use App\Enums\AccountType;
 use App\Enums\Color;
 use App\Enums\Currency;
+use App\ValueObjects\Money;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property string $id
+ * @property string $name
+ * @property Money $balance
+ * @property Currency $currency
+ * @property AccountType $type
+ * @property string|null $number
+ * @property string $user_id
+ * @property string $bank_id
+ * @property \Carbon\CarbonImmutable|null $created_at
+ * @property \Carbon\CarbonImmutable|null $updated_at
+ * @property-read Bank $bank
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Transaction> $transactions
+ * @property-read int|null $transactions_count
+ * @property-read User $user
+ *
+ * @method static \Database\Factories\AccountFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Account newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Account newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Account query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Account whereBalance($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Account whereBankId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Account whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Account whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Account whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Account whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Account whereNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Account whereType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Account whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Account whereUserId($value)
+ *
+ * @mixin \Eloquent
+ */
 final class Account extends Model
 {
     /** @use HasFactory<\Database\Factories\AccountFactory> */
@@ -30,7 +65,7 @@ final class Account extends Model
     ];
 
     protected $casts = [
-        'balance'    => 'integer',
+        'balance'    => MoneyCast::class,
         'currency'   => Currency::class,
         'type'       => AccountType::class,
         'created_at' => 'immutable_datetime',

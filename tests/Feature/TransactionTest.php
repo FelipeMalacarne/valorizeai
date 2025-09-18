@@ -15,7 +15,7 @@ use App\ValueObjects\Money;
 
 test('user can create a transaction', function () {
     $user = User::factory()->create();
-    $account = Account::factory()->for($user)->create();
+    $account = Account::factory()->for($user)->create(['currency' => Currency::BRL]);
 
     $data = StoreTransactionRequest::from([
         'account_id'  => $account->id,
@@ -36,7 +36,7 @@ test('user can create a transaction', function () {
 
 test('transaction can have splits', function () {
     $user = User::factory()->create();
-    $account = Account::factory()->for($user)->create();
+    $account = Account::factory()->for($user)->create(['currency' => Currency::BRL]);
     $category = \App\Models\Category::factory()->create(); // Need a category for splits
 
     // Create transaction with a specific currency
