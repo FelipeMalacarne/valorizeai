@@ -17,8 +17,8 @@ const TransactionCreate = (props: SharedData<TransactionCreateProps>) => {
         <>
             <Head title="Criar Transação" />
             <div className="container mx-auto flex h-full flex-1 flex-col space-y-6 p-4">
-                <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-                    <Card className="col-span-1 lg:col-span-2 flex flex-col justify-between">
+                <div className="grid grid-cols-1 gap-8 xl:grid-cols-3">
+                    <Card className="col-span-1 xl:col-span-2 flex flex-col justify-between">
                         <CardHeader>
                             <CardTitle className="flex items-center space-x-2">
                                 <Plus className="h-5 w-5" />

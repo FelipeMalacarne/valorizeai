@@ -37,12 +37,12 @@ export function RecentTransactions({ transactions }: { transactions: App.Http.Re
                                         )}
                                     </div>
                                     <div>
-                                        <p className="text-sm font-medium">{transaction.memo || 'No description'}</p>
-                                        <div className="text-muted-foreground flex items-center space-x-2 text-xs">
-                                            <span>{transaction.account.name}</span>
+                                        <p className="text-sm font-medium max-w-20 truncate">{transaction.memo || 'Sem Descrição'  }</p>
+                                        <div className="text-muted-foreground items-center space-x-2 text-xs">
+                                            {/* <span>{transaction.account.name}</span> */}
                                             {transaction.category && (
                                                 <>
-                                                    <span>•</span>
+                                                    {/* <span>•</span> */}
                                                     <CategoryBadge category={transaction.category} />
                                                 </>
                                             )}
