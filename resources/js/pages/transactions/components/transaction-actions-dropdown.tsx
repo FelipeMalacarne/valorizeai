@@ -6,7 +6,6 @@ import { Form, Link } from '@inertiajs/react';
 import { Delete, Edit, Eye, MoreHorizontal, Split } from 'lucide-react';
 import { useState } from 'react';
 import { SplitTransactionForm } from './split-transaction-form';
-import { destroy } from '@/routes/transactions';
 
 export function TransactionActionDropdown({ transaction }: { transaction: App.Http.Resources.TransactionResource }) {
     const [splitDialogOpen, setSplitDialogOpen] = useState(false);
