@@ -17,10 +17,6 @@ const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {
         <>
             <Head title="Transações" />
             <div className="container mx-auto flex h-full flex-1 flex-col space-y-6 p-4">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-3xl font-bold tracking-tight">Transações</h2>
-                    <ActionButtonLink action="create" href={route('transactions.create')} prefetch />
-                </div>
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     <BalanceCard />
                     <BalanceCard />
@@ -28,9 +24,14 @@ const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {
                 </div>
                 <Card>
                     <CardHeader>
-                        <CardTitle>Suas Transações</CardTitle>
+                        <div className="flex items-center justify-between">
+                            <div className='space-y-2'>
+                                <CardTitle>Suas Transações</CardTitle>
+                                <CardDescription> Veja e gerencie suas transações abaixo </CardDescription>
+                            </div>
 
-                        <CardDescription>View and manage your transactions below.</CardDescription>
+                            <ActionButtonLink action="create" href={route('transactions.create')} prefetch />
+                        </div>
                     </CardHeader>
 
                     <CardContent>
