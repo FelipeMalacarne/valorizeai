@@ -6,9 +6,6 @@ import { Link } from '@inertiajs/react';
 import { BookOpen, DollarSign, Folder, Home, Landmark } from 'lucide-react';
 import AppLogo from './app-logo';
 import { NavList } from './nav-list';
-import { index as transactionsIndex } from '@/routes/transactions';
-import { index as accountsIndex } from '@/routes/accounts';
-import { dashboard } from '@/routes';
 
 const footerNavItems: NavItem[] = [
     {
@@ -26,17 +23,17 @@ const footerNavItems: NavItem[] = [
 const platformNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: dashboard().url,
+        href: route('dashboard', undefined, false),
         icon: Home,
     },
     {
         title: 'Contas Bancárias',
-        href: accountsIndex().url,
+        href: route('accounts.index', undefined, false),
         icon: Landmark,
     },
     {
         title: 'Transações',
-        href: transactionsIndex().url,
+        href: route('transactions.index', undefined, false),
         icon: DollarSign,
     },
     // {
