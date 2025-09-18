@@ -16,7 +16,6 @@
         "laravel/nightwatch": "^1.10",
         "laravel/octane": "^2.9",
         "laravel/tinker": "^2.10.1",
-        "laravel/wayfinder": "^0.1.12",
         "spatie/laravel-data": "^4.15",
         "spatie/laravel-typescript-transformer": "^2.5",
         "spatie/typescript-transformer": "^2.5",
