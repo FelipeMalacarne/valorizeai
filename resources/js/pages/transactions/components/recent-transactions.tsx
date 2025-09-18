@@ -19,7 +19,7 @@ export function RecentTransactions({ transactions }: { transactions: App.Http.Re
                     {transactions.length === 0 ? (
                         <div className="text-muted-foreground py-8 text-center">
                             <Clock className="mx-auto mb-2 h-8 w-8 opacity-50" />
-                            <p>No transactions found</p>
+                            <p>Nenhuma transação encontrada</p>
                         </div>
                     ) : (
                         transactions.map((transaction) => (
