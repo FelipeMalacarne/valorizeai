@@ -7,10 +7,10 @@ use App\Enums\Currency;
 use App\Enums\TransactionType;
 use App\Http\Requests\Transaction\StoreTransactionRequest;
 use App\Models\Account;
-use App\Models\Transaction;
-use App\Models\User;
-use App\Models\TransactionSplit;
 use App\Models\Category;
+use App\Models\Transaction;
+use App\Models\TransactionSplit;
+use App\Models\User;
 use App\ValueObjects\Money;
 
 test('user can create a transaction', function () {
@@ -37,19 +37,19 @@ test('user can create a transaction', function () {
 test('transaction can have splits', function () {
     $user = User::factory()->create();
     $account = Account::factory()->for($user)->create(['currency' => Currency::BRL]);
-    $category = \App\Models\Category::factory()->create(); // Need a category for splits
+    $category = Category::factory()->create(); // Need a category for splits
 
     // Create transaction with a specific currency
     $transaction = Transaction::factory()->for($account)->create(['currency' => Currency::BRL]);
 
     // Create splits for the transaction, using the same currency
-    $split1 = \App\Models\TransactionSplit::factory()->create([
+    $split1 = TransactionSplit::factory()->create([
         'transaction_id' => $transaction->id,
         'category_id'    => $category->id,
         'amount'         => new Money(5000, Currency::BRL),
     ]);
 
-    $split2 = \App\Models\TransactionSplit::factory()->create([
+    $split2 = TransactionSplit::factory()->create([
         'transaction_id' => $transaction->id,
         'category_id'    => $category->id,
         'amount'         => new Money(5000, Currency::BRL),
@@ -65,5 +65,3 @@ test('transaction can have splits', function () {
     expect($split1->amount->currency)->toBe(Currency::BRL); // Assert currency
     expect($split2->amount->currency)->toBe(Currency::BRL); // Assert currency
 });
-
-

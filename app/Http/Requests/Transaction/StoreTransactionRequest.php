@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Requests\Transaction;
 
 use App\Casts\MoneyCast;
-use App\Enums\TransactionType;
 use App\ValueObjects\Money;
 use Carbon\Carbon;
 use Spatie\LaravelData\Attributes\WithCast;

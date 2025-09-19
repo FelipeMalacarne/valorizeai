@@ -19,9 +19,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $memo
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Category|null $category
+ * @property-read Category|null $category
  * @property-read mixed $date
- * @property-read \App\Models\Transaction $transaction
+ * @property-read Transaction $transaction
+ *
  * @method static \Database\Factories\TransactionSplitFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit newQuery()
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit whereMemo($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit whereTransactionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 final class TransactionSplit extends Model

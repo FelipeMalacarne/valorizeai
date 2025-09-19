@@ -13,7 +13,7 @@ use Spatie\LaravelData\Casts\Cast;
 use Spatie\LaravelData\Support\Creation\CreationContext;
 use Spatie\LaravelData\Support\DataProperty;
 
-final class MoneyCast implements CastsAttributes, Cast
+final class MoneyCast implements Cast, CastsAttributes
 {
     /**
      * Cast the stored value to a Money object for Eloquent Models.

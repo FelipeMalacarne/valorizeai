@@ -6,17 +6,17 @@ namespace App\Http\Requests\Account;
 
 use App\Enums\AccountType;
 use App\Enums\Currency;
-use Spatie\LaravelData\Data;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
-use Spatie\LaravelData\Support\Validation\ValidationContext;
 use Illuminate\Validation\Rules\Enum;
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\Validation\ValidationContext;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
 final class UpdateAccountRequest extends Data
 {
     public function __construct(
         public string $name,
-        public ?string $number = null,
+        public ?string $number,
         public Currency $currency,
         public AccountType $type,
         public string $bank_id,
