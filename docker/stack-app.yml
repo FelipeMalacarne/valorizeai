@@ -46,16 +46,11 @@ x-laravel-service: &laravel-common
     TYPESENSE_PORT: '8108'
     TYPESENSE_PROTOCOL: 'http'
   secrets:
-    - source: app_key
-      target: app_key
-    - source: postgres_password
-      target: postgres_password
-    - source: minio_root_user
-      target: minio_root_user
-    - source: minio_root_password
-      target: minio_root_password
-    - source: typesense_api_key
-      target: typesense_api_key
+    - app_key
+    - postgres_password
+    - minio_root_user
+    - minio_root_password
+    - typesense_api_key
 
 services:
   app:
