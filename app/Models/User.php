@@ -89,6 +89,11 @@ final class User extends Authenticatable
         return $this->hasMany(Category::class);
     }
 
+    public function imports(): HasMany
+    {
+        return $this->hasMany(Import::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *
