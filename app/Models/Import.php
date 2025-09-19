@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\ImportExtension;
 use App\Enums\ImportStatus;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -56,6 +57,16 @@ final class Import extends Model
     public function importTransactions(): HasMany
     {
         return $this->hasMany(ImportTransaction::class);
+    }
+
+    /**
+     * Get the path where the import file should be stored.
+     */
+    public function filePath(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => "imports/{$this->user_id}/{$this->id}.{$this->extension->value}"
+        );
     }
 
     protected function casts(): array
