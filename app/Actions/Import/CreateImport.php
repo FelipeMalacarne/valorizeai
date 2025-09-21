@@ -23,12 +23,15 @@ final class CreateImport
         $imports = collect();
 
         DB::transaction(function () use ($args, $user, $imports) {
-            $args->files->each(function (UploadedFile $file) use ($user, $imports) {
+            collect($args->files)->each(function (UploadedFile $file) use ($user, $imports) {
                 $import = Import::create([
-                    'user_id'   => $user->id,
-                    'file_name' => $file->getClientOriginalName(),
-                    'extension' => $file->getClientOriginalExtension(),
-                    'status'    => ImportStatus::PROCESSING,
+                    'user_id'          => $user->id,
+                    'file_name'        => $file->getClientOriginalName(),
+                    'extension'        => $file->getClientOriginalExtension(),
+                    'status'           => ImportStatus::PROCESSING,
+                    'new_count'        => 0,
+                    'conflicted_count' => 0,
+                    'matched_count'    => 0,
                 ]);
 
                 $file->storeAs($import->filePath);

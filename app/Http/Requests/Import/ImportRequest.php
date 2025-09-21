@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Import;
 
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Collection;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Support\Validation\ValidationContext;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -13,9 +11,11 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 #[TypeScript]
 final class ImportRequest extends Data
 {
+    /**
+     * @param  UploadFile[]  $files
+     */
     public function __construct(
-        /** @var Collection<int, UploadedFile> */
-        public Collection $files,
+        public array $files,
         public string $account_id,
     ) {}
 
@@ -23,7 +23,7 @@ final class ImportRequest extends Data
     {
         return [
             'files'      => ['required', 'array'],
-            'files.*'    => ['required', 'file', 'mimes:ofx,csv'],
+            'files.*'    => ['required', 'file', 'mimetypes:text/csv,application/ofx'],
             'account_id' => ['required', 'uuid', 'exists:accounts,id'],
         ];
     }

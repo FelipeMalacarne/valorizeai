@@ -27,7 +27,7 @@ it('creates imports, stores files, and dispatches events for each file', functio
     ];
 
     $request = new ImportRequest(
-        files: collect($files),
+        files: $files,
         account_id: Account::factory()->create(['user_id' => $user->id])->id,
     );
 
