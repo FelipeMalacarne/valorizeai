@@ -45,12 +45,14 @@ x-laravel-service: &laravel-common
     TYPESENSE_HOST: 'typesense'
     TYPESENSE_PORT: '8108'
     TYPESENSE_PROTOCOL: 'http'
+    RESEND_API_KEY_FILE": /run/secrets/resend_api_key
   secrets:
     - app_key
     - postgres_password
     - minio_root_user
     - minio_root_password
     - typesense_api_key
+    - resend_api_key
 
 services:
   app:
@@ -207,6 +209,9 @@ secrets:
   typesense_api_key:
     external: true
     name: valorize_typesense_api_key
+  resend_api_key:
+    external: true
+    name: valorize_resend_api_key
 
 networks:
   valorizeai:

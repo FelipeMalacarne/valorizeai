@@ -21,21 +21,6 @@ variable "vm_host" {
   type        = string
 }
 
-variable "pgsql_host" {
-  description = "Hostname of the PostgreSQL database"
-  type        = string
-}
-
-variable "pgsql_database" {
-  description = "Name of the PostgreSQL database"
-  type        = string
-}
-
-variable "pgsql_username" {
-  description = "Username for the PostgreSQL database"
-  type        = string
-}
-
 variable "pgsql_password" {
   description = "Password for the PostgreSQL database"
   type        = string
@@ -58,4 +43,10 @@ variable "enable_gcp_infra" {
   description = "Enable provisioning of GCP infrastructure (Cloud Run, Load Balancer, IAM, Secrets). Set to false to keep only Artifact Registry (not managed here)."
   type        = bool
   default     = true
+}
+
+variable "resend_api_key" {
+  description = "Resend API key for email sending"
+  type        = string
+  sensitive   = true
 }

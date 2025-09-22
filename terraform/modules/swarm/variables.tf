@@ -3,3 +3,9 @@ variable "app_key" {
   type        = string
   sensitive   = true
 }
+
+variable "resend_api_key" {
+  description = "Resend API key for email sending"
+  type        = string
+  sensitive   = true
+}
