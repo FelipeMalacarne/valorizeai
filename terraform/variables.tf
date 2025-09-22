@@ -50,3 +50,9 @@ variable "resend_api_key" {
   type        = string
   sensitive   = true
 }
+
+variable "enable_gke_infra" {
+  description = "Enable provisioning of GKE infrastructure."
+  type        = bool
+  default     = false
+}

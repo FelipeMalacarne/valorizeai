@@ -30,3 +30,13 @@ module "swarm" {
   resend_api_key = var.resend_api_key
 
 }
+
+module "gke" {
+  count           = var.enable_gke_infra ? 1 : 0
+  source          = "./modules/gke"
+  project_id      = var.gcp_project_id
+  region          = var.gcp_region
+  domain          = var.domain
+  laravel_app_key = var.laravel_app_key
+  resend_api_key  = var.resend_api_key
+}

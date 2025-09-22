@@ -14,3 +14,6 @@ pgsql_password = "your-secure-password"  # This will be stored in Secret Manager
 # Toggle to enable/disable GCP infrastructure provisioning
 # Set to false to keep only Artifact Registry (not managed here)
 enable_gcp_infra = true
+
+# Toggle to enable/disable GKE Autopilot infrastructure provisioning
+enable_gke_infra = true

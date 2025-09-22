@@ -49,3 +49,15 @@ output "github_actions_service_account_key" {
   value       = base64decode(google_service_account_key.github_actions.private_key)
   sensitive   = true
 }
+
+# GKE outputs
+output "gke_cluster_name" {
+  description = "Name of the GKE cluster"
+  value       = var.enable_gke_infra ? module.gke[0].cluster_name : null
+}
+
+output "gke_cluster_endpoint" {
+  description = "Endpoint of the GKE cluster"
+  value       = var.enable_gke_infra ? module.gke[0].cluster_endpoint : null
+  sensitive   = true
+}
