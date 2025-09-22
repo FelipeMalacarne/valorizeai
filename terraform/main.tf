@@ -14,7 +14,7 @@ module "cloudrun" {
 }
 
 module "load_balancer" {
-  count                 = var.enable_gcp_infra ? 1 : 0
+  count                  = var.enable_gcp_infra ? 1 : 0
   source                 = "./modules/load-balancer"
   project_id             = var.gcp_project_id
   region                 = var.gcp_region
@@ -27,4 +27,5 @@ module "load_balancer" {
 module "swarm" {
   source  = "./modules/swarm"
   app_key = var.laravel_app_key
+  resend_api_key = var.resend_api_key
 }

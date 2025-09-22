@@ -27,7 +27,7 @@ return [
     ],
 
     'resend' => [
-        'key' => env('RESEND_KEY'),
+        'key' => env('RESEND_API_KEY_FILE') ? file_get_contents(env('RESEND_API_KEY_FILE')) : env('RESEND_API_KEY'),
     ],
 
     'slack' => [
