@@ -4,6 +4,7 @@ import { Head } from '@inertiajs/react';
 import { AccountCard } from './components/account-card';
 import { AccountFilters } from './components/account-filters';
 import { SectionCards } from './components/section-cards';
+import { PageContainer } from '@/components/page-container';
 
 export type AccountIndexProps = {
     accounts: PaginatedResource<App.Http.Resources.AccountResource>;
@@ -13,7 +14,7 @@ const AccountIndex = (props: SharedData<AccountIndexProps>) => {
     return (
         <>
             <Head title="Contas" />
-            <div className="container mx-auto flex h-full flex-1 flex-col space-y-6 p-4">
+            <PageContainer>
 
                 <SectionCards />
 
@@ -24,7 +25,7 @@ const AccountIndex = (props: SharedData<AccountIndexProps>) => {
                         return <AccountCard account={account} key={account.id} />;
                     })}
                 </div>
-            </div>
+            </PageContainer>
         </>
     );
 };

@@ -7,6 +7,7 @@ import { BalanceCard } from './components/balance-card';
 import { columns } from './components/columns';
 import { TransactionsTable } from './components/transactions-table';
 import { ActionButtonLink } from '@/components/action-button-link';
+import { PageContainer } from '@/components/page-container';
 
 export type TransactionsIndexProps = {
     transactions: PaginatedResource<App.Http.Resources.TransactionResource>;
@@ -16,7 +17,7 @@ const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {
     return (
         <>
             <Head title="Transações" />
-            <div className="container mx-auto flex h-full flex-1 flex-col space-y-6 p-4">
+            <PageContainer>
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     <BalanceCard />
                     <BalanceCard />
@@ -38,7 +39,7 @@ const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {
                         <TransactionsTable columns={columns} transactions={props.transactions.data} />
                     </CardContent>
                 </Card>
-            </div>
+            </PageContainer>
         </>
     );
 };
