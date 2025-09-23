@@ -51,7 +51,7 @@ final class MakeActionCommand extends Command
     {
         $name = $this->argument('name');
         $namespace = $this->option('namespace');
-        $withoutRequest = $this->option('wr');
+        $withoutRequest = $this->option('without-request');
         $model = $this->option('model');
 
         // Generate the action
