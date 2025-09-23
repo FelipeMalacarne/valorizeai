@@ -59,3 +59,9 @@ variable "enable_gcp_infra" {
   type        = bool
   default     = true
 }
+
+variable "resend_api_key" {
+  description = "Resend API key for email sending"
+  type        = string
+  sensitive   = true
+}

@@ -76,6 +76,11 @@ resource "docker_volume" "redis_data" {
 
 # App
 resource "docker_secret" "app_key" {
-  name  = "valorize_app_key"
-  data  = base64encode(var.app_key)
+  name = "valorize_app_key"
+  data = base64encode(var.app_key)
+}
+
+resource "docker_secret" "resend_api_key" {
+  name = "valorize_resend_api_key"
+  data = base64encode(var.resend_api_key)
 }
