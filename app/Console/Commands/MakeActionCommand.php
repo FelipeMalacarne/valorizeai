@@ -18,14 +18,15 @@ final class MakeActionCommand extends Command
                             {name : The name of the action to create}
                             {--namespace= : The namespace for the action (e.g. Account, User, etc.)}
                             {--without-request : Create action without a corresponding request class}
-                            {--model= : The model to use for the action (e.g. Account, User, etc.)}';
+                            {--model= : The model to use for the action (e.g. Account, User, etc.)}
+                            {--without-test : Do not create a test file for the action}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Create a new action class with an optional corresponding request';
+    protected $description = 'Create a new action class with an optional corresponding request and test';
 
     /**
      * @var Filesystem
@@ -53,6 +54,7 @@ final class MakeActionCommand extends Command
         $namespace = $this->option('namespace');
         $withoutRequest = $this->option('without-request');
         $model = $this->option('model');
+        $withoutTest = $this->option('without-test');
 
         // Generate the action
         $this->generateAction($name, $namespace, $withoutRequest, $model);
@@ -60,10 +62,14 @@ final class MakeActionCommand extends Command
         // Generate request if not skipped
         if (! $withoutRequest) {
             $this->generateRequest($name, $namespace);
-            $this->info('Action and Request created successfully!');
-        } else {
-            $this->info('Action created successfully!');
         }
+
+        // Generate test if not skipped
+        if (! $withoutTest) {
+            $this->generateTest($name, $namespace, $model);
+        }
+
+        $this->info('Action artifacts created successfully.');
 
         return Command::SUCCESS;
     }
@@ -94,7 +100,7 @@ final class MakeActionCommand extends Command
 
         $stub = str_replace(
             ['{{ namespace }}', '{{ namespaceStatement }}', '{{ class }}', '{{ requestClass }}', '{{ modelClass }}', '{{ modelNamespace }}'],
-            ['App\\Actions'.$namespaceStatement, $namespaceStatement, $name, $requestName, $modelClass, $modelNamespace],
+            ['App\Actions'.$namespaceStatement, $namespaceStatement, $name, $requestName, $modelClass, $modelNamespace],
             $stub
         );
 
@@ -126,13 +132,47 @@ final class MakeActionCommand extends Command
 
         $stub = str_replace(
             ['{{ namespace }}', '{{ namespaceStatement }}', '{{ class }}'],
-            ['App\\Http\\Requests'.$namespaceStatement, $namespaceStatement, $requestName],
+            ['App\Http\Requests'.$namespaceStatement, $namespaceStatement, $requestName],
             $stub
         );
 
         $this->files->put($requestPath, $stub);
 
         $this->info("Request [{$requestPath}] created successfully.");
+    }
+
+    /**
+     * Generate a new test class for the action.
+     */
+    protected function generateTest(string $name, ?string $namespace, ?string $model): void
+    {
+        $namespacePath = $namespace ? "/{$namespace}" : '';
+        $namespaceStatement = $namespace ? "\\{$namespace}" : '';
+
+        $testName = "{$name}Test";
+        $testPath = base_path("tests/Feature/Actions{$namespacePath}/{$testName}.php");
+
+        if ($this->files->exists($testPath)) {
+            $this->error("Test {$testName} already exists!");
+
+            return;
+        }
+
+        $this->makeDirectory($testPath);
+
+        $stub = $this->files->get($this->getTestStub());
+
+        $modelImport = $model ? "use App\\Models\\{$model};" : '';
+
+        $stub = str_replace(
+            ['{{ namespaceStatement }}', '{{ class }}', '{{ modelImport }}'],
+            [$namespaceStatement, $name, $modelImport],
+            $stub
+        );
+
+        $this->files->put($testPath, $stub);
+
+        $this->info("Test [{$testPath}] created successfully.");
     }
 
     /**
@@ -157,6 +197,14 @@ final class MakeActionCommand extends Command
     protected function getRequestStub(): string
     {
         return app_path('Console/stubs/request.stub');
+    }
+
+    /**
+     * Get the stub file for the action test.
+     */
+    protected function getTestStub(): string
+    {
+        return app_path('Console/stubs/action.test.stub');
     }
 
     /**
