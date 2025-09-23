@@ -84,3 +84,8 @@ resource "docker_secret" "resend_api_key" {
   name = "valorize_resend_api_key"
   data = base64encode(var.resend_api_key)
 }
+
+resource "docker_secret" "nightwatch_token" {
+  name = "valorize_nightwatch_token"
+  data = base64encode(var.nightwatch_token)
+}

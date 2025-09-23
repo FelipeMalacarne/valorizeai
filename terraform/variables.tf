@@ -65,3 +65,9 @@ variable "resend_api_key" {
   type        = string
   sensitive   = true
 }
+
+variable "nightwatch_token" {
+  description = "Nightwatch API token for sending logs"
+  type        = string
+  sensitive   = true
+}

@@ -25,7 +25,8 @@ module "load_balancer" {
 }
 
 module "swarm" {
-  source         = "./modules/swarm"
-  app_key        = var.laravel_app_key
-  resend_api_key = var.resend_api_key
+  source           = "./modules/swarm"
+  app_key          = var.laravel_app_key
+  resend_api_key   = var.resend_api_key
+  nightwatch_token = var.nightwatch_token
 }
