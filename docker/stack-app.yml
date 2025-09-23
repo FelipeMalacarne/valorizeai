@@ -10,8 +10,6 @@ x-laravel-service: &laravel-common
     APP_LOCALE: 'pt_BR'
     APP_FALLBACK_LOCALE: 'en_US'
     BCRYPT_ROUNDS: 12
-    LOG_CHANNEL: 'stderr'
-    LOG_LEVEL: 'debug'
     DB_CONNECTION: 'pgsql'
     DB_HOST: 'postgres'
     DB_PORT: '5432'
@@ -50,6 +48,18 @@ x-laravel-service: &laravel-common
     MAIL_MAILER: resend
     MAIL_FROM_NAME: "valorizeai"
     MAIL_FROM_ADDRESS: contato@transactional.felipemalacarne.com.br
+    # --- Logging Config ---
+    LOG_CHANNEL: stack
+    LOG_STACK: stderr,nightwatch
+    LOG_DEPRECATIONS_CHANNEL: null
+    LOG_LEVEL: debug
+    # --- Nightwatch Config ---
+    NIGHTWATCH_ENABLED: 'true'
+    NIGHTWATCH_TOKEN_FILE: /run/secrets/nightwatch_token
+    NIGHTWATCH_INGEST_URI: nightwatch:2407
+    NIGHTWATCH_SERVER: nightwatch
+    NIGHTWATCH_REQUEST_SAMPLE_RATE: 0.5
+    NIGHTWATCH_LOG_LEVEL: 'debug'
   secrets:
     - app_key
     - postgres_password
@@ -57,6 +67,7 @@ x-laravel-service: &laravel-common
     - minio_root_password
     - typesense_api_key
     - resend_api_key
+    - nightwatch_token
 
 services:
   app:
@@ -90,6 +101,23 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  nightwatch:
+    <<: *laravel-common
+    command: ['php', 'artisan', 'nightwatch:agent', '--listen-on=0.0.0.0:2407']
+    healthcheck:
+      disable: true
+      # test: ['CMD-SHELL', 'php artisan nightwatch:status']
+      # interval: 60s
+      # timeout: 10s
+      # retries: 3
+      # start_period: 60s
+    networks:
+      - valorizeai
     deploy:
       replicas: 1
       restart_policy:
@@ -216,6 +244,9 @@ secrets:
   resend_api_key:
     external: true
     name: valorize_resend_api_key
+  nightwatch_token:
+    external: true
+    name: valorize_nightwatch_token
 
 networks:
   valorizeai:

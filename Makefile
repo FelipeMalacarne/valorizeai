@@ -220,7 +220,7 @@ quick_deploy: local_build local_push update_service
 
 .PHONY: deploy_swarm
 deploy_swarm:
-	docker --context zamorak stack deploy --with-registry-auth -c docker/stack-app.yml valorizeai
+	docker --context zamorak stack deploy --with-registry-auth -c docker/stack-app.yml valorizeai -d
 	docker --context zamorak system prune -f
 
 # Get a shell inside a running app container on Swarm
