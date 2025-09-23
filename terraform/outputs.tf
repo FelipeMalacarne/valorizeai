@@ -33,7 +33,7 @@ output "domains_configured" {
 # DNS setup instructions
 output "dns_setup_instructions" {
   description = "Instructions for setting up DNS"
-  value       = var.enable_gcp_infra ? join("\n", [
+  value = var.enable_gcp_infra ? join("\n", [
     "To complete domain setup, add the following DNS records:",
     format("1. Add an A record pointing %s to %s", var.domain, module.load_balancer[0].load_balancer_ip),
     "2. SSL certificate will be automatically provisioned once DNS is configured",
