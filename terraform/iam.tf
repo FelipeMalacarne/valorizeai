@@ -29,7 +29,7 @@ resource "google_project_iam_member" "github_service_account_user" {
 }
 
 resource "google_service_account_key" "github_actions" {
-  service_account_id  = google_service_account.github_actions.name
+  service_account_id = google_service_account.github_actions.name
 }
 
 resource "google_project_iam_member" "github_service_usage_admin" {
