@@ -45,7 +45,11 @@ x-laravel-service: &laravel-common
     TYPESENSE_HOST: 'typesense'
     TYPESENSE_PORT: '8108'
     TYPESENSE_PROTOCOL: 'http'
-    RESEND_API_KEY_FILE": /run/secrets/resend_api_key
+    # --- Mailer Config ---
+    RESEND_API_KEY_FILE: /run/secrets/resend_api_key
+    MAIL_MAILER: resend
+    MAIL_FROM_NAME: "valorizeai"
+    MAIL_FROM_ADDRESS: contato@transactional.felipemalacarne.com.br
   secrets:
     - app_key
     - postgres_password
