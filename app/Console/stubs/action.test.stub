@@ -1,0 +1,22 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Actions\{{ namespaceStatement }}\{{ class }};
+{{ modelImport }}
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+it('successfully performs the action', function () {
+    /** @var User $user */
+    $user = User::factory()->create();
+
+    $action = app({{ class }}::class);
+
+    // TODO: Add your action logic here
+    // $response = $action->handle();
+
+    expect(true)->toBeTrue();
+});
