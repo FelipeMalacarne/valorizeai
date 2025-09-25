@@ -7,6 +7,7 @@ import { BalanceCard } from './components/balance-card';
 import { columns } from './components/columns';
 import { TransactionsTable } from './components/transactions-table';
 import { ActionButtonLink } from '@/components/action-button-link';
+import MultiFileUpload from '@/components/multi-file-upload';
 
 export type TransactionsIndexProps = {
     transactions: PaginatedResource<App.Http.Resources.TransactionResource>;
@@ -21,6 +22,7 @@ const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {
                     <BalanceCard />
                     <BalanceCard />
                     <BalanceCard />
+                    <MultiFileUpload/>
                 </div>
                 <Card>
                     <CardHeader>
