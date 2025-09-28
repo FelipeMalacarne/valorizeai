@@ -27,6 +27,22 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read User $user
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ImportTransaction> $importTransactions
  * @property-read int|null $import_transactions_count
+ * @property-read mixed $file_path
+ * @method static \Database\Factories\ImportFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Import newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Import newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Import query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Import whereConflictedCount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Import whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Import whereExtension($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Import whereFileName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Import whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Import whereMatchedCount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Import whereNewCount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Import whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Import whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Import whereUserId($value)
+ * @mixin \Eloquent
  */
 final class Import extends Model
 {

@@ -28,11 +28,34 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read Import $import
  * @property-read Transaction|null $matchedTransaction
  * @property-read Category|null $category
+ *
+ * @method static \Database\Factories\ImportTransactionFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ImportTransaction newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ImportTransaction newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ImportTransaction query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ImportTransaction whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ImportTransaction whereCategoryId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ImportTransaction whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ImportTransaction whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ImportTransaction whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ImportTransaction whereFitid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ImportTransaction whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ImportTransaction whereImportId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ImportTransaction whereMatchedTransactionId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ImportTransaction whereMemo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ImportTransaction whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ImportTransaction whereUpdatedAt($value)
+ *
+ * @mixin \Eloquent
  */
 final class ImportTransaction extends Model
 {
     /** @use HasFactory<\Database\Factories\ImportTransactionFactory> */
     use HasFactory, HasUuids;
+
+    protected $attributes = [
+        'status' => ImportTransactionStatus::PENDING,
+    ];
 
     protected $fillable = [
         'import_id',

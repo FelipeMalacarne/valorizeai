@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Account> $accounts
  * @property-read int|null $accounts_count
- *
  * @method static \Database\Factories\BankFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Bank newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Bank newQuery()
@@ -27,7 +26,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Bank whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Bank whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Bank whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 final class Bank extends Model

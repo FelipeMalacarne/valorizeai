@@ -22,7 +22,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read Category|null $category
  * @property-read mixed $date
  * @property-read Transaction $transaction
- *
  * @method static \Database\Factories\TransactionSplitFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit newQuery()
@@ -34,7 +33,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit whereMemo($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit whereTransactionId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionSplit whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 final class TransactionSplit extends Model
