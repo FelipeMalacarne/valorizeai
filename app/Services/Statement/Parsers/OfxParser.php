@@ -15,7 +15,7 @@ use App\ValueObjects\Money;
 use Carbon\Carbon;
 use OfxParser\Parser;
 
-final class OfxParser implements StatementParser
+class OfxParser implements StatementParser
 {
     public function __construct(
         private Parser $parser,
@@ -26,6 +26,7 @@ final class OfxParser implements StatementParser
         $ofx = $this->parser->loadFromString($content);
 
         $bankAccount = $ofx->bankAccount;
+        $institute = $ofx->signOn->institute;
         $statement = $bankAccount->statement;
         $transactions = collect($statement->transactions);
         $currency = Currency::from((string) $statement->currency);
@@ -39,11 +40,12 @@ final class OfxParser implements StatementParser
                 date: Carbon::createFromDate($transaction->date),
                 amount: Money::from($transaction->amount, $currency),
                 memo: $transaction->memo,
-                fitId: $transaction->uniqueId,
+                fitid: $transaction->uniqueId,
             )),
             bankAccount: new BankAccountData(
                 type: AccountType::from(mb_strtolower((string) $bankAccount->accountType)),
-                bankId: (string) $bankAccount->routingNumber,
+                bankId: (string) $institute->id ?? $bankAccount->routingNumber,
+                bankName: (string) $institute->name,
                 agencyNumber: (string) $bankAccount->agencyNumber,
                 number: (string) $bankAccount->accountNumber,
                 balance: (float) $bankAccount->balance,

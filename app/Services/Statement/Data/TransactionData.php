@@ -16,6 +16,6 @@ final class TransactionData extends Data
         public Carbon $date,
         public Money $amount,
         public string $memo,
-        public string $fitId,
+        public string $fitid,
     ) {}
 }

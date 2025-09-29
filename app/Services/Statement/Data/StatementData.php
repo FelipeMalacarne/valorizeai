@@ -15,10 +15,10 @@ final class StatementData extends Data
      * @param  Collection<int, TransactionData>  $transactions
      */
     public function __construct(
-        public Carbon $startDate,
-        public Carbon $endDate,
-        public Collection $transactions,
-        public BankAccountData $bankAccount,
-        public Currency $currency,
+        public readonly Carbon $startDate,
+        public readonly Carbon $endDate,
+        public readonly Collection $transactions,
+        public readonly Currency $currency,
+        public readonly BankAccountData $bankAccount,
     ) {}
 }

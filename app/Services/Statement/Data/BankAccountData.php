@@ -13,6 +13,7 @@ final class BankAccountData extends Data
     public function __construct(
         public readonly AccountType $type,
         public readonly string $bankId,
+        public readonly string $bankName,
         public readonly string $agencyNumber,
         public readonly string $number,
         public readonly float $balance,

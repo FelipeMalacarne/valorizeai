@@ -36,6 +36,7 @@ return new class extends Migration
             $table->string('fitid')->nullable()->index();
             $table->string('memo');
             $table->enum('currency', ['BRL', 'USD', 'EUR']);
+            $table->enum('type', ['debit', 'credit']);
             $table->integer('amount');
 
             $table->dateTime('date');

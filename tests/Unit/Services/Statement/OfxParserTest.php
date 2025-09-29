@@ -25,7 +25,7 @@ it('should parse the ofx file content', function () {
         ->and($creditTransaction->date)->toEqual(Carbon::createFromFormat('Y-m-d H:i:s', '2025-01-15 00:00:00'))
         ->and($creditTransaction->amount)->toEqual(Money::from(1234.56, Currency::BRL))
         ->and($creditTransaction->memo)->toBe('Test Credit Transaction')
-        ->and($creditTransaction->fitId)->toBe('1');
+        ->and($creditTransaction->fitid)->toBe('1');
 
     $debitTransaction = $statement->transactions->last();
 
@@ -33,7 +33,7 @@ it('should parse the ofx file content', function () {
         ->and($debitTransaction->date)->toEqual(Carbon::createFromFormat('Y-m-d H:i:s', '2025-01-16 00:00:00'))
         ->and($debitTransaction->amount)->toEqual(Money::from(-78.90, Currency::BRL))
         ->and($debitTransaction->memo)->toBe('Test Debit Transaction')
-        ->and($debitTransaction->fitId)->toBe('2');
+        ->and($debitTransaction->fitid)->toBe('2');
 });
 
 it('should parse the ofx file with a bank account data', function () {
@@ -42,7 +42,7 @@ it('should parse the ofx file with a bank account data', function () {
     $account = $statement->bankAccount;
 
     expect($account->type)->toBe(AccountType::CHECKING)
-        ->and($account->bankId)->toBe('0000')
+        ->and($account->bankId)->toBe('123')
         ->and($account->number)->toBe('12345-6')
         ->and($account->balance)->toBe(1155.66)
         ->and($account->balanceDate)->toEqual(Carbon::createFromFormat('Y-m-d H:i:s', '2025-01-31 00:00:00'))
