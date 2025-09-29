@@ -12,7 +12,7 @@ use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ImportProcessed implements ShouldBroadcast, ShouldDispatchAfterCommit
+final class ImportProcessed implements ShouldBroadcast, ShouldDispatchAfterCommit
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -25,5 +25,10 @@ class ImportProcessed implements ShouldBroadcast, ShouldDispatchAfterCommit
         return [
             new PrivateChannel("user.{$this->import->user_id}.imports"),
         ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'import.processed';
     }
 }
