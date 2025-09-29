@@ -2,18 +2,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, PaginatedResource, SharedData } from '@/types';
 import { Head } from '@inertiajs/react';
-import React from 'react';
+import React, { useState } from 'react';
 import { BalanceCard } from './components/balance-card';
 import { columns } from './components/columns';
 import { TransactionsTable } from './components/transactions-table';
 import { ActionButtonLink } from '@/components/action-button-link';
-import MultiFileUpload from '@/components/multi-file-upload';
+import { ImportTransactionsForm } from '@/components/import-transactions-form';
+import { ResponsiveDialog } from '@/components/responsive-dialog';
+import { Button } from '@/components/ui/button';
+import { Upload } from 'lucide-react';
 
 export type TransactionsIndexProps = {
     transactions: PaginatedResource<App.Http.Resources.TransactionResource>;
 };
 
 const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {
+    const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
     return (
         <>
             <Head title="Transações" />
@@ -22,7 +26,6 @@ const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {
                     <BalanceCard />
                     <BalanceCard />
                     <BalanceCard />
-                    <MultiFileUpload/>
                 </div>
                 <Card>
                     <CardHeader>
@@ -32,7 +35,15 @@ const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {
                                 <CardDescription> Veja e gerencie suas transações abaixo </CardDescription>
                             </div>
 
-                            <ActionButtonLink action="create" href={route('transactions.create')} prefetch />
+                            <div className='flex space-x-2'>
+                                <ActionButtonLink action="create" href={route('transactions.create')} prefetch />
+
+                                <Button onClick={() => setIsImportDialogOpen(true)} variant="outline">
+                                    <Upload/>
+                                    <span>Importar</span>
+                                </Button>
+                            </div>
+
                         </div>
                     </CardHeader>
 
@@ -41,6 +52,14 @@ const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {
                     </CardContent>
                 </Card>
             </div>
+
+            <ResponsiveDialog
+                title="Importar Transações"
+                isOpen={isImportDialogOpen}
+                setIsOpen={setIsImportDialogOpen}
+            >
+                <ImportTransactionsForm onClose={() => setIsImportDialogOpen(false)} />
+            </ResponsiveDialog>
         </>
     );
 };

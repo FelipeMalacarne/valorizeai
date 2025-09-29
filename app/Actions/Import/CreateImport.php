@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 final class CreateImport
 {
@@ -20,6 +21,7 @@ final class CreateImport
      */
     public function handle(ImportRequest $args, User $user): Collection
     {
+        Log::info('Creating imports for user', ['user_id' => $user->id]);
         $imports = collect();
 
         DB::transaction(function () use ($args, $user, $imports) {
@@ -41,6 +43,8 @@ final class CreateImport
                 ImportCreated::dispatch($import);
             });
         });
+
+        Log::info('Imports created successfully', ['import_ids' => $imports->pluck('id')->toArray()]);
 
         return $imports;
     }

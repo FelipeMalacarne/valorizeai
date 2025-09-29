@@ -14,33 +14,18 @@ import {
 import {
   formatBytes,
   useFileUpload,
+  type FileWithPreview,
 } from "@/hooks/use-file-upload"
 import { Button } from "@/components/ui/button"
 
-// Create some dummy initial files
-const initialFiles = [
-  {
-    name: "document.pdf",
-    size: 528737,
-    type: "application/pdf",
-    url: "https://example.com/document.pdf",
-    id: "document.pdf-1744638436563-8u5xuls",
-  },
-  {
-    name: "intro.zip",
-    size: 252873,
-    type: "application/zip",
-    url: "https://example.com/intro.zip",
-    id: "intro.zip-1744638436563-8u5xuls",
-  },
-  {
-    name: "conclusion.xlsx",
-    size: 352873,
-    type: "application/xlsx",
-    url: "https://example.com/conclusion.xlsx",
-    id: "conclusion.xlsx-1744638436563-8u5xuls",
-  },
-]
+type MultiFileUploadProps = {
+  name?: string
+  maxFiles?: number
+  maxSize?: number
+  accept?: string
+  disabled?: boolean
+  onChange?: (files: FileWithPreview[]) => void
+}
 
 const getFileIcon = (file: { file: File | { type: string; name: string } }) => {
   const fileType = file.file instanceof File ? file.file.type : file.file.type
@@ -77,9 +62,14 @@ const getFileIcon = (file: { file: File | { type: string; name: string } }) => {
   return <FileIcon className="size-4 opacity-60" />
 }
 
-export default function MultiFileUpload() {
-  const maxSize = 100 * 1024 * 1024 // 10MB default
-  const maxFiles = 10
+export default function MultiFileUpload({
+  name = "files",
+  maxFiles = 10,
+  maxSize = 10 * 1024 * 1024,
+  accept,
+  disabled,
+  onChange,
+}: MultiFileUploadProps) {
 
   const [
     { files, isDragging, errors },
@@ -97,7 +87,8 @@ export default function MultiFileUpload() {
     multiple: true,
     maxFiles,
     maxSize,
-    initialFiles,
+    accept,
+    onFilesChange: onChange,
   })
 
   return (
@@ -105,16 +96,21 @@ export default function MultiFileUpload() {
       {/* Drop area */}
       <div
         role="button"
-        onClick={openFileDialog}
+        onClick={() => {
+          if (disabled) return
+          openFileDialog()
+        }}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         data-dragging={isDragging || undefined}
+        data-disabled={disabled || undefined}
+        aria-disabled={disabled || undefined}
         className="border-input hover:bg-accent/50 data-[dragging=true]:bg-accent/50 has-[input:focus]:border-ring has-[input:focus]:ring-ring/50 flex min-h-40 flex-col items-center justify-center rounded-xl border border-dashed p-4 transition-colors has-disabled:pointer-events-none has-disabled:opacity-50 has-[input:focus]:ring-[3px]"
       >
         <input
-          {...getInputProps()}
+          {...getInputProps({ name, disabled })}
           className="sr-only"
           aria-label="Upload files"
         />
@@ -182,7 +178,11 @@ export default function MultiFileUpload() {
                 size="icon"
                 variant="ghost"
                 className="text-muted-foreground/80 hover:text-foreground -me-2 size-8 hover:bg-transparent"
-                onClick={() => removeFile(file.id)}
+                onClick={() => {
+                  if (disabled) return
+                  removeFile(file.id)
+                }}
+                disabled={disabled}
                 aria-label="Remove file"
               >
                 <XIcon className="size-4" aria-hidden="true" />
@@ -193,7 +193,15 @@ export default function MultiFileUpload() {
           {/* Remove all files button */}
           {files.length > 1 && (
             <div>
-              <Button size="sm" variant="outline" onClick={clearFiles}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  if (disabled) return
+                  clearFiles()
+                }}
+                disabled={disabled}
+              >
                 Remove all files
               </Button>
             </div>
