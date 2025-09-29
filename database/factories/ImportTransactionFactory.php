@@ -6,8 +6,10 @@ namespace Database\Factories;
 
 use App\Enums\Currency;
 use App\Enums\ImportTransactionStatus;
+use App\Enums\TransactionType;
 use App\Models\Category;
 use App\Models\Import;
+use App\ValueObjects\Money;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,14 +25,18 @@ final class ImportTransactionFactory extends Factory
     public function definition(): array
     {
         return [
-            'import_id' => Import::factory(),
+            'import_id'              => Import::factory(),
             'matched_transaction_id' => null,
-            'category_id' => Category::factory(),
-            'status' => $this->faker->randomElement(ImportTransactionStatus::cases()),
-            'fitid' => $this->faker->uuid(),
-            'memo' => $this->faker->sentence(),
-            'currency' => $this->faker->randomElement(Currency::cases()),
-            'amount' => $this->faker->numberBetween(100, 100000),
+            'category_id'            => Category::factory(),
+            'status'                 => $this->faker->randomElement(ImportTransactionStatus::cases()),
+            'fitid'                  => $this->faker->uuid(),
+            'memo'                   => $this->faker->sentence(),
+            'currency'               => $this->faker->randomElement(Currency::cases()),
+            'type'                   => $this->faker->randomElement(TransactionType::cases()),
+            'amount'                 => fn (array $attributes) => new Money(
+                $this->faker->numberBetween(-10000, 10000),
+                $attributes['currency']
+            ),
             'date' => $this->faker->dateTimeThisYear(),
         ];
     }

@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Casts\MoneyCast;
 use App\Enums\Currency;
 use App\Enums\ImportTransactionStatus;
+use App\Enums\TransactionType;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -67,6 +68,7 @@ final class ImportTransaction extends Model
         'currency',
         'amount',
         'date',
+        'type',
     ];
 
     /**
@@ -97,6 +99,7 @@ final class ImportTransaction extends Model
     {
         return [
             'status'   => ImportTransactionStatus::class,
+            'type'     => TransactionType::class,
             'currency' => Currency::class,
             'amount'   => MoneyCast::class,
             'date'     => 'datetime',
