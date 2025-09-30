@@ -44,4 +44,3 @@ it('creates a transaction and updates the account balance', function () {
     $account->refresh();
     expect($account->balance->value)->toBe(7500); // 10000 - 2500 = 7500
 });
-

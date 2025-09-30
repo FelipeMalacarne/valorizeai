@@ -1,36 +1,36 @@
 <?php
 
-use App\Models\Account;
-use App\Models\User;
+declare(strict_types=1);
+
 use App\Enums\Currency;
 use App\Enums\TransactionType;
+use App\Models\Account;
 use App\Models\Transaction;
+use App\Models\User;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\post;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertDatabaseMissing;
-use function Pest\Laravel\delete;
-use function Pest\Laravel\put;
+use function Pest\Laravel\post;
 
 test('user can create a transaction via http', function () {
     // Arrange
     $user = User::factory()->create();
     $account = Account::factory()->create([
-        'user_id' => $user->id,
+        'user_id'  => $user->id,
         'currency' => Currency::BRL,
-        'balance' => 50000, // R$500,00
+        'balance'  => 50000, // R$500,00
     ]);
 
     $transactionData = [
-        'account_id'  => $account->id,
-        'amount'      => [
-            'value' => -15000, // -R$150,00
+        'account_id' => $account->id,
+        'amount'     => [
+            'value'    => -15000, // -R$150,00
             'currency' => 'BRL',
         ],
-        'type'        => 'debit',
-        'date'        => now()->toIso8601String(),
-        'memo'        => 'HTTP Transaction Test',
+        'type' => 'debit',
+        'date' => now()->toIso8601String(),
+        'memo' => 'HTTP Transaction Test',
     ];
 
     // Act
@@ -42,8 +42,8 @@ test('user can create a transaction via http', function () {
 
     assertDatabaseHas('transactions', [
         'account_id' => $account->id,
-        'memo' => 'HTTP Transaction Test',
-        'amount' => -15000,
+        'memo'       => 'HTTP Transaction Test',
+        'amount'     => -15000,
     ]);
 
     // Check that the balance was updated correctly
@@ -67,14 +67,14 @@ test('user can delete their own transaction', function () {
     // Arrange
     $user = User::factory()->create();
     $account = Account::factory()->create([
-        'user_id' => $user->id,
+        'user_id'  => $user->id,
         'currency' => Currency::BRL,
-        'balance' => 50000, // R$500,00
+        'balance'  => 50000, // R$500,00
     ]);
     $transaction = Transaction::factory()->create([
         'account_id' => $account->id,
-        'amount' => -10000, // -R$100,00
-        'currency' => Currency::BRL,
+        'amount'     => -10000, // -R$100,00
+        'currency'   => Currency::BRL,
     ]);
 
     // Act
@@ -98,12 +98,12 @@ test('user cannot delete another user\'s transaction', function () {
     $userA = User::factory()->create();
     $userB = User::factory()->create();
     $accountA = Account::factory()->create([
-        'user_id' => $userA->id,
+        'user_id'  => $userA->id,
         'currency' => Currency::BRL,
     ]);
     $transactionA = Transaction::factory()->create([
         'account_id' => $accountA->id,
-        'currency' => Currency::BRL,
+        'currency'   => Currency::BRL,
     ]);
 
     // Act
@@ -120,28 +120,28 @@ test('user can update their own transaction', function () {
     // Arrange
     $user = User::factory()->create();
     $account = Account::factory()->create([
-        'user_id' => $user->id,
+        'user_id'  => $user->id,
         'currency' => Currency::BRL,
-        'balance' => 50000, // R$500,00
+        'balance'  => 50000, // R$500,00
     ]);
     $transaction = Transaction::factory()->create([
-        'account_id' => $account->id,
-        'amount' => -10000, // -R$100,00
-        'currency' => Currency::BRL,
-        'type' => TransactionType::DEBIT->value,
-        'date' => now(),
-        'memo' => 'Original memo',
+        'account_id'  => $account->id,
+        'amount'      => -10000, // -R$100,00
+        'currency'    => Currency::BRL,
+        'type'        => TransactionType::DEBIT->value,
+        'date'        => now(),
+        'memo'        => 'Original memo',
         'category_id' => null,
     ]);
 
     $updateData = [
         'amount' => [
-            'value' => -5000, // New amount: -R$50,00
+            'value'    => -5000, // New amount: -R$50,00
             'currency' => 'BRL',
         ],
-        'type' => TransactionType::DEBIT->value,
-        'date' => now()->toIso8601String(),
-        'memo' => 'Updated memo',
+        'type'        => TransactionType::DEBIT->value,
+        'date'        => now()->toIso8601String(),
+        'memo'        => 'Updated memo',
         'category_id' => null,
     ];
 
@@ -153,8 +153,8 @@ test('user can update their own transaction', function () {
     $response->assertSessionHas('success', 'Transaction updated successfully.');
 
     assertDatabaseHas('transactions', [
-        'id' => $transaction->id,
-        'memo' => 'Updated memo',
+        'id'     => $transaction->id,
+        'memo'   => 'Updated memo',
         'amount' => -5000,
     ]);
 
@@ -168,26 +168,26 @@ test('user cannot update another user\'s transaction', function () {
     $userA = User::factory()->create();
     $userB = User::factory()->create();
     $accountA = Account::factory()->create([
-        'user_id' => $userA->id,
+        'user_id'  => $userA->id,
         'currency' => Currency::BRL,
     ]);
     $transactionA = Transaction::factory()->create([
         'account_id' => $accountA->id,
-        'currency' => Currency::BRL,
-        'type' => TransactionType::DEBIT->value,
-        'date' => now(),
-        'memo' => 'Original memo',
-        'amount' => -10000,
+        'currency'   => Currency::BRL,
+        'type'       => TransactionType::DEBIT->value,
+        'date'       => now(),
+        'memo'       => 'Original memo',
+        'amount'     => -10000,
     ]);
 
     $updateData = [
         'amount' => [
-            'value' => -5000, // New amount: -R$50,00
+            'value'    => -5000, // New amount: -R$50,00
             'currency' => 'BRL',
         ],
-        'type' => TransactionType::DEBIT->value,
-        'date' => now()->toIso8601String(),
-        'memo' => 'Attempted update',
+        'type'        => TransactionType::DEBIT->value,
+        'date'        => now()->toIso8601String(),
+        'memo'        => 'Attempted update',
         'category_id' => null,
     ];
 
@@ -197,7 +197,7 @@ test('user cannot update another user\'s transaction', function () {
     // Assert
     $response->assertForbidden();
     assertDatabaseHas('transactions', [
-        'id' => $transactionA->id,
+        'id'   => $transactionA->id,
         'memo' => 'Original memo', // Memo should not have changed
     ]);
 });
