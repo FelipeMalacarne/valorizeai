@@ -42,6 +42,8 @@ services:
       - sail
     depends_on:
       <<: *common-depends
+      otel-collector:
+        condition: service_started
 
   worker:
     image: sail-8.4/app
@@ -205,17 +207,20 @@ services:
     image: otel/opentelemetry-collector-contrib:latest
     command: ["--config=/etc/otel-collector-config.yml"]
     volumes:
-      - ./otel-collector-config.yml:/etc/otel-collector-config.yml
+      - ./docker/otel-collector/otel-collector-config.yml:/etc/otel-collector-config.yml
     ports:
       - "4318:4318"
       - "8889:8889"
     networks:
       - sail
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
 
   prometheus:
     image: prom/prometheus:latest
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
     networks:
@@ -228,10 +233,16 @@ services:
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
     ports:
       - "9200:9200"
     networks:
       - sail
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   grafana:
     image: grafana/grafana:latest
@@ -239,11 +250,22 @@ services:
       - "3000:3000"
     volumes:
       - sail-grafana:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
     networks:
       - sail
     depends_on:
       - prometheus
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: 'http://elasticsearch:9200'
+    networks:
+      - sail
+    depends_on:
       - elasticsearch
 
 networks:

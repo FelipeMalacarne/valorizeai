@@ -129,6 +129,11 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'otlp' => [
+            'driver'  => 'monolog',
+            'handler' => Keepsuit\LaravelOpenTelemetry\Support\OpenTelemetryMonologHandler::class,
+            'level'   => 'debug',
+        ],
     ],
 
 ];
