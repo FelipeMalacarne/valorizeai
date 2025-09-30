@@ -12,7 +12,8 @@ use Spatie\LaravelData\Attributes\Computed;
 use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Optional;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
-use App\Http\Resources\TransactionSplitResource; // New import
+
+ // New import
 
 #[TypeScript]
 final class TransactionResource extends Data

@@ -30,7 +30,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read Category|null $category
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TransactionSplit> $splits
  * @property-read int|null $splits_count
- *
  * @method static \Database\Factories\TransactionFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Transaction newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Transaction newQuery()
@@ -46,7 +45,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Transaction whereMemo($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Transaction whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Transaction whereUpdatedAt($value)
- *
  * @mixin \Eloquent
  */
 final class Transaction extends Model

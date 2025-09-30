@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Enums\Currency;
 use App\Enums\TransactionType;
 use App\Models\Account;
 use App\Models\Category;

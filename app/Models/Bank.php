@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $code
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Account> $accounts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Account> $accounts
  * @property-read int|null $accounts_count
  * @method static \Database\Factories\BankFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Bank newModelQuery()

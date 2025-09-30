@@ -1,17 +1,17 @@
 <?php
 
-use App\Models\Account;
-use App\Models\User;
-use App\Models\Bank;
-use App\Enums\Currency;
+declare(strict_types=1);
+
 use App\Enums\AccountType;
+use App\Enums\Currency;
+use App\Models\Account;
+use App\Models\Bank;
+use App\Models\User;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\post;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertDatabaseMissing;
-use function Pest\Laravel\put;
-use function Pest\Laravel\delete;
+use function Pest\Laravel\post;
 
 test('user can create an account via http', function () {
     // Arrange
@@ -76,10 +76,10 @@ test('user can update their own account via http', function () {
     $user = User::factory()->create();
     $bank = Bank::factory()->create();
     $account = Account::factory()->create([
-        'user_id' => $user->id,
+        'user_id'  => $user->id,
         'currency' => Currency::BRL,
-        'type' => AccountType::CHECKING,
-        'bank_id' => $bank->id,
+        'type'     => AccountType::CHECKING,
+        'bank_id'  => $bank->id,
     ]);
 
     $updateData = [
@@ -113,10 +113,10 @@ test('user cannot update another user\'s account', function () {
     $userB = User::factory()->create();
     $bank = Bank::factory()->create();
     $accountA = Account::factory()->create([
-        'user_id' => $userA->id,
+        'user_id'  => $userA->id,
         'currency' => Currency::BRL,
-        'type' => AccountType::CHECKING,
-        'bank_id' => $bank->id,
+        'type'     => AccountType::CHECKING,
+        'bank_id'  => $bank->id,
     ]);
 
     $updateData = [

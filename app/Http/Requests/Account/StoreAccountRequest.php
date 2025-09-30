@@ -6,10 +6,10 @@ namespace App\Http\Requests\Account;
 
 use App\Enums\AccountType;
 use App\Enums\Currency;
-use Spatie\LaravelData\Data;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
-use Spatie\LaravelData\Support\Validation\ValidationContext;
 use Illuminate\Validation\Rules\Enum;
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\Validation\ValidationContext;
+use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
 final class StoreAccountRequest extends Data
