@@ -22,8 +22,8 @@ it('can store multiple import files and dispatch events', function () {
     $account = Account::factory()->create(['user_id' => $user->id]);
 
     $files = [
-        UploadedFile::fake()->create('statement1.csv', 100, 'text/csv'),
-        UploadedFile::fake()->create('statement2.ofx', 100, 'application/ofx'),
+        UploadedFile::fake()->create('statement1.csv', 100),
+        UploadedFile::fake()->create('statement2.ofx', 100),
     ];
 
     // 2. Act

@@ -25,7 +25,7 @@ final class ProcessImport
         Log::withContext(['import_id' => $import->id]);
         Log::info('Starting import processing');
 
-        $ofxContent = Storage::get($import->filePath());
+        $ofxContent = Storage::get($import->file_path);
 
         $statement = $this->ofxParser->parse($ofxContent);
 

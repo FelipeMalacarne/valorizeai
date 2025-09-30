@@ -36,7 +36,7 @@ export const ImportTransactionsForm = ({ onClose }: ImportTransactionsFormProps)
 
   const submit: FormEventHandler = (event) => {
     event.preventDefault()
-        console.log(data.files)
+
 
     post(route("imports.store"), {
       forceFormData: true,
@@ -47,19 +47,17 @@ export const ImportTransactionsForm = ({ onClose }: ImportTransactionsFormProps)
     })
   }
 
-    console.log(errors['files.0'])
+
   return (
     <form className="space-y-4" onSubmit={submit}>
       <MultiFileUpload name="files" onChange={handleFilesChange} disabled={processing} />
 
-            {/* make a input error for each files error */}
-        {errors.files && Array.isArray(errors.files) ? (
-            errors.files.map((error, index) => (
-                <InputError key={index} message={error} />
-            )
-        )) : (
-            <InputError message={errors.files} />
-        )}
+      {Object.keys(errors)
+        .filter((key) => key.startsWith("files."))
+        .map((key) => (
+          <InputError key={key} message={errors[key as keyof typeof errors]} />
+        ))}
+      <InputError message={errors.files} />
       <div className="flex justify-end gap-2">
         <Button type="button" variant="ghost" onClick={handleCancel} disabled={processing}>
           Cancelar
