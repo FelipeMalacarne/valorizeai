@@ -56,19 +56,6 @@ services:
     depends_on:
       <<: *common-depends
 
-  # nightwatch:
-  #   image: sail-8.4/app
-  #   volumes:
-  #     - '.:/var/www/html'
-  #   ports:
-  #     - 2407:2407
-  #   entrypoint: 'php artisan nightwatch:agent --listen-on=0.0.0.0:2407'
-  #   restart: always
-  #   networks:
-  #     - sail
-  #   depends_on:
-  #     <<: *common-depends
-
   pgsql:
     image: 'postgres:17'
     ports:
@@ -165,28 +152,6 @@ services:
     networks:
       - sail
 
-  # typesense:
-  #   image: 'typesense/typesense:27.1'
-  #   ports:
-  #     - '${FORWARD_TYPESENSE_PORT:-8108}:8108'
-  #   environment:
-  #     TYPESENSE_DATA_DIR: '${TYPESENSE_DATA_DIR:-/typesense-data}'
-  #     TYPESENSE_API_KEY: '${TYPESENSE_API_KEY:-xyz}'
-  #     TYPESENSE_ENABLE_CORS: '${TYPESENSE_ENABLE_CORS:-true}'
-  #   volumes:
-  #     - 'sail-typesense:/typesense-data'
-  #   networks:
-  #     - sail
-  #   healthcheck:
-  #     test:
-  #       - CMD
-  #       - wget
-  #       - '--no-verbose'
-  #       - '--spider'
-  #       - 'http://localhost:8108/health'
-  #     retries: 5
-  #     timeout: 7s
-
   composer:
     image: sail-8.4/app
     volumes:
@@ -214,8 +179,31 @@ services:
     networks:
       - sail
     depends_on:
-      elasticsearch:
-        condition: service_healthy
+      - tempo
+      - loki
+
+  loki:
+    image: grafana/loki:latest
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./docker/loki/local-config.yaml:/etc/loki/local-config.yaml
+    networks:
+      - sail
+    restart: always
+
+  tempo:
+    image: grafana/tempo:latest
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./docker/tempo/tempo.yaml:/etc/tempo.yaml
+      - sail-tempo:/var/tempo
+    ports:
+      - "3200:3200"
+    networks:
+      - sail
+    restart: always
 
   prometheus:
     image: prom/prometheus:latest
@@ -228,22 +216,6 @@ services:
     depends_on:
       - otel-collector
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
-    environment:
-      - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - xpack.security.enabled=false
-    ports:
-      - "9200:9200"
-    networks:
-      - sail
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-
   grafana:
     image: grafana/grafana:latest
     ports:
@@ -255,22 +227,13 @@ services:
       - sail
     depends_on:
       - prometheus
-      - elasticsearch
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.11.0
-    ports:
-      - "5601:5601"
-    environment:
-      ELASTICSEARCH_HOSTS: 'http://elasticsearch:9200'
-    networks:
-      - sail
-    depends_on:
-      - elasticsearch
+      - tempo
+      - loki
 
 networks:
   sail:
     driver: bridge
+
 volumes:
   sail-pgsql:
     driver: local
@@ -283,4 +246,6 @@ volumes:
   sail-typesense:
     driver: local
   sail-grafana:
+    driver: local
+  sail-tempo:
     driver: local

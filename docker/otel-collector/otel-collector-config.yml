@@ -5,15 +5,17 @@ receivers:
         endpoint: 0.0.0.0:4318
 
 exporters:
-  debug:
-    verbosity: detailed
   prometheus:
     endpoint: "0.0.0.0:8889"
     namespace: "valorizeai"
-  elasticsearch:
-    endpoints: [http://elasticsearch:9200]
-    mapping:
-      mode: ecs
+  otlphttp/tempo:
+    endpoint: http://tempo:4319
+    tls:
+      insecure: true
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp
+    tls:
+      insecure: true
 
 service:
   telemetry:
@@ -22,10 +24,10 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [debug, elasticsearch]
+      exporters: [otlphttp/tempo]
     metrics:
       receivers: [otlp]
-      exporters: [debug, prometheus]
+      exporters: [prometheus]
     logs:
       receivers: [otlp]
-      exporters: [debug, elasticsearch]
+      exporters: [otlphttp/loki]
