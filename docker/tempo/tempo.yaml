@@ -1,6 +1,43 @@
 server:
   http_listen_port: 3200
 
+# target: all,metrics-generator
+
+auth_enabled: false
+
+# Ring gossip for single node
+memberlist:
+  join_members: [127.0.0.1]
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /tmp/tempo
+
+ingester:
+  lifecycler:
+    address: 127.0.0.1
+    ring:
+      kvstore:
+        store: memberlist
+      replication_factor: 1
+    final_sleep: 0s
+  max_block_duration: 5m
+
+metrics_generator:
+  ring:
+    kvstore:
+      store: memberlist
+  storage:
+    path: /var/tempo/generator
+
+  # optional, if you want to export generated metrics to Prometheus
+  # registry:
+  #   collection_interval: 15s
+  # remote_write:
+  #   - url: http://prometheus:9090/api/v1/write
+
 distributor:
   receivers:
     otlp:
@@ -10,23 +47,16 @@ distributor:
         grpc:
           endpoint: 0.0.0.0:4317
 
-ingester:
-  lifecycler:
-    address: 127.0.0.1
-    ring:
-      kvstore:
-        store: inmemory
-      replication_factor: 1
-    final_sleep: 0s
-
 compactor:
   compaction:
     compaction_window: 1h
-    block_retention: 1h
-    compacted_block_retention: 10m
+    block_retention: 24h
 
-storage:
-  trace:
-    backend: local
-    local:
-      path: /var/tempo/blocks
+# 👇 Processors must be enabled per-tenant (NOT under metrics_generator)
+overrides:
+  defaults:
+    metrics_generator:
+      processors:
+        - local-blocks     # required for TraceQL metrics like rate(), sum(), etc.
+        - span-metrics     # RED metrics
+        - service-graphs   # service graph edges
