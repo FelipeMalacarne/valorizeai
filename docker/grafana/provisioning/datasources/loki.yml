@@ -5,3 +5,10 @@ datasources:
     type: loki
     access: proxy
     url: http://loki:3100
+    jsonData:
+      derivedFields:
+        - name: traceid
+          matcherType: label
+          matcherRegex: traceid
+          datasourceUid: Tempo
+          url: $${__value.raw}

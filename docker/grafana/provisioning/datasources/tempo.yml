@@ -5,3 +5,16 @@ datasources:
     type: tempo
     access: proxy
     url: http://tempo:3200
+    jsonData:
+      tracesToLogs:
+        datasourceUid: Loki
+        filterByTraceID: true
+        filterBySpanID: false
+        # tags: ['service.name']
+        # mappedTags:
+        #   - key: service.name
+        #     value: service
+        spanStartTimeShift: -5m
+        spanEndTimeShift: 5m
+        lokiSearch: true
+        lokiSearchTags: ['traceid']
