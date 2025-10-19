@@ -39,6 +39,7 @@ export function DataTablePagination<TData>({
     prevPageUrl,
 }: DataTablePaginationProps<TData>) {
     // const { query, setQuery } = useTransactionsTable();
+    console.log(perPage.toString())
 
     return (
         <div className="flex items-center justify-between px-2 overflow-auto">
@@ -62,7 +63,7 @@ export function DataTablePagination<TData>({
                             />
                         </SelectTrigger>
                         <SelectContent side="top">
-                            {[10, 20, 30, 40, 50].map((pageSize) => (
+                            {[15, 30, 50, 100].map((pageSize) => (
                                 <SelectItem
                                     key={pageSize}
                                     value={`${pageSize}`}

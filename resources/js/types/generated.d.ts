@@ -1,3 +1,9 @@
+declare namespace App.Data {
+    export type OrderBy = {
+        column: string;
+        direction: any;
+    };
+}
 declare namespace App.Enums {
     export type AccountType = 'checking' | 'savings' | 'investment' | 'credit';
     export type Color =
@@ -16,6 +22,9 @@ declare namespace App.Enums {
         | 'sky'
         | 'sapphire';
     export type Currency = 'BRL' | 'USD' | 'EUR';
+    export type ImportExtension = 'ofx' | 'csv';
+    export type ImportStatus = 'processing' | 'pending_review' | 'approved' | 'refused' | 'completed' | 'failed';
+    export type ImportTransactionStatus = 'pending' | 'matched' | 'conflicted' | 'refused' | 'new' | 'approved' | 'rejected';
     export type OrganizationRole = 'owner' | 'admin' | 'member';
     export type TransactionType = 'debit' | 'credit';
 }
@@ -69,12 +78,28 @@ declare namespace App.Http.Requests.Category {
         is_default: boolean;
     };
 }
+declare namespace App.Http.Requests.Import {
+    export type ImportRequest = {
+        files: Array<any>;
+        account_id: string | null;
+    };
+}
 declare namespace App.Http.Requests.Transaction {
+    export type IndexTransactionRequest = {
+        search: string | null;
+        category: any | null;
+        accounts: Array<string>;
+        start_date: string | null;
+        end_date: string | null;
+        order_by: App.Data.OrderBy | null;
+        type: App.Enums.TransactionType | null;
+        page: number;
+        per_page: number;
+    };
     export type StoreTransactionRequest = {
         account_id: string;
         category_id: string | null;
         amount: App.ValueObjects.Money;
-        type: App.Enums.TransactionType;
         date: string;
         memo: string | null;
     };
