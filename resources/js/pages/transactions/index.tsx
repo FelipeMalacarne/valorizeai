@@ -48,7 +48,7 @@ const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {
                     </CardHeader>
 
                     <CardContent>
-                        <TransactionsTable columns={columns} transactions={props.transactions.data} />
+                        <TransactionsTable columns={columns} transactions={props.transactions} />
                     </CardContent>
                 </Card>
             </div>

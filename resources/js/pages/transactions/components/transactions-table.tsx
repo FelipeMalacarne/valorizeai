@@ -5,10 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Trash2 } from 'lucide-react';
 import React from 'react';
+import { PaginatedResource } from '@/types';
+import { DataTablePagination } from '@/components/data-table-pagination';
 
 interface TransactionsTableProps {
     columns: ColumnDef<App.Http.Resources.TransactionResource>[];
-    transactions: App.Http.Resources.TransactionResource[];
+    transactions: PaginatedResource<App.Http.Resources.TransactionResource>;
 }
 
 export function TransactionsTable({ columns, transactions }: TransactionsTableProps) {
@@ -16,12 +18,16 @@ export function TransactionsTable({ columns, transactions }: TransactionsTablePr
         console.log('Removing split:', transactionId, splitId);
     };
 
-    const table = useReactTable({
-        data: transactions,
+    console.log(transactions)
+
+    const table = useReactTable<TData>({
+        data: transactions.data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         getExpandedRowModel: getExpandedRowModel(),
         getRowCanExpand: (row) => !!(row.original.splits && row.original.splits.length > 0),
+        manualPagination: true,
+        rowCount: transactions.total
     });
 
     const renderSubRow = (subRow: App.Http.Resources.TransactionSplitResource, parentId: string) => (
@@ -51,7 +57,7 @@ export function TransactionsTable({ columns, transactions }: TransactionsTablePr
     );
 
     return (
-        <div className="rounded-md border">
+        <div className="rounded-md border space-y-4 p-4">
             <Table>
                 <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -88,6 +94,17 @@ export function TransactionsTable({ columns, transactions }: TransactionsTablePr
                     )}
                 </TableBody>
             </Table>
+            <DataTablePagination
+                table={table}
+                currentPage={transactions.current_page}
+                lastPage={transactions.last_page}
+                perPage={transactions.per_page}
+                firstPageUrl={transactions.first_page_url}
+                lastPageUrl={transactions.last_page_url}
+                nextPageUrl={transactions.next_page_url}
+                prevPageUrl={transactions.prev_page_url}
+                // meta={transactions.meta}
+            />
         </div>
     );
 }
