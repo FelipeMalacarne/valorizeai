@@ -1,4 +1,4 @@
-import { ColumnDef, flexRender, getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/react-table';
+import { ColumnDef, flexRender, getCoreRowModel, getExpandedRowModel, Row, useReactTable } from '@tanstack/react-table';
 
 import { CategoryBadge } from '@/components/category-badge';
 import { Button } from '@/components/ui/button';
@@ -24,12 +24,12 @@ export function TransactionsTable<TData, TValue>({
         console.log('Removing split:', transactionId, splitId);
     };
 
-    const table = useReactTable({
+    const table = useReactTable<TData>({
         data: transactions.data as TData[],
         columns,
         getCoreRowModel: getCoreRowModel(),
         getExpandedRowModel: getExpandedRowModel(),
-        getRowCanExpand: (row) => !!(row.original.splits && row.original.splits.length > 0),
+        getRowCanExpand: (row: Row<App.Http.Resources.TransactionResource>) => !!(row.original.splits && row.original.splits.length > 0),
         manualPagination: true,
         rowCount: transactions.total,
     });
@@ -79,7 +79,7 @@ export function TransactionsTable<TData, TValue>({
                 </TableHeader>
                 <TableBody>
                     {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row) => (
+                        table.getRowModel().rows.map((row: Row<TData>) => (
                             <React.Fragment key={row.id}>
                                 <TableRow data-state={row.getIsSelected() && 'selected'}>
                                     {row.getVisibleCells().map((cell) => (
@@ -87,7 +87,7 @@ export function TransactionsTable<TData, TValue>({
                                     ))}
                                 </TableRow>
 
-                                {row.getIsExpanded() && row.original.splits?.map((subRow) => renderSubRow(subRow, row.original.id))}
+                                {row.getIsExpanded() && (row.original as App.Http.Resources.TransactionResource).splits?.map((subRow) => renderSubRow(subRow, (row.original as App.Http.Resources.TransactionResource).id))}
                             </React.Fragment>
                         ))
                     ) : (
