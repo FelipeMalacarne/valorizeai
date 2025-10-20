@@ -14,6 +14,7 @@ use App\Http\Resources\CategoryResource;
 use App\Http\Resources\TransactionResource;
 use App\Models\Category;
 use App\Models\Transaction;
+use App\Queries\Category\UserCategoriesQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -22,16 +23,13 @@ use Inertia\Response;
 
 final class TransactionController extends Controller
 {
-    public function index()
+    public function index(UserCategoriesQuery $categoriesQuery): Response
     {
         $transactions = Auth::user()
             ->transactions()
             ->latest()
             ->paginate()
             ->withQueryString();
-
-        $categories = Category::whereUser(Auth::user()->id)
-            ->get();
 
         $accounts = Auth::user()
             ->accounts()
@@ -46,7 +44,7 @@ final class TransactionController extends Controller
 
         return Inertia::render('transactions/index', [
             'transactions' => TransactionResource::collect($transactions),
-            'categories'   => CategoryResource::collect($categories),
+            'categories'   => $categoriesQuery->resource(Auth::user()->id),
             'accounts'     => AccountResource::collect($accounts),
         ]);
     }
