@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Data;
 
-use App\Support\Enums\OrderByDirection;
+use App\Enums\OrderByDirection;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
