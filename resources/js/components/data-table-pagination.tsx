@@ -16,6 +16,7 @@ import {
 } from "./ui/select";
 // import { LinksType, Meta } from "@/types";
 import { Link } from "@inertiajs/react";
+import { useTransactionsQuery } from "@/providers/transactions-query-provider";
 // import { useTransactionsTable } from "@/providers/transactions-table-provider";
 
 interface DataTablePaginationProps<TData> {
@@ -38,7 +39,7 @@ export function DataTablePagination<TData>({
     nextPageUrl,
     prevPageUrl,
 }: DataTablePaginationProps<TData>) {
-    // const { query, setQuery } = useTransactionsTable();
+    const { updateQuery } = useTransactionsQuery();
 
     return (
         <div className="flex items-center justify-between px-2 overflow-auto">
@@ -51,7 +52,7 @@ export function DataTablePagination<TData>({
                     <Select
                         value={perPage.toString()}
                         onValueChange={(value) => {
-                            // setQuery({...query, per_page: parseInt(value)});
+                            updateQuery({per_page: parseInt(value)});
                         }}
                     >
                         <SelectTrigger className="h-8 w-[70px]">

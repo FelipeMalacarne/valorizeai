@@ -30,8 +30,7 @@ final class TransactionController extends Controller
             ->paginate()
             ->withQueryString();
 
-        $categories = Auth::user()
-            ->categories()
+        $categories = Category::whereUser(Auth::user()->id)
             ->get();
 
         $accounts = Auth::user()
