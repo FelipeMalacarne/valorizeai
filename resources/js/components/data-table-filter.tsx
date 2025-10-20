@@ -6,6 +6,7 @@ import { Separator } from "./ui/separator"
 import { Badge } from "./ui/badge"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "./ui/command"
 import { cn } from "@/lib/utils"
+import { Checkbox } from "./ui/checkbox"
 
 
 interface DataTableFilterProps {
@@ -88,16 +89,9 @@ export function DataTableFilter({
                       }
                     }}
                   >
-                    <div
-                      className={cn(
-                        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                        isSelected
-                          ? "bg-primary text-primary-foreground"
-                          : "opacity-50 [&_svg]:invisible"
-                      )}
-                    >
-                      <Check />
-                    </div>
+                    <Checkbox
+                        checked={isSelected}
+                    />
                     {option.icon && (
                       <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />
                     )}
