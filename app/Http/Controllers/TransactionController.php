@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Actions\Transaction\DestroyTransaction;
 use App\Actions\Transaction\StoreTransaction;
 use App\Actions\Transaction\UpdateTransaction;
+use App\Http\Requests\Transaction\IndexTransactionRequest;
 use App\Http\Requests\Transaction\StoreTransactionRequest;
 use App\Http\Requests\Transaction\UpdateTransactionRequest;
 use App\Http\Resources\AccountResource;
@@ -15,6 +16,7 @@ use App\Http\Resources\TransactionResource;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Queries\Category\UserCategoriesQuery;
+use App\Queries\Transaction\IndexTransactionsQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -23,28 +25,19 @@ use Inertia\Response;
 
 final class TransactionController extends Controller
 {
-    public function index(UserCategoriesQuery $categoriesQuery): Response
-    {
-        $transactions = Auth::user()
-            ->transactions()
-            ->latest()
-            ->paginate()
-            ->withQueryString();
-
+    public function index(
+        IndexTransactionRequest $request,
+        UserCategoriesQuery $categories,
+        IndexTransactionsQuery $transactions
+    ): Response {
         $accounts = Auth::user()
             ->accounts()
             ->with('bank')
             ->get();
 
-        $transactions->load([
-            'splits.category',
-            'category',
-            'account.bank',
-        ]);
-
         return Inertia::render('transactions/index', [
-            'transactions' => TransactionResource::collect($transactions),
-            'categories'   => $categoriesQuery->resource(Auth::user()->id),
+            'transactions' => $transactions->resource($request, Auth::user()),
+            'categories'   => $categories->resource(Auth::user()->id),
             'accounts'     => AccountResource::collect($accounts),
         ]);
     }
