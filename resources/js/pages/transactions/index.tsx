@@ -11,6 +11,7 @@ import { ImportTransactionsForm } from '@/components/import-transactions-form';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { Button } from '@/components/ui/button';
 import { Upload } from 'lucide-react';
+import { TransactionsQueryProvider } from '@/providers/transactions-query-provider';
 
 export type TransactionsIndexProps = {
     transactions: PaginatedResource<App.Http.Resources.TransactionResource>;
@@ -48,7 +49,9 @@ const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {
                     </CardHeader>
 
                     <CardContent>
-                        <TransactionsTable columns={columns} transactions={props.transactions} />
+                        <TransactionsQueryProvider>
+                            <TransactionsTable columns={columns} transactions={props.transactions} />
+                        </TransactionsQueryProvider>
                     </CardContent>
                 </Card>
             </div>

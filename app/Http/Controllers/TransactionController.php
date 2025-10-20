@@ -30,6 +30,15 @@ final class TransactionController extends Controller
             ->paginate()
             ->withQueryString();
 
+        $categories = Auth::user()
+            ->categories()
+            ->get();
+
+        $accounts = Auth::user()
+            ->accounts()
+            ->with('bank')
+            ->get();
+
         $transactions->load([
             'splits.category',
             'category',
@@ -38,6 +47,8 @@ final class TransactionController extends Controller
 
         return Inertia::render('transactions/index', [
             'transactions' => TransactionResource::collect($transactions),
+            'categories'   => CategoryResource::collect($categories),
+            'accounts'     => AccountResource::collect($accounts),
         ]);
     }
 

@@ -7,27 +7,31 @@ import { Trash2 } from 'lucide-react';
 import React from 'react';
 import { PaginatedResource } from '@/types';
 import { DataTablePagination } from '@/components/data-table-pagination';
+import { TransactionsTableToolbar } from './transactions-table-toolbar';
 
-interface TransactionsTableProps {
-    columns: ColumnDef<App.Http.Resources.TransactionResource>[];
+
+
+interface TransactionsTableProps<TData, TValue> {
+    columns: ColumnDef<TData, TValue>[];
     transactions: PaginatedResource<App.Http.Resources.TransactionResource>;
 }
 
-export function TransactionsTable({ columns, transactions }: TransactionsTableProps) {
+export function TransactionsTable<TData, TValue>({
+    columns,
+    transactions,
+}: TransactionsTableProps<TData, TValue>) {
     const removeSplit = (transactionId: string, splitId: string) => {
         console.log('Removing split:', transactionId, splitId);
     };
 
-    console.log(transactions)
-
-    const table = useReactTable<TData>({
-        data: transactions.data,
+    const table = useReactTable({
+        data: transactions.data as TData[],
         columns,
         getCoreRowModel: getCoreRowModel(),
         getExpandedRowModel: getExpandedRowModel(),
         getRowCanExpand: (row) => !!(row.original.splits && row.original.splits.length > 0),
         manualPagination: true,
-        rowCount: transactions.total
+        rowCount: transactions.total,
     });
 
     const renderSubRow = (subRow: App.Http.Resources.TransactionSplitResource, parentId: string) => (
@@ -58,6 +62,7 @@ export function TransactionsTable({ columns, transactions }: TransactionsTablePr
 
     return (
         <div className="rounded-md border space-y-4 p-4">
+            <TransactionsTableToolbar table={table} />
             <Table>
                 <TableHeader>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -103,8 +108,8 @@ export function TransactionsTable({ columns, transactions }: TransactionsTablePr
                 lastPageUrl={transactions.last_page_url}
                 nextPageUrl={transactions.next_page_url}
                 prevPageUrl={transactions.prev_page_url}
-                // meta={transactions.meta}
             />
         </div>
     );
 }
+

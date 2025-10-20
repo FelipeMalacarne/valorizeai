@@ -39,7 +39,6 @@ export function DataTablePagination<TData>({
     prevPageUrl,
 }: DataTablePaginationProps<TData>) {
     // const { query, setQuery } = useTransactionsTable();
-    console.log(perPage.toString())
 
     return (
         <div className="flex items-center justify-between px-2 overflow-auto">
