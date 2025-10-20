@@ -10,7 +10,7 @@ export const TransactionsQueryProvider = ({ children }: { children: React.ReactN
         // and a schema validation library like Zod to handle complex nested objects and arrays.
         const initialState: App.Http.Requests.Transaction.IndexTransactionRequest = {
             search: params.get('search'),
-            category: params.get('category'),
+            categories: params.getAll('categories[]'),
             accounts: params.getAll('accounts[]'),
             start_date: params.get('start_date'),
             end_date: params.get('end_date'),

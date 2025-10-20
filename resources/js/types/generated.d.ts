@@ -87,7 +87,7 @@ declare namespace App.Http.Requests.Import {
 declare namespace App.Http.Requests.Transaction {
     export type IndexTransactionRequest = {
         search: string | null;
-        category: any | null;
+        categories: Array<string>;
         accounts: Array<string>;
         start_date: string | null;
         end_date: string | null;

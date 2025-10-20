@@ -28,7 +28,7 @@ export function TransactionsTableToolbar({ table }: { table: ReturnType<typeof u
         query.start_date ||
         query.end_date ||
         (query.accounts && query.accounts.length > 0) ||
-        (query.category && query.category.length > 0) ||
+        (query.categories && query.categories.length > 0) ||
         query.type;
 
     const range: DateRange = {
@@ -57,7 +57,7 @@ export function TransactionsTableToolbar({ table }: { table: ReturnType<typeof u
             search: null,
             start_date: null,
             end_date: null,
-            category: null,
+            categories: [],
             accounts: [],
             type: null,
         });
@@ -102,9 +102,9 @@ export function TransactionsTableToolbar({ table }: { table: ReturnType<typeof u
                         label: category.name,
                         value: category.id,
                     }))}
-                    selectedValues={query.category ? [query.category] : []}
+                    selectedValues={query.categories || []}
                     setSelectedValues={(values) =>
-                        updateQuery({ category: values[0] })
+                        updateQuery({ categories: values })
                     }
                 />
                 <DataTableFilter

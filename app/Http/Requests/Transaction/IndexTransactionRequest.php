@@ -16,7 +16,8 @@ class IndexTransactionRequest extends Data
 {
     public function __construct(
         public ?string $search = null,
-        public ?Category $category = null,
+        /** @var string[] */
+        public array $categories = [],
         /** @var string[] */
         public array $accounts = [],
         public ?Carbon $start_date = null,
