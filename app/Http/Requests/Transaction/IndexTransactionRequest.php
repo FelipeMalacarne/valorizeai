@@ -6,7 +6,6 @@ namespace App\Http\Requests\Transaction;
 
 use App\Data\OrderBy;
 use App\Enums\TransactionType;
-use App\Models\Category;
 use Carbon\Carbon;
 use Spatie\LaravelData\Data;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
@@ -25,8 +24,7 @@ class IndexTransactionRequest extends Data
         public ?OrderBy $order_by = null,
         public ?TransactionType $type = null,
         public int $page = 1,
-        public int $per_page = 10,
-
+        public int $per_page = 15,
     ) {}
 
     /**

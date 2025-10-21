@@ -19,8 +19,7 @@ final class IndexTransactionsQuery
                 'splits.category',
                 'category',
                 'account.bank',
-            ])
-            ->latest();
+            ]);
 
         if ($args->accounts) {
             $query->whereIn('account_id', $args->accounts);
@@ -45,6 +44,11 @@ final class IndexTransactionsQuery
         if ($args->search) {
             $query->where('memo', 'like', "%$args->search%");
         }
+
+        $query->orderBy(
+            $args->order_by?->column ?? 'date',
+            $args->order_by?->direction->value ?? 'desc',
+        );
 
         return $query->paginate(perPage: $args->per_page, page: $args->page)->withQueryString();
     }
