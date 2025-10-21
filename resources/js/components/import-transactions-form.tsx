@@ -50,7 +50,13 @@ export const ImportTransactionsForm = ({ onClose }: ImportTransactionsFormProps)
 
   return (
     <form className="space-y-4" onSubmit={submit}>
-      <MultiFileUpload name="files" onChange={handleFilesChange} disabled={processing} />
+      <MultiFileUpload
+        name="files"
+        onChange={handleFilesChange}
+        disabled={processing}
+        accept=".csv,.ofx"
+        maxFiles={20}
+      />
 
       {Object.keys(errors)
         .filter((key) => key.startsWith("files."))

@@ -64,8 +64,8 @@ const getFileIcon = (file: { file: File | { type: string; name: string } }) => {
 
 export default function MultiFileUpload({
   name = "files",
-  maxFiles = 10,
-  maxSize = 10 * 1024 * 1024,
+  maxFiles = 20,
+  maxSize = 100 * 1024 * 1024,
   accept,
   disabled,
   onChange,
@@ -148,7 +148,7 @@ export default function MultiFileUpload({
 
       {/* File list */}
       {files.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-2 max-h-60 overflow-y-auto">
           {files.map((file) => (
             <div
               key={file.id}
