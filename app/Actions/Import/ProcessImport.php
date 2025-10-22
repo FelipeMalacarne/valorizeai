@@ -9,7 +9,9 @@ use App\Enums\ImportTransactionStatus;
 use App\Models\Account;
 use App\Models\Bank;
 use App\Models\Import;
+use App\Models\Transaction;
 use App\Services\Statement\Parsers\OfxParser;
+use App\ValueObjects\Money;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -35,6 +37,7 @@ final class ProcessImport
                 ['name' => $statement->bankAccount->bankName]
             );
 
+            /** @var Account $account */
             $account = Account::firstOrCreate([
                 'type'    => $statement->bankAccount->type,
                 'number'  => $statement->bankAccount->number,
@@ -44,6 +47,8 @@ final class ProcessImport
                 'currency' => $statement->currency,
                 'name'     => $statement->bankAccount->bankName,
             ]);
+
+            Log::withContext(['account_id' => $account->id]);
 
             $statusCounters = [
                 ImportTransactionStatus::NEW->value        => 0,
@@ -69,10 +74,10 @@ final class ProcessImport
                         $existingTransaction->date->isSameDay($transaction->date)
                     ) {
                         $status = ImportTransactionStatus::MATCHED;
-                        Log::info('Transaction matched', ['fitid' => $transaction->fitid]);
+                        Log::debug('Transaction matched', ['fitid' => $transaction->fitid]);
                     } else {
                         $status = ImportTransactionStatus::CONFLICTED;
-                        Log::warning('Transaction conflicted', ['fitid' => $transaction->fitid]);
+                        Log::debug('Transaction conflicted', ['fitid' => $transaction->fitid]);
                     }
                 }
 
@@ -118,9 +123,23 @@ final class ProcessImport
                 ];
             })->values();
 
-            $account->transactions()->createMany($transactionsToCreate);
+            $transactions = $account->transactions()->createMany($transactionsToCreate);
 
-            Log::info('New transactions created', ['count' => $transactionsToCreate->count()]);
+            $balanceToAdd = $transactions->reduce(function (Money $carry, Transaction $transaction) {
+                return $carry->add($transaction->amount);
+            }, Money::from(0, $account->currency));
+
+            Log::debug('DEBUG INFO', [
+                'account' => $account,
+            ]);
+
+            $account->balance = $account->balance->add($balanceToAdd);
+            $account->save();
+
+            Log::info('New transactions created', [
+                'count'         => $transactionsToCreate->count(),
+                'balance_added' => $balanceToAdd->format(),
+            ]);
 
             return $import;
         });

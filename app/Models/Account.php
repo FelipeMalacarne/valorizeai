@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Transaction> $transactions
  * @property-read int|null $transactions_count
  * @property-read User $user
+ *
  * @method static \Database\Factories\AccountFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Account newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Account newQuery()
@@ -44,12 +45,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Account whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Account whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Account whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 final class Account extends Model
 {
     /** @use HasFactory<\Database\Factories\AccountFactory> */
     use HasFactory, HasUuids;
+
+    protected $attributes = [
+        'balance' => 0,
+    ];
 
     protected $fillable = [
         'id',
