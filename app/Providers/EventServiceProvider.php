@@ -7,6 +7,8 @@ namespace App\Providers;
 use App\Events\Account\BulkTransactionsAdded;
 use App\Events\Import\ImportCreated;
 use App\Events\Transaction\TransactionCreated;
+use App\Events\Transaction\TransactionDeleted;
+use App\Events\Transaction\TransactionUpdated;
 use App\Listeners\ProcessImportListener;
 use App\Listeners\UpdateAccountBalanceListener;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -22,11 +24,18 @@ class EventServiceProvider extends ServiceProvider
         TransactionCreated::class => [
             UpdateAccountBalanceListener::class,
         ],
-        BulkTransactionsAdded::class => [
+        TransactionUpdated::class => [
             UpdateAccountBalanceListener::class,
         ],
+        TransactionDeleted::class => [
+            UpdateAccountBalanceListener::class,
+        ],
+
         ImportCreated::class => [
             ProcessImportListener::class,
+        ],
+        BulkTransactionsAdded::class => [
+            UpdateAccountBalanceListener::class,
         ],
     ];
 
@@ -35,7 +44,7 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // ServiceProvider::disableEventDiscovery();
+        //
     }
 
     public function shouldDiscoverEvents(): bool
