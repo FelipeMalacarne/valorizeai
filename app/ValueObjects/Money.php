@@ -79,6 +79,15 @@ final class Money implements Arrayable, JsonSerializable, Stringable
         return new self($this->value - $other->value, $this->currency);
     }
 
+    public function multiply(int|float $multiplier): self
+    {
+        if (! is_int($multiplier) && ! is_float($multiplier)) {
+            throw new InvalidArgumentException('Multiplier must be an integer or float.');
+        }
+
+        return new self((int) round($this->value * $multiplier), $this->currency);
+    }
+
     /**
      * Get an array representation of the money object.
      * Implements Arrayable interface.
