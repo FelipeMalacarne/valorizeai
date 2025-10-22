@@ -45,7 +45,7 @@ services:
     image: sail-8.4/app
     volumes:
       - '.:/var/www/html'
-    entrypoint: 'php artisan queue:work'
+    entrypoint: 'php artisan queue:listen'
     restart: always
     networks:
       - sail
