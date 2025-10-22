@@ -15,6 +15,7 @@ use App\ValueObjects\Money;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Events\Account\BulkTransactionsAdded;
 
 final class ProcessImport
 {
@@ -129,12 +130,7 @@ final class ProcessImport
                 return $carry->add($transaction->amount);
             }, Money::from(0, $account->currency));
 
-            Log::debug('DEBUG INFO', [
-                'account' => $account,
-            ]);
-
-            $account->balance = $account->balance->add($balanceToAdd);
-            $account->save();
+            BulkTransactionsAdded::dispatch((string) $account->id, $balanceToAdd);
 
             Log::info('New transactions created', [
                 'count'         => $transactionsToCreate->count(),

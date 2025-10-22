@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Transaction;
 
 use App\Enums\TransactionType;
+use App\Events\Transaction\TransactionCreated;
 use App\Http\Requests\Transaction\StoreTransactionRequest;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
@@ -24,11 +25,7 @@ final class StoreTransaction
                 'memo'        => $args->memo,
             ]);
 
-            $account = $transaction->account;
-
-            $account->balance = $account->balance->add($transaction->amount);
-
-            $account->save();
+            TransactionCreated::dispatch($transaction);
 
             return $transaction;
         });

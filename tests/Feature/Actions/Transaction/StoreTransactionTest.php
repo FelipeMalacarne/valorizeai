@@ -5,14 +5,18 @@ declare(strict_types=1);
 use App\Actions\Transaction\StoreTransaction;
 use App\Enums\Currency;
 use App\Enums\TransactionType;
+use App\Events\Transaction\TransactionCreated;
 use App\Http\Requests\Transaction\StoreTransactionRequest;
 use App\Models\Account;
 use App\Models\User;
 use App\ValueObjects\Money;
+use Illuminate\Support\Facades\Event;
 
 use function Pest\Laravel\assertDatabaseHas;
 
 it('creates a transaction and updates the account balance', function () {
+
+    Event::fake();
 
     $user = User::factory()->create();
     $account = Account::factory()->create([
@@ -41,6 +45,5 @@ it('creates a transaction and updates the account balance', function () {
         'amount'     => -2500,
     ]);
 
-    $account->refresh();
-    expect($account->balance->value)->toBe(7500); // 10000 - 2500 = 7500
+    Event::assertDispatched(TransactionCreated::class);
 });
