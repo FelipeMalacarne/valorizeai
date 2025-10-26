@@ -40,7 +40,7 @@ test('user can create a transaction via http', function () {
     $response = actingAs($user)->post(route('transactions.store'), $transactionData);
 
     // Assert
-    $response->assertRedirectToRoute('transactions.index');
+    $response->assertRedirectBack();
     $response->assertSessionHas('success', 'Transaction created successfully');
 
     assertDatabaseHas('transactions', [
@@ -150,7 +150,7 @@ test('user can update their own transaction', function () {
     $response = actingAs($user)->put(route('transactions.update', $transaction), $updateData);
 
     // Assert
-    $response->assertRedirectToRoute('transactions.index');
+    $response->assertRedirectBack();
     $response->assertSessionHas('success', 'Transaction updated successfully.');
 
     assertDatabaseHas('transactions', [

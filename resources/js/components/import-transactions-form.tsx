@@ -29,11 +29,6 @@ export const ImportTransactionsForm = ({ onClose }: ImportTransactionsFormProps)
     setData("files", files)
   }
 
-  const handleCancel = () => {
-    reset()
-    onClose?.()
-  }
-
   const submit: FormEventHandler = (event) => {
     event.preventDefault()
 
