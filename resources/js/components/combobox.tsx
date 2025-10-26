@@ -29,7 +29,7 @@ export function Combobox<T extends ComboboxItem>({
     noResultsText?: string;
     className?: string;
     renderItem?: (item: T) => React.ReactNode;
-    disabled: boolean
+    disabled?: boolean
 }) {
     const [open, setOpen] = useState(false);
     const isDesktop = !useIsMobile();
