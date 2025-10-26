@@ -23,7 +23,7 @@ export function ResponsiveDialog({
     if (isDesktop) {
         return (
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent>
                     <DialogHeader>
                         <DialogTitle>{title}</DialogTitle>
                         {description && <DialogDescription>{description}</DialogDescription>}
@@ -41,7 +41,9 @@ export function ResponsiveDialog({
                     <DrawerTitle>{title}</DrawerTitle>
                     {description && <DialogDescription>{description}</DialogDescription>}
                 </DrawerHeader>
-                {children}
+                <div className='px-4'>
+                    {children}
+                </div>
                 <DrawerFooter className="pt-2">
                     <DrawerClose asChild>
                         <Button variant="outline">Cancel</Button>
