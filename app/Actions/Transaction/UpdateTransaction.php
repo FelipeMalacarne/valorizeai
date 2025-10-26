@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Transaction;
 
+use App\Enums\TransactionType;
 use App\Http\Requests\Transaction\UpdateTransactionRequest;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,7 @@ final class UpdateTransaction
 
             // Update the transaction with new data
             $transaction->amount = $data->amount;
-            $transaction->type = $data->type;
+            $transaction->type = $data->amount->value >= 0 ? TransactionType::CREDIT : TransactionType::DEBIT;
             $transaction->date = $data->date;
             $transaction->memo = $data->memo;
             $transaction->category_id = $data->category_id;

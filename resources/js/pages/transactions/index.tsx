@@ -15,6 +15,8 @@ import { TransactionsQueryProvider } from '@/providers/transactions-query-provid
 
 export type TransactionsIndexProps = {
     transactions: PaginatedResource<App.Http.Resources.TransactionResource>;
+    accounts: App.Http.Resources.AccountResource[];
+    categories: App.Http.Resources.CategoryResource[];
 };
 
 const TransactionsIndex = (props: SharedData<TransactionsIndexProps>) => {

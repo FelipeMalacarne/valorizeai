@@ -17,31 +17,43 @@ import { FormEventHandler, useState } from 'react';
 type TransactionFormProps = {
     accounts: App.Http.Resources.AccountResource[];
     categories: App.Http.Resources.CategoryResource[];
+    transaction?: App.Http.Resources.TransactionResource;
     onSuccess?: () => void;
 };
 
-export const TransactionForm = ({ accounts, categories, onSuccess }: TransactionFormProps) => {
-    const [type, setType] = useState<'debit' | 'credit'>('debit');
-    const { data, setData, post, processing, errors, reset, transform } = useForm({
-        account_id: '',
-        category_id: null,
+export const TransactionForm = ({ accounts, categories, transaction, onSuccess }: TransactionFormProps) => {
+    const isUpdate = !!transaction;
+    const [type, setType] = useState<'debit' | 'credit'>(transaction?.type ?? 'debit');
+    const { data, setData, post, patch, processing, errors, reset, transform } = useForm({
+        account_id: transaction?.account.id ?? '',
+        category_id: transaction?.category?.id ?? null,
         amount: {
-            value: 0,
-            currency: 'BRL',
+            value: transaction ? Math.abs(transaction.amount.value) : 0,
+            currency: transaction?.amount.currency ?? 'BRL',
         },
-        date: format(new Date(), 'yyyy-MM-dd'),
-        memo: null,
+        date: transaction ? format(new Date(transaction.date), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
+        memo: transaction?.memo ?? null,
     });
 
-    transform((data) => ({
-        ...data,
-        amount: {
-            ...data.amount,
-            value: type === 'debit' ? data.amount.value * -1 : data.amount.value,
-        },
-    }));
+    transform((data) => {
+        const transformedData: any = {
+            ...data,
+            amount: {
+                ...data.amount,
+                value: type === 'debit' ? data.amount.value * -1 : data.amount.value,
+            },
+        };
 
-    const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+        if (isUpdate) {
+            delete transformedData.account_id;
+        }
+
+        return transformedData;
+    });
+
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+        transaction ? new Date(transaction.date) : new Date(),
+    );
 
     const handleDateChange = (date: Date | undefined) => {
         setSelectedDate(date);
@@ -57,15 +69,19 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
         setData('amount', { ...data.amount, value: integerValue || 0 });
     };
 
-    // The submit handler is now clean
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('transactions.store'), {
+        const options = {
             onSuccess: () => {
                 reset();
                 onSuccess?.();
             },
-        });
+        };
+        if (isUpdate) {
+            patch(route('transactions.update', transaction.id), options);
+        } else {
+            post(route('transactions.store'), options);
+        }
     };
 
     return (
@@ -76,6 +92,7 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
                     <Combobox
                         items={accounts.map((account) => ({ ...account, value: account.id, label: account.name }))}
                         value={data.account_id}
+                        disabled={isUpdate}
                         onChange={(value) => {
                             const selectedAccount = accounts.find((account) => account.id === value);
                             if (selectedAccount) {
@@ -197,7 +214,7 @@ export const TransactionForm = ({ accounts, categories, onSuccess }: Transaction
 
             <Button type="submit" disabled={processing} className="w-full">
                 {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                Criar Transação
+                {isUpdate ? 'Salvar Alterações' : 'Criar Transação'}
             </Button>
         </form>
     );
