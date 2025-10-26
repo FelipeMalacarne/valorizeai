@@ -6,11 +6,10 @@ import React, { useState } from 'react';
 import { BalanceCard } from './components/balance-card';
 import { columns } from './components/columns';
 import { TransactionsTable } from './components/transactions-table';
-import { ActionButtonLink } from '@/components/action-button-link';
 import { ImportTransactionsForm } from '@/components/import-transactions-form';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { Button } from '@/components/ui/button';
-import { Plus, PlusCircle, Upload } from 'lucide-react';
+import { Plus, Upload } from 'lucide-react';
 import { TransactionsQueryProvider } from '@/providers/transactions-query-provider';
 import { TransactionForm } from '@/components/transaction-form';
 

@@ -27,9 +27,11 @@ final class AccountController extends Controller
     public function index(IndexAccountsRequest $data, ListAccountsQuery $query): Response
     {
         $accounts = $query->handle($data, Auth::user());
+        $banks = Cache::remember('banks', now()->addDays(), fn () => Bank::all());
 
         return Inertia::render('accounts/index', [
             'accounts' => AccountResource::collect($accounts),
+            'banks'    => BankResource::collect($banks),
         ]);
     }
 
