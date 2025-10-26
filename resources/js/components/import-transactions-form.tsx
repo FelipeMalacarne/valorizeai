@@ -29,11 +29,6 @@ export const ImportTransactionsForm = ({ onClose }: ImportTransactionsFormProps)
     setData("files", files)
   }
 
-  const handleCancel = () => {
-    reset()
-    onClose?.()
-  }
-
   const submit: FormEventHandler = (event) => {
     event.preventDefault()
 
@@ -64,14 +59,9 @@ export const ImportTransactionsForm = ({ onClose }: ImportTransactionsFormProps)
           <InputError key={key} message={errors[key as keyof typeof errors]} />
         ))}
       <InputError message={errors.files} />
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="ghost" onClick={handleCancel} disabled={processing}>
-          Cancelar
-        </Button>
-        <Button type="submit" disabled={processing || data.files.length === 0}>
+        <Button className="w-full" type="submit" disabled={processing || data.files.length === 0}>
           Importar
         </Button>
-      </div>
     </form>
   )
 }

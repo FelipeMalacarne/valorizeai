@@ -1,15 +1,20 @@
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { formatCurrency } from '@/lib/formatCurrency';
-import { Form, Link } from '@inertiajs/react';
+import { Form, Link, usePage } from '@inertiajs/react';
 import { Delete, Edit, Eye, MoreHorizontal, Split } from 'lucide-react';
 import { useState } from 'react';
 import { SplitTransactionForm } from './split-transaction-form';
+import { TransactionForm } from '@/components/transaction-form';
+import { TransactionsIndexProps } from '..';
+import { SharedData } from '@/types';
 
 export function TransactionActionDropdown({ transaction }: { transaction: App.Http.Resources.TransactionResource }) {
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [splitDialogOpen, setSplitDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+    const { accounts, categories } = usePage<SharedData<TransactionsIndexProps>>().props;
 
     return (
         <>
@@ -28,7 +33,7 @@ export function TransactionActionDropdown({ transaction }: { transaction: App.Ht
                         </Link>
                     </DropdownMenuItem>
 
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setEditDialogOpen(true)}>
                         <Edit />
                         Editar
                     </DropdownMenuItem>
@@ -46,7 +51,20 @@ export function TransactionActionDropdown({ transaction }: { transaction: App.Ht
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* <SplitTransactionDialog transaction={transaction} open={splitDialogOpen} setOpen={setSplitDialogOpen} /> */}
+            <ResponsiveDialog
+                isOpen={editDialogOpen}
+                setIsOpen={setEditDialogOpen}
+                title="Atualizar transação"
+                description="Atualizar a transação selecionada."
+            >
+                <TransactionForm
+                    accounts={accounts}
+                    categories={categories}
+                    transaction={transaction}
+                    onSuccess={() => setEditDialogOpen(false)}
+                />
+            </ResponsiveDialog>
+
             <ResponsiveDialog
                 isOpen={splitDialogOpen}
                 setIsOpen={setSplitDialogOpen}

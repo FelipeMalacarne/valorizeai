@@ -15,6 +15,7 @@ use App\Http\Resources\CategoryResource;
 use App\Http\Resources\TransactionResource;
 use App\Models\Category;
 use App\Models\Transaction;
+use App\Queries\Account\UserAccountsQuery;
 use App\Queries\Category\UserCategoriesQuery;
 use App\Queries\Transaction\IndexTransactionsQuery;
 use Illuminate\Http\RedirectResponse;
@@ -28,17 +29,14 @@ final class TransactionController extends Controller
     public function index(
         IndexTransactionRequest $request,
         UserCategoriesQuery $categories,
+        UserAccountsQuery $accounts,
         IndexTransactionsQuery $transactions
     ): Response {
-        $accounts = Auth::user()
-            ->accounts()
-            ->with('bank')
-            ->get();
 
         return Inertia::render('transactions/index', [
-            'transactions' => $transactions->resource($request, Auth::user()),
-            'categories'   => $categories->resource(Auth::user()->id),
-            'accounts'     => AccountResource::collect($accounts),
+            'transactions' => fn () => $transactions->resource($request, Auth::user()),
+            'categories'   => fn () => $categories->resource(Auth::user()->id),
+            'accounts'     => fn () => $accounts->resource(Auth::user()->id),
         ]);
     }
 
@@ -64,7 +62,7 @@ final class TransactionController extends Controller
     {
         $action->handle($request);
 
-        return redirect()->route('transactions.index')->with([
+        return redirect()->back()->with([
             'success' => __('Transaction created successfully'),
         ]);
     }
@@ -97,7 +95,7 @@ final class TransactionController extends Controller
 
         $action->handle($request, $transaction);
 
-        return redirect()->route('transactions.index')->with(['success' => __('Transaction updated successfully.')]);
+        return redirect()->back()->with(['success' => __('Transaction updated successfully.')]);
     }
 
     public function destroy(Transaction $transaction, DestroyTransaction $action): RedirectResponse

@@ -19,6 +19,7 @@ export function Combobox<T extends ComboboxItem>({
     searchPlaceholder = 'Busca...',
     noResultsText = 'Nenhum resultado encontrado.',
     renderItem,
+    disabled = false,
 }: {
     items: T[];
     value: any;
@@ -28,6 +29,7 @@ export function Combobox<T extends ComboboxItem>({
     noResultsText?: string;
     className?: string;
     renderItem?: (item: T) => React.ReactNode;
+    disabled?: boolean
 }) {
     const [open, setOpen] = useState(false);
     const isDesktop = !useIsMobile();
@@ -36,7 +38,7 @@ export function Combobox<T extends ComboboxItem>({
 
     const itemList = (
         <Command>
-            <CommandInput placeholder={searchPlaceholder} />
+            <CommandInput disabled={disabled} placeholder={searchPlaceholder} />
             <CommandList>
                 <CommandEmpty>{noResultsText}</CommandEmpty>
                 <CommandGroup>
@@ -60,7 +62,7 @@ export function Combobox<T extends ComboboxItem>({
     if (isDesktop) {
         return (
             <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
+                <PopoverTrigger asChild disabled={disabled}>
                     <Button variant="outline" className="w-full justify-between truncate">
                         <span className="truncate">{selected ? selected.label : placeholder}</span>
                         <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -75,7 +77,7 @@ export function Combobox<T extends ComboboxItem>({
 
     return (
         <Drawer open={open} onOpenChange={setOpen}>
-            <DrawerTrigger asChild>
+            <DrawerTrigger asChild disabled={disabled}>
                 <Button variant="outline" className="w-full justify-between truncate">
                     <span className="truncate">{selected ? selected.label : placeholder}</span>
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />

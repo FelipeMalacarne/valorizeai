@@ -37,18 +37,17 @@ export function AccountFilters({ className = '' }: { className?: string }) {
     };
 
     return (
-        <Card className={className}>
-            <CardHeader>
-                <div className="flex items-center justify-between">
-                    <div className='space-y-1'>
-                        <CardTitle>Contas Bancárias</CardTitle>
-                        <CardDescription> Vizualize e gerencie suas contas Bancárias </CardDescription>
-                    </div>
-
-                    <ActionButtonLink action="create" href={route('accounts.create')} prefetch/>
-                </div>
-            </CardHeader>
-            <CardContent>
+        <div className={className}>
+            {/* <CardHeader> */}
+            {/*     <div className="flex items-center justify-between"> */}
+            {/*         <div className='space-y-1'> */}
+            {/*             <CardTitle>Contas Bancárias</CardTitle> */}
+            {/*             <CardDescription> Vizualize e gerencie suas contas Bancárias </CardDescription> */}
+            {/*         </div> */}
+            {/**/}
+            {/*         <ActionButtonLink action="create" href={route('accounts.create')} prefetch/> */}
+            {/*     </div> */}
+            {/* </CardHeader> */}
                 <div className="grid grid-cols-2 items-center justify-between gap-4 md:grid-cols-5">
                     <Input
                         className="col-span-2 md:col-span-3"
@@ -99,7 +98,6 @@ export function AccountFilters({ className = '' }: { className?: string }) {
                         )}
                     </div>
                 </div>
-            </CardContent>
-        </Card>
+        </div>
     );
 }

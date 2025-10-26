@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Requests\Transaction;
 
 use App\Casts\MoneyCast;
-use App\Enums\TransactionType;
 use App\ValueObjects\Money;
 use Carbon\Carbon;
 use Spatie\LaravelData\Attributes\WithCast;
@@ -22,7 +21,6 @@ final class UpdateTransactionRequest extends Data
     public function __construct(
         #[WithCast(MoneyCast::class)]
         public Money $amount,
-        public TransactionType $type,
         #[WithCast(DateTimeInterfaceCast::class, timeZone: 'UTC')]
         public Carbon $date,
         public ?string $memo = null,
@@ -35,7 +33,6 @@ final class UpdateTransactionRequest extends Data
             'amount'          => ['required', 'array'],
             'amount.value'    => ['required', 'integer'],
             'amount.currency' => ['required', 'string'],
-            'type'            => ['required', 'in:debit,credit'],
             'date'            => ['required', 'date'],
             'memo'            => ['nullable', 'string', 'max:255'],
             'category_id'     => ['nullable', 'uuid', 'exists:categories,id'],
