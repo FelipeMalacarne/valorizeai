@@ -18,16 +18,6 @@ export const columns: ColumnDef<App.Http.Resources.TransactionResource>[] = [
         size: 40,
     },
     {
-        accessorKey: 'date',
-        header: 'Date',
-        cell: ({ row }) => {
-            if (row.getValue('date')) {
-                const date = new Date(row.getValue('date'));
-                return new Intl.DateTimeFormat(navigator.language).format(date);
-            }
-        },
-    },
-    {
         accessorKey: 'account.name',
         header: 'Account',
     },
@@ -48,6 +38,26 @@ export const columns: ColumnDef<App.Http.Resources.TransactionResource>[] = [
     {
         accessorKey: 'memo',
         header: 'Memo',
+        cell: ({ row }) => {
+            const memo = row.original.memo;
+            if (!memo) return null;
+            return (
+                <div className="max-w-[15rem] truncate" title={memo}>
+                    {memo}
+                </div>
+            );
+        },
+    },
+
+    {
+        accessorKey: 'date',
+        header: 'Date',
+        cell: ({ row }) => {
+            if (row.getValue('date')) {
+                const date = new Date(row.getValue('date'));
+                return new Intl.DateTimeFormat(navigator.language).format(date);
+            }
+        },
     },
     {
         id: 'actions',

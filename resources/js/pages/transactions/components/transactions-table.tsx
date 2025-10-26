@@ -35,26 +35,22 @@ export function TransactionsTable<TData, TValue>({
     });
 
     const renderSubRow = (subRow: App.Http.Resources.TransactionSplitResource, parentId: string) => (
-        <TableRow key={subRow.id} className="bg-muted/30">
-            <TableCell></TableCell>
-            <TableCell></TableCell>
-            <TableCell></TableCell>
-
-            <TableCell>
-                <div className="font-medium">${subRow.amount.value.toFixed(2)}</div>
-            </TableCell>
-
+        <TableRow key={subRow.id} className="bg-muted/30 hover:bg-muted/40">
+            <TableCell />
+            <TableCell />
             <TableCell>
                 <CategoryBadge key={subRow.category.id} category={subRow.category} />
             </TableCell>
-
             <TableCell>
-                <div className="text-muted-foreground pl-6 text-sm">{subRow.memo || 'Split item'}</div>
+                <div className="text-muted-foreground text-sm">{subRow.memo || 'Split item'}</div>
             </TableCell>
-
+            <TableCell />
+            <TableCell>
+                <div className="font-medium text-right">{subRow.amount.formatted}</div>
+            </TableCell>
             <TableCell>
                 <Button className="h-6 w-6" variant="outline" size="icon" onClick={() => removeSplit(parentId, subRow.id)}>
-                    <Trash2 className="h-2 w-2" />
+                    <Trash2 className="h-3 w-3" />
                 </Button>
             </TableCell>
         </TableRow>
