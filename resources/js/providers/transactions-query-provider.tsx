@@ -29,6 +29,7 @@ export const TransactionsQueryProvider = ({ children }: { children: React.ReactN
             router.get(route('transactions.index'), updatedQuery as any, {
                 preserveState: true,
                 replace: true,
+                only: ['transactions'],
             });
         },
         [query],
