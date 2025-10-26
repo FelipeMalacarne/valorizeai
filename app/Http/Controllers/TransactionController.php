@@ -64,7 +64,7 @@ final class TransactionController extends Controller
     {
         $action->handle($request);
 
-        return redirect()->route('transactions.index')->with([
+        return redirect()->back()->with([
             'success' => __('Transaction created successfully'),
         ]);
     }
@@ -97,7 +97,7 @@ final class TransactionController extends Controller
 
         $action->handle($request, $transaction);
 
-        return redirect()->route('transactions.index')->with(['success' => __('Transaction updated successfully.')]);
+        return redirect()->back()->with(['success' => __('Transaction updated successfully.')]);
     }
 
     public function destroy(Transaction $transaction, DestroyTransaction $action): RedirectResponse
