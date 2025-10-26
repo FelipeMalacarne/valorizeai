@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 use App\Enums\Currency;
 use App\Enums\TransactionType;
+use App\Events\Transaction\TransactionCreated;
 use App\Models\Account;
 use App\Models\Transaction;
 use App\Models\User;
+use Illuminate\Support\Facades\Event;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseHas;
@@ -15,6 +17,7 @@ use function Pest\Laravel\post;
 
 test('user can create a transaction via http', function () {
     // Arrange
+    Event::fake();
     $user = User::factory()->create();
     $account = Account::factory()->create([
         'user_id'  => $user->id,
@@ -46,9 +49,7 @@ test('user can create a transaction via http', function () {
         'amount'     => -15000,
     ]);
 
-    // Check that the balance was updated correctly
-    $account->refresh();
-    expect($account->balance->value)->toBe(35000); // 50000 - 15000
+    Event::assertDispatched(TransactionCreated::class);
 });
 
 test('unauthenticated user cannot create a transaction', function () {

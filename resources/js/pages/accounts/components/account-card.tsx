@@ -27,8 +27,8 @@ export function AccountCard({ account }: { account: App.Http.Resources.AccountRe
                             <div>
                                 <CardTitle className="text-lg">{account.name}</CardTitle>
                                 <p className="text-sm text-muted-foreground">
-                                    {account.bank.name}
-                                    {account.number && ` •••• ${account.number.slice(-4)}`}
+                                    {account.balance.formatted}
+                                    {/* {account.number && ` •••• ${account.number.slice(-4)}`} */}
                                 </p>
                             </div>
                         </div>

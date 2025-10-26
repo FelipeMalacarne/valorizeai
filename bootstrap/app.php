@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
     })
+    ->withEvents(discover: false)
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->respond(function ($response, Throwable $exception, Request $request) {
             $isServerError = in_array($response->getStatusCode(), [500, 503], true);
