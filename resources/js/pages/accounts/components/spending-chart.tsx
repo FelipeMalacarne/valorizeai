@@ -13,42 +13,33 @@ import {
 } from "@/components/ui/chart"
 import { PieSectorDataItem } from "recharts/types/polar/Pie"
 
-const chartData = [
-    { category: 'food', amount: 450.75 },
-    { category: 'transport', amount: 120.50 },
-    { category: 'leisure', amount: 250.00 },
-    { category: 'housing', amount: 800.00 },
-    { category: 'other', amount: 150.00 },
-];
+export type SpendingSummaryData = {
+    category: string;
+    amount: number;
+    color: string;
+};
 
-const chartConfig = {
-  amount: {
-    label: "Valor (R$)",
-  },
-  food: {
-    label: "Alimentação",
-    color: "var(--chart-1)",
-  },
-  transport: {
-    label: "Transporte",
-    color: "var(--chart-2)",
-  },
-  leisure: {
-    label: "Lazer",
-    color: "var(--chart-3)",
-  },
-  housing: {
-    label: "Moradia",
-    color: "var(--chart-4)",
-  },
-  other: {
-    label: "Outros",
-    color: "var(--chart-5)",
-  },
-} satisfies ChartConfig
+type SpendingChartProps = {
+    data: SpendingSummaryData[];
+};
 
-export function SpendingChart() {
+export function SpendingChart({ data }: SpendingChartProps) {
   const [activeIndex, setActiveIndex] = React.useState<number | undefined>(undefined)
+
+  const chartConfig = React.useMemo(() => {
+    if (!data) return {}
+    return data.reduce((acc, item) => {
+        acc[item.category] = {
+            label: item.category,
+            color: `var(--${item.color})`
+        };
+        return acc;
+    }, { amount: { label: "Valor (R$)" } } as ChartConfig)
+  }, [data]);
+
+  if (data.length === 0) {
+    return <div className="text-center text-muted-foreground py-8">Nenhum gasto este mês.</div>
+  }
 
   return (
     <ChartContainer
@@ -61,7 +52,7 @@ export function SpendingChart() {
                 content={<ChartTooltipContent hideLabel />}
             />
             <Pie
-                data={chartData}
+                data={data}
                 dataKey="amount"
                 nameKey={"category"}
                 innerRadius={60}
@@ -72,12 +63,12 @@ export function SpendingChart() {
                 onMouseLeave={() => setActiveIndex(undefined)}
                 onMouseEnter={(_, index) => setActiveIndex(index)}
             >
-                {chartData.map((entry) => (
-                    <Cell key={`cell-${entry.category}`} fill={chartConfig[entry.category as keyof typeof chartConfig].color} />
+                {data.map((entry) => (
+                    <Cell key={`cell-${entry.category}`} fill={chartConfig[entry.category as keyof typeof chartConfig]?.color} />
                 ))}
             </Pie>
             <ChartLegend
-              content={<ChartLegendContent nameKey="category" onMouseEnter={(item) => setActiveIndex(chartData.findIndex(d => d.category === item.payload.category))} onMouseLeave={() => setActiveIndex(undefined)} />}
+              content={<ChartLegendContent nameKey="category" onMouseEnter={(item) => setActiveIndex(data.findIndex(d => d.category === item.payload.category))} onMouseLeave={() => setActiveIndex(undefined)} />}
               className="-translate-y-2 flex-wrap gap-2 *:basis-1/4 *:justify-center"
             />
           </PieChart>

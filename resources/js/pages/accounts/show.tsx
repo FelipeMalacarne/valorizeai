@@ -10,13 +10,14 @@ import { SpendingChart } from './components/spending-chart';
 export type AccountShowProps = {
     account: App.Http.Resources.AccountResource;
     recent_transactions: App.Http.Resources.TransactionResource[];
+    spending_summary: any[]; // You can define a more specific type here
     banks: App.Http.Resources.BankResource[];
     all_accounts: App.Http.Resources.AccountResource[];
     categories: App.Http.Resources.CategoryResource[];
 };
 
 const AccountShow = (props: SharedData<AccountShowProps>) => {
-    const { account, recent_transactions } = props;
+    const { account, recent_transactions, spending_summary } = props;
     const AccountIcon = getAccountIcon(account.type);
 
     return (
@@ -96,7 +97,7 @@ const AccountShow = (props: SharedData<AccountShowProps>) => {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <SpendingChart />
+                                <SpendingChart data={spending_summary} />
                             </CardContent>
                         </Card>
                         <Card>

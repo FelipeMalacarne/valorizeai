@@ -18,6 +18,7 @@ use App\Models\Bank;
 use App\Queries\Account\UserAccountsQuery;
 use App\Queries\Bank\BanksQuery;
 use App\Queries\Category\UserCategoriesQuery;
+use App\Queries\Account\SpendingByCategoryQuery;
 use App\Queries\ListAccountsQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -62,6 +63,7 @@ final class AccountController extends Controller
         UserCategoriesQuery $categories,
         UserAccountsQuery $accounts,
         BanksQuery $banks,
+        SpendingByCategoryQuery $spendingByCategory
     ): Response {
         Gate::authorize('view', $account);
 
@@ -73,7 +75,8 @@ final class AccountController extends Controller
 
         return Inertia::render('accounts/show', [
             'account'             => fn () => AccountResource::from($account->load(['bank'])),
-            'recent_transactions' => TransactionResource::collect($recentTransactions),
+            'recent_transactions' => fn () => TransactionResource::collect($recentTransactions),
+            'spending_summary'    => fn () => $spendingByCategory->handle($account),
             'banks'               => fn () => $banks->resource(),
             'all_accounts'        => fn () => $accounts->resource(Auth::user()->id),
             'categories'          => fn () => $categories->resource(Auth::user()->id),

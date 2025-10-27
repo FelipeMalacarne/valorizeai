@@ -2,11 +2,10 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { getAccountIcon, getAccountTypeColor } from '@/lib/accounts';
-import { Link, usePage } from '@inertiajs/react';
-import { Edit, Eye, MoreHorizontal } from 'lucide-react';
-import { AccountActionDropdown } from './account-actions-dropdown';
+import { Form, Link, usePage } from '@inertiajs/react';
+import { Delete, Edit, Eye, MoreHorizontal } from 'lucide-react';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { AccountForm } from '@/components/account-form';
 import { AccountIndexProps } from '..';
@@ -16,14 +15,15 @@ import { useState } from 'react';
 export function AccountCard({ account }: { account: App.Http.Resources.AccountResource }) {
     const { banks } = usePage<SharedData<AccountIndexProps>>().props;
     const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
     const Icon = getAccountIcon(account.type);
     return (
         <Card
             key={account.id}
-            className="hover:border-l-primary border-l-4 border-l-transparent transition-all duration-200 hover:shadow-lg shadow-sm cursor-pointer"
+            className="hover:border-l-primary border-l-4 border-l-transparent transition-all duration-200 hover:shadow-lg shadow-sm"
         >
-            <Link href={route('accounts.show', account.id)}>
+            {/* <Link href={route('accounts.show', account.id)}> */}
                 <CardHeader className="pb-4">
                     <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
@@ -57,6 +57,11 @@ export function AccountCard({ account }: { account: App.Http.Resources.AccountRe
                                     <Edit className="mr-2 h-4 w-4" />
                                     Editar Account
                                 </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => setDeleteDialogOpen(true)} className="text-destructive">
+                                    <Delete className="mr-2 h-4 w-4" />
+                                    <span>Deletar</span>
+                                </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -69,7 +74,7 @@ export function AccountCard({ account }: { account: App.Http.Resources.AccountRe
                         <Badge variant="outline">{account.currency}</Badge>
                     </div>
                 </CardContent>
-            </Link>
+            {/* </Link> */}
 
             <ResponsiveDialog isOpen={editDialogOpen} setIsOpen={setEditDialogOpen} title="Editar Conta">
                 <AccountForm
@@ -77,6 +82,17 @@ export function AccountCard({ account }: { account: App.Http.Resources.AccountRe
                     account={account}
                     onSuccess={() => setEditDialogOpen(false)}
                 />
+            </ResponsiveDialog>
+
+            <ResponsiveDialog isOpen={deleteDialogOpen} setIsOpen={setDeleteDialogOpen} title="Deletar Conta">
+                <div>
+                    <p>Tem certeza que deseja deletar a conta "{account.name}"? Essa ação não pode ser desfeita.</p>
+                    <Form action={route('accounts.destroy', account.id)} method="delete" className="mt-4" onSuccess={() => setDeleteDialogOpen(false)}>
+                        <Button type="submit" variant="destructive" className="w-full">
+                            Sim, deletar conta
+                        </Button>
+                    </Form>
+                </div>
             </ResponsiveDialog>
         </Card>
     );
