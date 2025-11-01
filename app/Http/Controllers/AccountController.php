@@ -12,8 +12,13 @@ use App\Http\Requests\Account\StoreAccountRequest;
 use App\Http\Requests\Account\UpdateAccountRequest;
 use App\Http\Resources\AccountResource;
 use App\Http\Resources\BankResource;
+use App\Http\Resources\TransactionResource;
 use App\Models\Account;
 use App\Models\Bank;
+use App\Queries\Account\UserAccountsQuery;
+use App\Queries\Bank\BanksQuery;
+use App\Queries\Category\UserCategoriesQuery;
+use App\Queries\Account\SpendingByCategoryQuery;
 use App\Queries\ListAccountsQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -24,14 +29,14 @@ use Inertia\Response;
 
 final class AccountController extends Controller
 {
-    public function index(IndexAccountsRequest $data, ListAccountsQuery $query): Response
-    {
-        $accounts = $query->handle($data, Auth::user());
-        $banks = Cache::remember('banks', now()->addDays(), fn () => Bank::all());
-
+    public function index(
+        IndexAccountsRequest $data,
+        ListAccountsQuery $query,
+        BanksQuery $banks,
+    ): Response {
         return Inertia::render('accounts/index', [
-            'accounts' => AccountResource::collect($accounts),
-            'banks'    => BankResource::collect($banks),
+            'accounts' => fn () => $query->resource($data, Auth::user()),
+            'banks'    => fn () => $banks->resource(),
         ]);
     }
 
@@ -53,12 +58,28 @@ final class AccountController extends Controller
         ]);
     }
 
-    public function show(Account $account): Response
-    {
+    public function show(
+        Account $account,
+        UserCategoriesQuery $categories,
+        UserAccountsQuery $accounts,
+        BanksQuery $banks,
+        SpendingByCategoryQuery $spendingByCategory
+    ): Response {
         Gate::authorize('view', $account);
 
+        $recentTransactions = $account->transactions()
+            ->orderBy('date', 'desc')
+            ->with(['account.bank', 'category'])
+            ->limit(5)
+            ->get();
+
         return Inertia::render('accounts/show', [
-            'account' => AccountResource::from($account->load(['bank'])),
+            'account'             => fn () => AccountResource::from($account->load(['bank'])),
+            'recent_transactions' => fn () => TransactionResource::collect($recentTransactions),
+            'spending_summary'    => fn () => $spendingByCategory->handle($account),
+            'banks'               => fn () => $banks->resource(),
+            'all_accounts'        => fn () => $accounts->resource(Auth::user()->id),
+            'categories'          => fn () => $categories->resource(Auth::user()->id),
         ]);
     }
 

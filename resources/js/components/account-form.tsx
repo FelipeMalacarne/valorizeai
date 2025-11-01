@@ -21,7 +21,7 @@ export const AccountForm = ({ banks, account, onSuccess }: AccountFormProps) => 
         name: account?.name ?? '',
         number: account?.number ?? null,
         currency: account?.currency ?? 'BRL',
-        type: account?.type.value ?? 'checking',
+        type: account?.type ?? 'checking',
         bank_id: account?.bank.id ?? '',
     });
 

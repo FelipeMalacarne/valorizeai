@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Queries;
 
 use App\Http\Requests\Account\IndexAccountsRequest;
+use App\Http\Resources\AccountResource;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -31,5 +32,10 @@ final class ListAccountsQuery
 
         return $query->paginate(10)->withQueryString();
 
+    }
+
+    public function resource(IndexAccountsRequest $data, User $user)
+    {
+        return AccountResource::collect($this->handle($data, $user));
     }
 }

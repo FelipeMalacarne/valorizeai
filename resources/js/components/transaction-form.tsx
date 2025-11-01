@@ -18,14 +18,15 @@ type TransactionFormProps = {
     accounts: App.Http.Resources.AccountResource[];
     categories: App.Http.Resources.CategoryResource[];
     transaction?: App.Http.Resources.TransactionResource;
+    defaultAccountId?: string;
     onSuccess?: () => void;
 };
 
-export const TransactionForm = ({ accounts, categories, transaction, onSuccess }: TransactionFormProps) => {
+export const TransactionForm = ({ accounts, categories, transaction, defaultAccountId, onSuccess }: TransactionFormProps) => {
     const isUpdate = !!transaction;
     const [type, setType] = useState<'debit' | 'credit'>(transaction?.type ?? 'debit');
     const { data, setData, post, patch, processing, errors, reset, transform } = useForm({
-        account_id: transaction?.account.id ?? '',
+        account_id: transaction?.account.id ?? defaultAccountId ?? '',
         category_id: transaction?.category?.id ?? null,
         amount: {
             value: transaction ? Math.abs(transaction.amount.value) : 0,
