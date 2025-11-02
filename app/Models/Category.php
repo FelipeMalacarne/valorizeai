@@ -46,6 +46,8 @@ final class Category extends Model
     /** @use HasFactory<\Database\Factories\CategoryFactory> */
     use HasFactory, HasUuids;
 
+    public const SPLIT_CATEGORY_NAME = 'Split Transactions';
+
     protected $fillable = [
         'name',
         'description',
@@ -64,12 +66,22 @@ final class Category extends Model
         $query->where('is_default', true);
     }
 
-    public function scopeWhereUser($query, string $user_id): void
+    public function scopeOwnedBy($query, string $userId)
     {
-        $query->where(function ($query) use ($user_id) {
-            $query->where('user_id', $user_id)
-                ->orWhereNull('user_id');
+        return $query->where('user_id', $userId);
+    }
+
+    public function scopeForUser($query, string $userId)
+    {
+        return $query->where(function ($inner) use ($userId) {
+            $inner->whereNull('user_id')
+                ->orWhere('user_id', $userId);
         });
+    }
+
+    public function scopeWhereUser($query, string $userId)
+    {
+        return $this->scopeForUser($query, $userId);
     }
 
     /**

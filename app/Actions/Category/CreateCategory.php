@@ -18,7 +18,7 @@ final class CreateCategory
                 'name'        => $data->name,
                 'description' => $data->description,
                 'color'       => $data->color,
-                'is_default'  => $data->is_default,
+                'is_default'  => false,
                 'user_id'     => $user->id,
             ]);
         });

@@ -12,7 +12,10 @@ final class UserCategoriesQuery
 {
     public function handle(string $userId)
     {
-        return Category::whereUser($userId)->get();
+        return Category::forUser($userId)
+            ->orderBy('is_default', 'desc')
+            ->orderBy('name')
+            ->get();
     }
 
     /** @return Collection<int, CategoryResource> */
