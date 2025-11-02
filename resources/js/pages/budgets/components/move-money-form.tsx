@@ -30,7 +30,7 @@ export const MoveMoneyForm = ({ budgets, month, onClose }: MoveMoneyFormProps) =
     }, [month]);
 
     const fromBudget = useMemo(() => budgets.find((budget) => budget.id === data.from_budget_id), [budgets, data.from_budget_id]);
-    const toBudget = useMemo(() => budgets.find((budget) => budget.id === data.to_budget_id), [budgets, data.to_budget_id]);
+    // const toBudget = useMemo(() => budgets.find((budget) => budget.id === data.to_budget_id), [budgets, data.to_budget_id]);
 
     useEffect(() => {
         if (fromBudget) {
