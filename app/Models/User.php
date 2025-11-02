@@ -32,6 +32,8 @@ use Illuminate\Notifications\Notifiable;
  * @property-read int|null $notifications_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Transaction> $transactions
  * @property-read int|null $transactions_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Budget> $budgets
+ * @property-read int|null $budgets_count
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
@@ -96,6 +98,11 @@ final class User extends Authenticatable implements MustVerifyEmail
     public function imports(): HasMany
     {
         return $this->hasMany(Import::class);
+    }
+
+    public function budgets(): HasMany
+    {
+        return $this->hasMany(Budget::class);
     }
 
     public function sendEmailVerificationNotification(): void

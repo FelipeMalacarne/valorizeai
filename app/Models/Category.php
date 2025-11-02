@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property string $id
@@ -34,6 +35,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereUser(string $user_id)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereUserId($value)
+ * @property-read Budget|null $budget
  * @mixin \Eloquent
  */
 final class Category extends Model
@@ -65,6 +67,14 @@ final class Category extends Model
             $query->where('user_id', $user_id)
                 ->orWhereNull('user_id');
         });
+    }
+
+    /**
+     * @return HasOne<Budget,Category>
+     */
+    public function budget(): HasOne
+    {
+        return $this->hasOne(Budget::class);
     }
 
     protected function casts(): array
