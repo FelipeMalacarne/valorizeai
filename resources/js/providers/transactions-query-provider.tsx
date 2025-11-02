@@ -1,20 +1,28 @@
 import { router } from '@inertiajs/react';
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
+type TransactionsQuery = App.Http.Requests.Transaction.IndexTransactionRequest;
+
 const TransactionsQueryContext = createContext<TransactionsQueryContextValue | undefined>(undefined);
 
 export const TransactionsQueryProvider = ({ children }: { children: React.ReactNode }) => {
-    const [query, setQuery] = useState<App.Http.Requests.Transaction.IndexTransactionRequest>(() => {
+    const [query, setQuery] = useState<TransactionsQuery>(() => {
         const params = new URLSearchParams(window.location.search);
         // This is a simplified parsing logic. A more robust solution would involve a library like qs
         // and a schema validation library like Zod to handle complex nested objects and arrays.
-        const initialState: App.Http.Requests.Transaction.IndexTransactionRequest = {
+        const orderByColumn = params.get('order_by[column]');
+        const directionParam = params.get('order_by[direction]');
+        const orderByDirection = directionParam === 'asc' || directionParam === 'desc' ? (directionParam as App.Enums.OrderByDirection) : null;
+
+        const initialState: TransactionsQuery = {
             search: params.get('search'),
             categories: params.getAll('categories[]'),
             accounts: params.getAll('accounts[]'),
             start_date: params.get('start_date'),
             end_date: params.get('end_date'),
-            order_by: null, // Order by is not handled in the URL for now
+            order_by: orderByColumn && orderByDirection
+                ? { column: orderByColumn, direction: orderByDirection }
+                : null,
             type: params.get('type') as App.Enums.TransactionType | null,
             page: params.has('page') ? Number(params.get('page')) : 1,
             per_page: params.has('per_page') ? Number(params.get('per_page')) : 15,
@@ -23,10 +31,17 @@ export const TransactionsQueryProvider = ({ children }: { children: React.ReactN
     });
 
     const updateQuery = useCallback(
-        (newQuery: Partial<App.Http.Requests.Transaction.IndexTransactionRequest>) => {
+        (newQuery: Partial<TransactionsQuery>) => {
             const updatedQuery = { ...query, ...newQuery };
             setQuery(updatedQuery);
-            router.get(route('transactions.index'), updatedQuery as any, {
+
+            const inertiaQuery = { ...updatedQuery } as Record<string, unknown>;
+
+            if (!updatedQuery.order_by) {
+                delete inertiaQuery.order_by;
+            }
+
+            router.get(route('transactions.index'), inertiaQuery as any, {
                 preserveState: true,
                 replace: true,
                 only: ['transactions'],
@@ -49,6 +64,6 @@ export const useTransactionsQuery = () => {
 };
 
 interface TransactionsQueryContextValue {
-    query: App.Http.Requests.Transaction.IndexTransactionRequest;
-    updateQuery: (newQuery: Partial<App.Http.Requests.Transaction.IndexTransactionRequest>) => void;
+    query: TransactionsQuery;
+    updateQuery: (newQuery: Partial<TransactionsQuery>) => void;
 }
