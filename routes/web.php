@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ImportController;
@@ -19,6 +20,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('accounts', AccountController::class);
     Route::resource('transactions', TransactionController::class);
     Route::resource('categories', CategoryController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
+    Route::resource('budgets', BudgetController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::post('budgets/allocate', [BudgetController::class, 'allocate'])->name('budgets.allocate');
+    Route::post('budgets/move', [BudgetController::class, 'move'])->name('budgets.move');
 
     Route::resource('imports', ImportController::class)->only(['store']);
 });

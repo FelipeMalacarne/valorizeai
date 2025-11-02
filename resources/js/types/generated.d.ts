@@ -1,7 +1,7 @@
 declare namespace App.Data {
     export type OrderBy = {
         column: string;
-        direction: any;
+        direction: App.Enums.OrderByDirection;
     };
 }
 declare namespace App.Enums {
@@ -25,6 +25,7 @@ declare namespace App.Enums {
     export type ImportExtension = 'ofx' | 'csv';
     export type ImportStatus = 'processing' | 'pending_review' | 'approved' | 'refused' | 'completed' | 'failed';
     export type ImportTransactionStatus = 'pending' | 'matched' | 'conflicted' | 'refused' | 'new' | 'approved' | 'rejected';
+    export type OrderByDirection = 'asc' | 'desc';
     export type OrganizationRole = 'owner' | 'admin' | 'member';
     export type TransactionType = 'debit' | 'credit';
 }
@@ -56,6 +57,29 @@ declare namespace App.Http.Requests.Account {
         currency: App.Enums.Currency;
         type: App.Enums.AccountType;
         bank_id: string;
+    };
+}
+declare namespace App.Http.Requests.Budget {
+    export type AllocateBudgetRequest = {
+        budget_id: string;
+        month: string;
+        amount: App.ValueObjects.Money;
+    };
+    export type IndexBudgetRequest = {
+        month: string | null;
+    };
+    export type MoveBudgetAllocationRequest = {
+        from_budget_id: string;
+        to_budget_id: string;
+        month: string;
+        amount: App.ValueObjects.Money;
+    };
+    export type StoreBudgetRequest = {
+        category_id: string;
+        name: string | null;
+    };
+    export type UpdateBudgetRequest = {
+        name: string;
     };
 }
 declare namespace App.Http.Requests.Category {
@@ -105,7 +129,6 @@ declare namespace App.Http.Requests.Transaction {
     };
     export type UpdateTransactionRequest = {
         amount: App.ValueObjects.Money;
-        type: App.Enums.TransactionType;
         date: string;
         memo: string | null;
         category_id: string | null;
@@ -125,6 +148,21 @@ declare namespace App.Http.Resources {
         id: string;
         code: string;
         name: string;
+    };
+    export type BudgetOverviewResource = {
+        id: string;
+        currency: App.Enums.Currency;
+        category: App.Http.Resources.CategoryResource;
+        budgeted_amount: App.ValueObjects.Money;
+        spent_amount: App.ValueObjects.Money;
+        rollover_amount: App.ValueObjects.Money;
+        remaining_amount: App.ValueObjects.Money;
+    };
+    export type BudgetResource = {
+        id: string;
+        name: string;
+        currency: App.Enums.Currency;
+        category: App.Http.Resources.CategoryResource;
     };
     export type CategoryResource = {
         id: string;
@@ -151,6 +189,11 @@ declare namespace App.Http.Resources {
         amount: App.ValueObjects.Money;
         memo: string | null;
         category: App.Http.Resources.CategoryResource;
+    };
+    export type TransactionSummaryResource = {
+        balance: App.ValueObjects.Money;
+        credits: App.ValueObjects.Money;
+        debits: App.ValueObjects.Money;
     };
 }
 declare namespace App.ValueObjects {
