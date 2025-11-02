@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ImportTransaction> $importTransactions
  * @property-read int|null $import_transactions_count
  * @property-read mixed $file_path
+ *
  * @method static \Database\Factories\ImportFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Import newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Import newQuery()
@@ -42,6 +43,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Import whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Import whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Import whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 final class Import extends Model

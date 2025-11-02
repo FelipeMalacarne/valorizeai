@@ -38,7 +38,7 @@ final class BudgetController extends Controller
         $budgets = $user->budgets()->with('category')->get();
 
         return Inertia::render('budgets/index', [
-            'filters'    => [
+            'filters' => [
                 'month' => $month->format('Y-m'),
             ],
             'overview'   => fn () => $overview->resource($user, $month),

@@ -81,7 +81,7 @@ test('it aggregates allocations, spending and rollover for the selected month', 
 
     expect($result)->toHaveCount(1);
 
-    /** @var \App\Http\Resources\BudgetOverviewResource $summary */
+    /** @var App\Http\Resources\BudgetOverviewResource $summary */
     $summary = $result->first();
 
     expect($summary->budgeted_amount->value)->toBe(50_000)

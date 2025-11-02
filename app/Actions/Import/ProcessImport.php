@@ -6,6 +6,7 @@ namespace App\Actions\Import;
 
 use App\Enums\ImportStatus;
 use App\Enums\ImportTransactionStatus;
+use App\Events\Account\BulkTransactionsAdded;
 use App\Models\Account;
 use App\Models\Bank;
 use App\Models\Import;
@@ -15,7 +16,6 @@ use App\ValueObjects\Money;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use App\Events\Account\BulkTransactionsAdded;
 
 final class ProcessImport
 {

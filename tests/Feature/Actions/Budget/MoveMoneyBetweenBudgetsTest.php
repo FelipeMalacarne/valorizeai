@@ -76,5 +76,5 @@ test('it rejects moves when currencies differ', function () {
         amount: new Money(5_000, Currency::USD),
     );
 
-    expect(fn () => $action->handle($request, $user))->toThrow(\InvalidArgumentException::class);
+    expect(fn () => $action->handle($request, $user))->toThrow(InvalidArgumentException::class);
 });

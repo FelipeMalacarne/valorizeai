@@ -65,5 +65,5 @@ test('it validates currency compatibility when allocating budget', function () {
         amount: new Money(10_000, Currency::USD),
     );
 
-    expect(fn () => $action->handle($request, $user))->toThrow(\InvalidArgumentException::class);
+    expect(fn () => $action->handle($request, $user))->toThrow(InvalidArgumentException::class);
 });

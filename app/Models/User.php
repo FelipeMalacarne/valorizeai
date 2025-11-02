@@ -34,6 +34,7 @@ use Illuminate\Notifications\Notifiable;
  * @property-read int|null $transactions_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Budget> $budgets
  * @property-read int|null $budgets_count
+ *
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
@@ -47,10 +48,12 @@ use Illuminate\Notifications\Notifiable;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePreferredCurrency($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Category> $categories
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Category> $categories
  * @property-read int|null $categories_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Import> $imports
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Import> $imports
  * @property-read int|null $imports_count
+ *
  * @mixin \Eloquent
  */
 final class User extends Authenticatable implements MustVerifyEmail

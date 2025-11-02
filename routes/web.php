@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\AccountController;
-use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\BankController;
+use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\TransactionController;

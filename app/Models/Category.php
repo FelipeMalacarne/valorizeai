@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category default()
  * @method static \Database\Factories\CategoryFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category newModelQuery()
@@ -35,7 +36,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereUser(string $user_id)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereUserId($value)
+ *
  * @property-read Budget|null $budget
+ *
  * @mixin \Eloquent
  */
 final class Category extends Model
