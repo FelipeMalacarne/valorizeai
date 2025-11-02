@@ -5,10 +5,11 @@ import { addMonths, format, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { type ReactNode, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ChevronLeft, ChevronRight, Plus, Shuffle } from 'lucide-react';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
+import { cn } from '@/lib/utils';
 import { BudgetRow } from './components/budget-row';
 import { CreateBudgetForm } from './components/create-budget-form';
 import { MoveMoneyForm } from './components/move-money-form';
@@ -64,6 +65,11 @@ const BudgetsIndex = (props: SharedData<BudgetsIndexProps>) => {
         () => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: currency as string }),
         [currency],
     );
+    const formatCurrency = (amount: number) => currencyFormatter.format(amount / 100);
+
+    const remainingTrend: SummaryTone =
+        totals.remaining === 0 ? 'neutral' : totals.remaining > 0 ? 'positive' : 'negative';
+    const spentShare = totals.budgeted === 0 ? 0 : Math.round((totals.spent / totals.budgeted) * 100);
 
     const availableCategories = useMemo(() => {
         const budgetCategoryIds = new Set(props.budgets.map((budget) => budget.category.id));
@@ -74,35 +80,69 @@ const BudgetsIndex = (props: SharedData<BudgetsIndexProps>) => {
         <>
             <Head title="Orçamentos" />
             <div className="container mx-auto flex h-full flex-1 flex-col space-y-6 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Orçamentos</h1>
-                        <p className="text-muted-foreground">
-                            Acompanhe seus envelopes e mantenha seu planejamento em dia.
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Button variant="outline" size="icon" onClick={() => changeMonth(-1)} aria-label="Mês anterior">
-                            <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                        <span className="min-w-[140px] text-center font-medium">{formattedMonth}</span>
-                        <Button variant="outline" size="icon" onClick={() => changeMonth(1)} aria-label="Próximo mês">
-                            <ChevronRight className="h-4 w-4" />
-                        </Button>
-                    </div>
-                </div>
+                <Card>
+                    <CardContent className="space-y-6 ">
+                        <div className="flex flex-col gap-4 justify-between md:flex-row md:items-center">
+                            <div className="space-y-1">
+                                <h1 className="text-2xl font-semibold tracking-tight">Planejamento do mês</h1>
+                                <p className="text-muted-foreground">
+                                    Acompanhe seus envelopes, ajuste o que foi planejado e veja quanto ainda está disponível.
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => changeMonth(-1)}
+                                    aria-label="Mês anterior"
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                </Button>
+                                <div className="min-w-[150px] rounded-full border px-4 py-1 text-center text-sm font-medium">
+                                    {formattedMonth}
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => changeMonth(1)}
+                                    aria-label="Próximo mês"
+                                >
+                                    <ChevronRight className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        </div>
 
-                <div className="grid gap-4 sm:grid-cols-3">
-                    <SummaryCard title="Orçado" value={currencyFormatter.format(totals.budgeted / 100)} />
-                    <SummaryCard title="Gasto" value={currencyFormatter.format(totals.spent / 100)} />
-                    <SummaryCard title="Disponível" value={currencyFormatter.format(totals.remaining / 100)} highlight={totals.remaining < 0} />
-                </div>
+                        <div className="grid gap-4 sm:grid-cols-3">
+                            <SummaryStat
+                                label="Orçado"
+                                value={formatCurrency(totals.budgeted)}
+                                helper={`Inclui ${overview.length} ${overview.length === 1 ? 'categoria' : 'categorias'}`}
+                            />
+                            <SummaryStat
+                                label="Gasto"
+                                tone="negative"
+                                value={formatCurrency(totals.spent)}
+                                helper={`${spentShare}% do valor planejado foi utilizado`}
+                            />
+                            <SummaryStat
+                                label="Disponível"
+                                tone={remainingTrend}
+                                value={formatCurrency(totals.remaining)}
+                                helper={
+                                    totals.remaining >= 0
+                                        ? 'Saldo pronto para ser utilizado'
+                                        : 'Revise envelopes para cobrir o déficit'
+                                }
+                            />
+                        </div>
+                    </CardContent>
+                </Card>
 
                 <Card>
-                    <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="space-y-1.5">
-                            <CardTitle>Planejamento mensal</CardTitle>
-                            <CardDescription>Atualize os valores orçados e acompanhe os gastos por categoria.</CardDescription>
+                    <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="space-y-1">
+                            <CardTitle>Distribuição por categoria</CardTitle>
+                            <CardDescription>Defina quanto destinar por envelope e acompanhe o uso em tempo real.</CardDescription>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
                             <Button
@@ -122,32 +162,48 @@ const BudgetsIndex = (props: SharedData<BudgetsIndexProps>) => {
                             </Button>
                         </div>
                     </CardHeader>
-                    <CardContent className="p-0">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Categoria</TableHead>
-                                    <TableHead>Orçado</TableHead>
-                                    <TableHead className="text-right">Gastos</TableHead>
-                                    <TableHead className="text-right">Disponível</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {overview.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={4} className="py-10 text-center text-muted-foreground">
-                                            Nenhum orçamento cadastrado para este mês. Crie um novo orçamento para
-                                            começar.
-                                        </TableCell>
+                    <CardContent >
+                        <div className="rounded-lg border border-border">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="bg-muted/40">
+                                        <TableHead>Categoria</TableHead>
+                                        <TableHead className="w-[220px]">Orçado</TableHead>
+                                        <TableHead className="w-[220px] text-right">Gastos</TableHead>
+                                        <TableHead className="w-[160px] text-right">Disponível</TableHead>
                                     </TableRow>
-                                ) : (
-                                    overview.map((budget) => (
-                                        <BudgetRow key={budget.id} budget={budget} month={props.filters.month} />
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {overview.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="py-14 text-center text-muted-foreground">
+                                                Nenhum envelope configurado para este mês. Crie um orçamento para começar.
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        overview.map((budget) => (
+                                            <BudgetRow key={budget.id} budget={budget} month={props.filters.month} />
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
                     </CardContent>
+                    <CardFooter className="flex flex-col gap-2 border-t bg-muted/20 p-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+                        <span>Totais consideram o saldo trazido de meses anteriores.</span>
+                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 font-medium text-foreground">
+                            <span>Orçado: {formatCurrency(totals.budgeted)}</span>
+                            <span>Gasto: {formatCurrency(totals.spent)}</span>
+                            <span
+                                className={cn(
+                                    remainingTrend === 'positive' && 'text-emerald-600',
+                                    remainingTrend === 'negative' && 'text-destructive',
+                                )}
+                            >
+                                Disponível: {formatCurrency(totals.remaining)}
+                            </span>
+                        </div>
+                    </CardFooter>
                 </Card>
             </div>
 
@@ -179,19 +235,29 @@ const BudgetsIndex = (props: SharedData<BudgetsIndexProps>) => {
     );
 };
 
-const SummaryCard = ({ title, value, highlight = false }: SummaryCardProps) => (
-    <Card>
-        <CardHeader className="pb-2">
-            <CardDescription>{title}</CardDescription>
-            <CardTitle className={`text-2xl ${highlight ? 'text-destructive' : ''}`}>{value}</CardTitle>
-        </CardHeader>
-    </Card>
+const SummaryStat = ({ label, value, helper, tone = 'neutral' }: SummaryStatProps) => (
+    <div className="rounded-xl border bg-card p-4 shadow-sm">
+        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+        <p
+            className={cn(
+                'mt-2 text-2xl font-semibold',
+                tone === 'positive' && 'text-emerald-600',
+                tone === 'negative' && 'text-destructive',
+            )}
+        >
+            {value}
+        </p>
+        {helper && <p className="mt-2 text-xs text-muted-foreground">{helper}</p>}
+    </div>
 );
 
-type SummaryCardProps = {
-    title: string;
+type SummaryTone = 'positive' | 'negative' | 'neutral';
+
+type SummaryStatProps = {
+    label: string;
     value: string;
-    highlight?: boolean;
+    helper?: string;
+    tone?: SummaryTone;
 };
 
 const breadcrumbs: BreadcrumbItem[] = [

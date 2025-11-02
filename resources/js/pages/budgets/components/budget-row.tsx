@@ -1,6 +1,9 @@
 import InputError from '@/components/input-error';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import { TableCell, TableRow } from '@/components/ui/table';
+import { cn } from '@/lib/utils';
 import { useForm } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
 
@@ -61,16 +64,40 @@ export const BudgetRow = ({ budget, month }: BudgetRowProps) => {
         });
     };
 
-    const remainingClassName = useMemo(() => {
-        return budget.remaining_amount.value >= 0 ? 'text-emerald-600 font-medium' : 'text-destructive font-medium';
-    }, [budget.remaining_amount.value]);
+    const availableAmount = budget.rollover_amount.value + budget.budgeted_amount.value;
+    const overspent = budget.remaining_amount.value < 0;
+    const progressBase = availableAmount > 0 ? availableAmount : Math.max(budget.spent_amount.value, 1);
+    const consumption = progressBase === 0 ? 0 : Math.min(100, Math.round((budget.spent_amount.value / progressBase) * 100));
+    const badgeTone = overspent ? 'destructive' : 'secondary';
+    const badgeLabel = overspent ? 'Estourado' : 'Em dia';
+
+    const remainingClassName = useMemo(
+        () =>
+            cn(
+                'text-sm font-semibold',
+                budget.remaining_amount.value > 0 && 'text-emerald-600',
+                budget.remaining_amount.value === 0 && 'text-muted-foreground',
+                overspent && 'text-destructive',
+            ),
+        [budget.remaining_amount.value, overspent],
+    );
 
     return (
-        <TableRow>
+        <TableRow
+            className={cn(
+                'transition-colors hover:bg-muted/40',
+                overspent && 'bg-destructive/5 hover:bg-destructive/10',
+            )}
+        >
             <TableCell className="align-top">
-                <div className="space-y-1">
-                    <p className="font-medium leading-none">{budget.category.name}</p>
-                    <p className="text-muted-foreground text-xs">Rollover: {budget.rollover_amount.formatted}</p>
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                        <p className="font-medium leading-none">{budget.category.name}</p>
+                        <Badge variant={badgeTone as 'destructive' | 'secondary'}>{badgeLabel}</Badge>
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                        Saldo anterior: <span className="font-medium text-foreground">{budget.rollover_amount.formatted}</span>
+                    </p>
                 </div>
             </TableCell>
             <TableCell className="align-top">
@@ -87,17 +114,33 @@ export const BudgetRow = ({ budget, month }: BudgetRowProps) => {
                         />
                     </div>
                     <InputError message={errors['amount.value'] ?? errors.amount} />
+                    <p className="text-xs text-muted-foreground">
+                        Planejado: <span className="font-medium text-foreground">{budget.budgeted_amount.formatted}</span>
+                    </p>
                 </form>
             </TableCell>
             <TableCell className="text-right align-top">
-                {budget.spent_amount.value === 0 ? (
-                    <span className="text-muted-foreground">—</span>
-                ) : (
-                    <span className="font-medium text-sm">{budget.spent_amount.formatted}</span>
-                )}
+                <div className="space-y-2">
+                    <div className="flex flex-col items-end gap-1">
+                        <span className="text-sm font-medium text-foreground">{budget.spent_amount.formatted}</span>
+                        <span className="text-xs text-muted-foreground">{consumption}% utilizado</span>
+                    </div>
+                    <Progress value={consumption} className="ml-auto h-2 w-[160px]" />
+                </div>
             </TableCell>
             <TableCell className="text-right align-top">
-                <span className={remainingClassName}>{budget.remaining_amount.formatted}</span>
+                <div className="space-y-1">
+                    <span className={remainingClassName}>{budget.remaining_amount.formatted}</span>
+                    <p className="text-xs text-muted-foreground">
+                        Disponível no mês:{' '}
+                        <span className="font-medium text-foreground">
+                            {new Intl.NumberFormat('pt-BR', {
+                                style: 'currency',
+                                currency: budget.currency,
+                            }).format(availableAmount / 100)}
+                        </span>
+                    </p>
+                </div>
             </TableCell>
         </TableRow>
     );
