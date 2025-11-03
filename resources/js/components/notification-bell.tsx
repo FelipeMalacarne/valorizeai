@@ -25,20 +25,21 @@ export function NotificationBell() {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-80 p-0">
-                <div className="flex items-center justify-between px-4 py-3">
+                <div className="flex items-center justify-between gap-2 px-4 py-3">
                     <div>
                         <p className="text-sm font-semibold">Notificações</p>
                         <p className="text-xs text-muted-foreground">Acompanhe os últimos acontecimentos da sua conta.</p>
                     </div>
                     <Button
                         variant="ghost"
-                        size="sm"
-                        className="gap-2 text-xs"
+                        size="icon"
+                        className="h-8 w-8"
                         disabled={!hasUnread || isMarking}
                         onClick={markAllAsRead}
+                        title="Marcar todas como lidas"
                     >
                         <CheckCheck className="h-4 w-4" />
-                        Marcar como lidas
+                        <span className="sr-only">Marcar como lidas</span>
                     </Button>
                 </div>
                 <DropdownMenuSeparator />
