@@ -41,6 +41,16 @@ services:
     depends_on:
       <<: *common-depends
 
+  reverb:
+    image: sail-8.4/app
+    volumes:
+      - '.:/var/www/html'
+    entrypoint: 'php artisan reverb:start'
+    restart: always
+    networks:
+      - sail
+    depends_on:
+      <<: *common-depends
   worker:
     image: sail-8.4/app
     volumes:
