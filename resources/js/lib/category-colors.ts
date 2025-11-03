@@ -1,0 +1,16 @@
+export const CATEGORY_COLOR_SWATCHES: Record<App.Enums.Color, string> = {
+    lavender: 'bg-lavender',
+    blue: 'bg-blue',
+    green: 'bg-green',
+    yellow: 'bg-yellow',
+    red: 'bg-red',
+    rosewater: 'bg-rosewater',
+    flamingo: 'bg-flamingo',
+    pink: 'bg-pink',
+    mauve: 'bg-mauve',
+    maroon: 'bg-maroon',
+    peach: 'bg-peach',
+    teal: 'bg-teal',
+    sky: 'bg-sky',
+    sapphire: 'bg-sapphire',
+};

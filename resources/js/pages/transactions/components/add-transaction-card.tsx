@@ -2,9 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useState } from 'react';
-// import { ManualTab } from "./manual-tab";
 
 export const AddTransactionCard = () => {
     const [open, setOpen] = useState<boolean>(false);

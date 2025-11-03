@@ -1,11 +1,10 @@
 import * as React from "react"
-import { Check, PlusCircle } from "lucide-react"
+import { PlusCircle } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover"
 import { Button } from "./ui/button"
 import { Separator } from "./ui/separator"
 import { Badge } from "./ui/badge"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "./ui/command"
-import { cn } from "@/lib/utils"
 import { Checkbox } from "./ui/checkbox"
 
 

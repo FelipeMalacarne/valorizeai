@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property string $id
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read User|null $user
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category default()
  * @method static \Database\Factories\CategoryFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category newModelQuery()
@@ -34,12 +36,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereUser(string $user_id)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Category whereUserId($value)
+ *
+ * @property-read Budget|null $budget
+ *
  * @mixin \Eloquent
  */
 final class Category extends Model
 {
     /** @use HasFactory<\Database\Factories\CategoryFactory> */
     use HasFactory, HasUuids;
+
+    public const SPLIT_CATEGORY_NAME = 'Split Transactions';
 
     protected $fillable = [
         'name',
@@ -59,12 +66,30 @@ final class Category extends Model
         $query->where('is_default', true);
     }
 
-    public function scopeWhereUser($query, string $user_id): void
+    public function scopeOwnedBy($query, string $userId)
     {
-        $query->where(function ($query) use ($user_id) {
-            $query->where('user_id', $user_id)
-                ->orWhereNull('user_id');
+        return $query->where('user_id', $userId);
+    }
+
+    public function scopeForUser($query, string $userId)
+    {
+        return $query->where(function ($inner) use ($userId) {
+            $inner->whereNull('user_id')
+                ->orWhere('user_id', $userId);
         });
+    }
+
+    public function scopeWhereUser($query, string $userId)
+    {
+        return $this->scopeForUser($query, $userId);
+    }
+
+    /**
+     * @return HasOne<Budget,Category>
+     */
+    public function budget(): HasOne
+    {
+        return $this->hasOne(Budget::class);
     }
 
     protected function casts(): array

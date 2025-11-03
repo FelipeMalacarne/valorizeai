@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Actions\Transaction;
 
 use App\Enums\TransactionType;
+use App\Events\Transaction\TransactionUpdated;
 use App\Http\Requests\Transaction\UpdateTransactionRequest;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
-use App\Events\Transaction\TransactionUpdated;
 
 final class UpdateTransaction
 {

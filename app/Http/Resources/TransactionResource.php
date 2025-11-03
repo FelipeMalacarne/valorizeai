@@ -13,7 +13,7 @@ use Spatie\LaravelData\Data;
 use Spatie\LaravelData\Optional;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
- // New import
+// New import
 
 #[TypeScript]
 final class TransactionResource extends Data

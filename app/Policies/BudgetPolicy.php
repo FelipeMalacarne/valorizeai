@@ -1,0 +1,26 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Policies;
+
+use App\Models\Budget;
+use App\Models\User;
+
+final class BudgetPolicy
+{
+    public function view(User $user, Budget $budget): bool
+    {
+        return $budget->user_id === $user->id;
+    }
+
+    public function update(User $user, Budget $budget): bool
+    {
+        return $this->view($user, $budget);
+    }
+
+    public function delete(User $user, Budget $budget): bool
+    {
+        return $this->view($user, $budget);
+    }
+}

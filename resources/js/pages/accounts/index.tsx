@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem, PaginatedResource, SharedData } from '@/types';
-import { Form, Head } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { AccountCard } from './components/account-card';
 import { AccountFilters } from './components/account-filters';
 import { SectionCards } from './components/section-cards';
@@ -18,7 +18,6 @@ export type AccountIndexProps = {
 
 const AccountIndex = (props: SharedData<AccountIndexProps>) => {
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
     return (
         <>

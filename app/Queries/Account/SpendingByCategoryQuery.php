@@ -30,8 +30,8 @@ final class SpendingByCategoryQuery
 
                 return [
                     'category' => $item->category_name,
-                    'amount' => $totalAmount / 100,
-                    'color' => $item->category_color,
+                    'amount'   => $totalAmount / 100,
+                    'color'    => $item->category_color,
                 ];
             });
     }

@@ -8,6 +8,7 @@ namespace App\Models;
 
 use App\Enums\Currency;
 use App\Notifications\VerifyEmailQueued;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @property string $id
@@ -32,6 +34,11 @@ use Illuminate\Notifications\Notifiable;
  * @property-read int|null $notifications_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Transaction> $transactions
  * @property-read int|null $transactions_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Budget> $budgets
+ * @property-read int|null $budgets_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, BudgetMonthlyConfig> $budgetMonthlyConfigs
+ * @property-read int|null $budget_monthly_configs_count
+ *
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
@@ -45,10 +52,12 @@ use Illuminate\Notifications\Notifiable;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePreferredCurrency($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Category> $categories
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Category> $categories
  * @property-read int|null $categories_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Import> $imports
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Import> $imports
  * @property-read int|null $imports_count
+ *
  * @mixin \Eloquent
  */
 final class User extends Authenticatable implements MustVerifyEmail
@@ -96,6 +105,25 @@ final class User extends Authenticatable implements MustVerifyEmail
     public function imports(): HasMany
     {
         return $this->hasMany(Import::class);
+    }
+
+    public function budgets(): HasMany
+    {
+        return $this->hasMany(Budget::class);
+    }
+
+    public function budgetMonthlyConfigs(): HasMany
+    {
+        return $this->hasMany(BudgetMonthlyConfig::class);
+    }
+
+    public function totalBudgetedForMonth(CarbonImmutable $month): int
+    {
+        return (int) DB::table('budget_allocations')
+            ->join('budgets', 'budget_allocations.budget_id', '=', 'budgets.id')
+            ->where('budgets.user_id', $this->id)
+            ->whereDate('budget_allocations.month', $month->toDateString())
+            ->sum('budget_allocations.budgeted_amount');
     }
 
     public function sendEmailVerificationNotification(): void

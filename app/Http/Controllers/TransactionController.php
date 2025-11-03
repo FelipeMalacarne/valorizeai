@@ -37,6 +37,7 @@ final class TransactionController extends Controller
             'transactions' => fn () => $transactions->resource($request, Auth::user()),
             'categories'   => fn () => $categories->resource(Auth::user()->id),
             'accounts'     => fn () => $accounts->resource(Auth::user()->id),
+            'summary'      => fn () => $transactions->summary($request, Auth::user()),
         ]);
     }
 

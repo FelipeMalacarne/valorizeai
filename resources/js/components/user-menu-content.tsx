@@ -38,9 +38,16 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
                     <CreditCard />
                     Billing
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                    <Bell />
-                    Notifications
+                <DropdownMenuItem asChild>
+                    <Link
+                        className="flex w-full items-center"
+                        href={route('notifications.index')}
+                        prefetch
+                        onClick={cleanup}
+                    >
+                        <Bell className="mr-2" />
+                        Notifications
+                    </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                     <Link

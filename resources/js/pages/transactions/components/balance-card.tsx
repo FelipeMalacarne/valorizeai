@@ -1,22 +1,69 @@
+import React from 'react';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
-export const BalanceCard = () => {
-    const data = { balance: 2030.35, lastPeriodBalance: 1111.3 };
-    // limit to 20 deicimal
-    const percentageChange = (((data.balance - data.lastPeriodBalance) / data.lastPeriodBalance) * 100).toFixed(2);
+type BalanceCardProps = {
+    title: string;
+    amount?: App.ValueObjects.Money;
+    description?: string;
+    icon?: React.ReactNode;
+    tone?: 'default' | 'positive' | 'negative';
+    className?: string;
+};
+
+const toneStyles: Record<'default' | 'positive' | 'negative', { icon: string; amount: string }> = {
+    default: {
+        icon: 'bg-muted text-muted-foreground',
+        amount: '',
+    },
+    positive: {
+        icon: 'bg-emerald-100 text-emerald-600',
+        amount: 'text-emerald-600',
+    },
+    negative: {
+        icon: 'bg-rose-100 text-rose-600',
+        amount: 'text-rose-500',
+    },
+};
+
+export const BalanceCard = ({ title, amount, description, icon, tone = 'default', className }: BalanceCardProps) => {
+    const styles = toneStyles[tone];
 
     return (
-        <Card>
-            <CardHeader>
-                <CardDescription>Balanço:</CardDescription>
-                <CardTitle className="text-4xl">{data ? data.balance : <Skeleton className="h-6 w-24" />}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="text-muted-foreground text-xs">
-                    {data ? <span>{percentageChange}% desde o ultimo periodo</span> : <Skeleton className="mt-1 h-4 w-16" />}
+        <Card className={cn('shadow-sm', className)}>
+            <CardHeader >
+                <div className="flex items-center justify-between">
+                    <CardDescription className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        {title}
+                    </CardDescription>
+                    {icon ? (
+                        <span
+                            className={cn(
+                                'flex h-10 w-10 items-center justify-center rounded-full text-base',
+                                styles.icon,
+                            )}
+                        >
+                            {icon}
+                        </span>
+                    ) : null}
                 </div>
-            </CardContent>
+
+                {amount ? (
+                    <CardTitle className={cn('text-2xl font-semibold tracking-tight', styles.amount)}>
+                        {amount.formatted}
+                    </CardTitle>
+                ) : (
+                    <Skeleton className="h-8 w-28" />
+                )}
+            </CardHeader>
+
+            {description ? (
+                <CardContent>
+                    <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+                </CardContent>
+            ) : null}
         </Card>
     );
 };

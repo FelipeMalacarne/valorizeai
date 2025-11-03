@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
+use App\Actions\Category\EnsureDefaultCategoriesForUser;
 use App\Http\Requests\RegisterUserRequest;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Hash;
 
 final class RegisterUser
 {
+    public function __construct(private readonly EnsureDefaultCategoriesForUser $ensureDefaultCategories) {}
+
     public function handle(RegisterUserRequest $data): User
     {
         $user = DB::transaction(function () use ($data) {
@@ -24,6 +27,8 @@ final class RegisterUser
 
             return $user;
         });
+
+        $this->ensureDefaultCategories->handle($user);
 
         event(new Registered($user));
 

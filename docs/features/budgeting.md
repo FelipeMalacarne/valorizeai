@@ -14,10 +14,13 @@ Esta funcionalidade implementa o método de orçamento de "envelopes" (ou "bucke
 
 ## 3. Modelo de Dados
 
-Para implementar esta funcionalidade, utilizaremos as tabelas `budgets` e `budget_allocations`.
+Para implementar esta funcionalidade, utilizamos as tabelas `budgets` e `budget_allocations`.
 
 - **`budgets`**: Esta tabela representa o "envelope" em si. Ela cria um link permanente entre um `user` e uma `category`, estabelecendo que o usuário deseja orçar para aquela categoria.
 - **`budget_allocations`**: Esta tabela armazena o valor específico que o usuário decide alocar para um determinado `budget` em um mês específico. Cada linha representa o valor orçado para uma categoria em um mês.
+- **`budget_monthly_configs`**: Permite que o usuário defina a renda total disponível para um mês. Caso um mês não tenha configuração própria, a aplicação reutiliza automaticamente o último valor informado.
+
+> Observação: o envelope guarda a moeda (`currency`) do usuário no momento da criação para garantir consistência na exibição dos valores.
 
 ## 4. Lógica do Backend
 
@@ -34,14 +37,22 @@ Para implementar esta funcionalidade, utilizaremos as tabelas `budgets` e `budge
 - **Actions:**
     - `AllocateMoneyToAction`: Cria ou atualiza uma entrada em `budget_allocations` para um `budget` em um mês específico.
     - `MoveMoneyBetweenBudgetsAction`: Uma única ação transacional que subtrai um valor da `budgeted_amount` de uma `budget_allocations` e o adiciona a outra no mesmo mês.
+    - `UpsertMonthlyIncome`: Define a renda disponível para um determinado mês. Esse valor passa a limitar a soma das alocações e é carregado automaticamente para os meses seguintes até que o usuário o altere.
+
+- **Controller & Rotas:**
+    - `BudgetController@index` renderiza a tela `/budgets`, recebendo os dados agregados através da `BudgetOverviewQuery`.
+    - `BudgetController@store|update|destroy` mantém o cadastro dos envelopes.
+    - `BudgetController@allocate` e `BudgetController@move` expõem as ações de alocação e movimentação via rotas `POST /budgets/allocate` e `POST /budgets/move`.
+    - `BudgetController@updateMonthlyIncome` permite atualizar a renda disponível (`POST /budgets/monthly-income`), realimentando a tela com o valor efetivo (próprio ou herdado).
 
 ## 5. Implementação no Frontend
 
-- **Página de Orçamento (`/budget`):**
+- **Página de Orçamento (`/budgets`):**
     - **Seletor de Mês:** Um seletor no cabeçalho permitirá ao usuário navegar entre os meses.
+    - **Renda Mensal:** Um destaque exibe o valor disponível para distribuição e um botão abre um modal de edição. O valor definido é reutilizado nos próximos meses automaticamente.
     - **Tabela de Orçamento:** A interface principal será uma tabela com as seguintes colunas:
         - **Categoria:** O nome da categoria do orçamento.
-        - **Orçado:** Um campo de input onde o usuário define o `budgeted_amount` para o mês.
+        - **Orçado:** Um campo de input onde o usuário define o `budgeted_amount` para o mês, persistindo via `POST /budgets/allocate`.
         - **Gastos:** O valor total gasto na categoria, calculado pela query.
         - **Restante:** O saldo final (`Orçado - Gastos`). A célula será visualmente destacada (ex: verde para positivo, vermelho para negativo).
     - **Funcionalidade de Mover Dinheiro:** Uma interface (talvez um modal) que permitirá ao usuário selecionar a categoria de origem, a de destino e o valor a ser movido.

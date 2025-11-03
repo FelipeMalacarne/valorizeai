@@ -39,7 +39,7 @@ it('has many import transactions', function () {
 it('casts its attributes', function () {
     $import = Import::factory()->create([
         'extension' => ImportExtension::OFX,
-        'status' => ImportStatus::PROCESSING,
+        'status'    => ImportStatus::PROCESSING,
     ]);
 
     expect($import->extension)->toBeInstanceOf(ImportExtension::class)

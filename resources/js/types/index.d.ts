@@ -31,6 +31,10 @@ export type SharedData<T extends Record<string, unknown> = Record<string, unknow
         success: string | null;
         error: string | null;
     };
+    notifications?: {
+        items: App.Http.Resources.NotificationResource[];
+        unread_count: number;
+    } | null;
     [key: string]: unknown;
 };
 

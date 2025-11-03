@@ -13,8 +13,8 @@ final class StatementParserFactory
     public function create(string $fileType): StatementParser
     {
         return match ($fileType) {
-            'ofx' => new OfxStatementParser(),
-            'csv' => new CsvStatementParser(),
+            'ofx'   => new OfxStatementParser(),
+            'csv'   => new CsvStatementParser(),
             default => throw new InvalidArgumentException("Unsupported file type: {$fileType}"),
         };
     }

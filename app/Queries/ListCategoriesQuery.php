@@ -7,14 +7,15 @@ namespace App\Queries;
 use App\Http\Requests\Category\ListCategoriesRequest;
 use App\Models\Category;
 use App\Models\User;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 final class ListCategoriesQuery
 {
-    public function handle(ListCategoriesRequest $data, User $user): LengthAwarePaginator
+    /** @return Collection<int, Category> */
+    public function handle(ListCategoriesRequest $data, User $user): Collection
     {
-        $query = Category::query()->whereUser($user->id);
+        $query = Category::forUser($user->id);
 
         if ($data->search) {
             $query->where(function (Builder $query) use ($data) {
@@ -30,6 +31,6 @@ final class ListCategoriesQuery
         $query->orderBy('is_default', 'desc')
             ->orderBy('name');
 
-        return $query->paginate(50)->withQueryString();
+        return $query->get();
     }
 }

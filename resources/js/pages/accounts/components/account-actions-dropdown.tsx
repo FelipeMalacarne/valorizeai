@@ -1,14 +1,13 @@
 import { ResponsiveDialog } from '@/components/responsive-dialog';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Form, Link, usePage } from '@inertiajs/react';
-import { Delete, Edit, Eye, MoreHorizontal, Plus } from 'lucide-react';
+import { Form, usePage } from '@inertiajs/react';
+import { Delete, Edit,  MoreHorizontal, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { AccountForm } from '@/components/account-form';
 import { TransactionForm } from '@/components/transaction-form';
 import { AccountShowProps } from '../show';
 import { SharedData } from '@/types';
-import { Separator } from '@radix-ui/react-select';
 
 export function AccountActionDropdown({ account }: { account: App.Http.Resources.AccountResource }) {
     const [editDialogOpen, setEditDialogOpen] = useState(false);
