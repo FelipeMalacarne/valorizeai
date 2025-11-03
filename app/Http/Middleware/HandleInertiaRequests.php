@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Http\Resources\NotificationResource;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -56,6 +57,14 @@ final class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error'   => fn () => $request->session()->get('error'),
             ],
+            'notifications' => fn () => $request->user()
+                ? [
+                    'items'        => $request->user()->notifications()->latest()->limit(15)->get()
+                        ->map(fn ($notification) => NotificationResource::fromModel($notification)->toArray())
+                        ->all(),
+                    'unread_count' => $request->user()->unreadNotifications()->count(),
+                ]
+                : null,
         ];
     }
 }

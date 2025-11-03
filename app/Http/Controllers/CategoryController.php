@@ -13,6 +13,7 @@ use App\Http\Requests\Category\ListCategoriesRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
+use App\Queries\Category\CategoryInsightsQuery;
 use App\Queries\ListCategoriesQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
@@ -44,25 +45,28 @@ final class CategoryController extends Controller
             ->with('success', __('Categoria :name criada com sucesso.', ['name' => $category->name]));
     }
 
-    public function show(Category $category): InertiaResponse
+    public function show(Category $category, CategoryInsightsQuery $insights): InertiaResponse
     {
         Gate::authorize('view', $category);
 
         $user = Auth::user();
+
+        if (! $user) {
+            abort(403);
+        }
 
         $availableColors = collect(Color::cases())->map(fn (Color $color) => [
             'value' => $color->value,
             'label' => ucfirst(str_replace('_', ' ', $color->name)),
         ]);
 
-        $usedColors = $user
-            ? Category::ownedBy($user->id)->pluck('color')->all()
-            : [];
+        $usedColors = Category::ownedBy($user->id)->pluck('color')->all();
 
         return Inertia::render('categories/show', [
             'category' => CategoryResource::from($category),
             'available_colors' => $availableColors,
             'used_colors' => $usedColors,
+            'insights' => $insights->resource($category, $user),
         ]);
     }
 

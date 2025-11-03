@@ -13,9 +13,12 @@ use App\Models\Import;
 use App\Models\Transaction;
 use App\Services\Statement\Parsers\OfxParser;
 use App\ValueObjects\Money;
+use App\Notifications\ImportCompletedNotification;
+use Illuminate\Broadcasting\BroadcastException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Notification;
 
 final class ProcessImport
 {
@@ -136,6 +139,15 @@ final class ProcessImport
                 'count'         => $transactionsToCreate->count(),
                 'balance_added' => $balanceToAdd->format(),
             ]);
+
+            try {
+                $import->user?->notify(new ImportCompletedNotification($import, $account));
+            } catch (BroadcastException $exception) {
+                Log::warning('Failed to broadcast import notification', [
+                    'import_id' => $import->id,
+                    'exception' => $exception->getMessage(),
+                ]);
+            }
 
             return $import;
         });

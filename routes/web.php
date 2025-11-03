@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\BankController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ImportController;
@@ -24,6 +25,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('budgets/monthly-income', [BudgetController::class, 'updateMonthlyIncome'])->name('budgets.monthly-income');
     Route::post('budgets/allocate', [BudgetController::class, 'allocate'])->name('budgets.allocate');
     Route::post('budgets/move', [BudgetController::class, 'move'])->name('budgets.move');
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('notifications/read', [NotificationController::class, 'markAllRead'])->name('notifications.read');
 
     Route::resource('imports', ImportController::class)->only(['store']);
 });
