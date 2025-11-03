@@ -92,17 +92,19 @@ final class DashboardOverviewQuery
         $end = $referenceMonth->endOfMonth();
         $start = $end->copy()->subMonths(5)->startOfMonth();
 
+        $monthExpression = $this->monthExpression('transactions.date');
+
         $results = DB::table('transactions')
             ->join('accounts', 'accounts.id', '=', 'transactions.account_id')
             ->where('accounts.user_id', $user->id)
             ->where('transactions.currency', $currency)
             ->whereBetween('transactions.date', [$start, $end])
-            ->selectRaw("DATE_TRUNC('month', transactions.date) as month")
+            ->selectRaw("$monthExpression as month")
             ->selectRaw("
                 SUM(CASE WHEN transactions.type = 'credit' THEN ABS(transactions.amount) ELSE 0 END) as income,
                 SUM(CASE WHEN transactions.type = 'debit' THEN ABS(transactions.amount) ELSE 0 END) as expense
             ")
-            ->groupByRaw("DATE_TRUNC('month', transactions.date)")
+            ->groupByRaw($monthExpression)
             ->get()
             ->keyBy(fn ($row) => CarbonImmutable::parse($row->month)->format('Y-m'));
 
@@ -195,5 +197,14 @@ final class DashboardOverviewQuery
             ->sortByDesc(fn (DashboardCategoryShareResource $resource) => $resource->total->value)
             ->take(5)
             ->values();
+    }
+
+    private function monthExpression(string $column): string
+    {
+        return match (DB::getDriverName()) {
+            'sqlite' => "strftime('%Y-%m-01', $column)",
+            'mysql'  => "DATE_FORMAT($column, '%Y-%m-01')",
+            default  => "DATE_TRUNC('month', $column)",
+        };
     }
 }
