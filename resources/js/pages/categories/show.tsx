@@ -4,23 +4,28 @@ import { Head, Link } from '@inertiajs/react';
 import { CategoryBadge } from '@/components/category-badge';
 import { CategoryForm } from '@/components/category-form';
 import { ResponsiveDialog } from '@/components/responsive-dialog';
-import AppLayout from '@/layouts/app-layout';
-import { CATEGORY_COLOR_SWATCHES } from '@/lib/category-colors';
-import { BreadcrumbItem, SharedData } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
+import { CATEGORY_COLOR_SWATCHES } from '@/lib/category-colors';
+import { BreadcrumbItem, SharedData } from '@/types';
 import { ArrowLeft, Pencil } from 'lucide-react';
+import { CategorySummaryCards } from './components/category-summary-cards';
+import { CategoryMonthlyChart } from './components/category-monthly-chart';
+import { CategoryAccountsChart } from './components/category-accounts-chart';
 
 type CategoryShowProps = {
     category: App.Http.Resources.CategoryResource;
     available_colors: Array<{ value: App.Enums.Color; label: string }>;
     used_colors: App.Enums.Color[];
+    insights: App.Http.Resources.CategoryInsightsResource;
 };
 
 const CategoryShow = (props: SharedData<CategoryShowProps>) => {
-    const { category, available_colors, used_colors } = props;
+    const { category, available_colors, used_colors, insights } = props;
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const currency = insights.total_debits.currency;
 
     return (
         <>
@@ -86,6 +91,30 @@ const CategoryShow = (props: SharedData<CategoryShowProps>) => {
                         </div>
                     </CardContent>
                 </Card>
+
+                <CategorySummaryCards insights={insights} />
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                    <Card className="h-full">
+                        <CardHeader>
+                            <CardTitle>Movimentação mensal</CardTitle>
+                            <CardDescription>Entradas e saídas dos últimos 6 meses.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <CategoryMonthlyChart data={insights.monthly} currency={currency} />
+                        </CardContent>
+                    </Card>
+
+                    <Card className="h-full">
+                        <CardHeader>
+                            <CardTitle>Contas relacionadas</CardTitle>
+                            <CardDescription>Como esta categoria impacta cada conta.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <CategoryAccountsChart data={insights.accounts} currency={currency} />
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
 
             <ResponsiveDialog

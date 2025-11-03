@@ -162,12 +162,37 @@ name: string;
 currency: App.Enums.Currency;
 category: App.Http.Resources.CategoryResource;
 };
+export type CategoryAccountBreakdownResource = {
+account_id: string;
+account_name: string;
+debits: App.ValueObjects.Money;
+credits: App.ValueObjects.Money;
+};
+export type CategoryInsightsResource = {
+total_debits: App.ValueObjects.Money;
+total_credits: App.ValueObjects.Money;
+net_total: App.ValueObjects.Money;
+monthly: Array<any>;
+accounts: Array<any>;
+};
+export type CategoryMonthlyTotalResource = {
+month: string;
+debits: App.ValueObjects.Money;
+credits: App.ValueObjects.Money;
+};
 export type CategoryResource = {
 id: string;
 name: string;
 color: App.Enums.Color;
 description: string | null;
 is_default: boolean;
+};
+export type NotificationResource = {
+id: string;
+type: string | null;
+data: Array<any>;
+read_at: string | null;
+created_at: string;
 };
 export type TransactionResource = {
 amount_formatted: string;
