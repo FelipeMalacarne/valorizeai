@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { usePage } from '@inertiajs/react';
-import { useEffect, useMemo, useState, useCallback } from 'react';
-import { useEchoNotification } from '@laravel/echo-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { echo } from '@laravel/echo-react';
 import type { SharedData } from '@/types';
+
+const MAX_ITEMS = 15;
 
 type NotificationList = App.Http.Resources.NotificationResource[];
 
@@ -11,31 +13,24 @@ type UseNotificationsOptions = {
     unreadCount?: number;
 };
 
-export function useNotifications(initialData?: UseNotificationsOptions) {
+export function useNotifications(initialData: UseNotificationsOptions = {}) {
     const {
         auth: { user },
         notifications,
     } = usePage<SharedData>().props;
 
+    const fallbackItems = notifications?.items ?? [];
+    const fallbackUnread = notifications?.unread_count ?? 0;
+
     const initialItems = useMemo<NotificationList>(
-        () => initialData?.items ?? notifications?.items ?? [],
-        [initialData?.items, notifications?.items],
+        () => initialData.items ?? fallbackItems,
+        [initialData.items, fallbackItems],
     );
 
     const initialUnread = useMemo<number>(
-        () => initialData?.unreadCount ?? notifications?.unread_count ?? 0,
-        [initialData?.unreadCount, notifications?.unread_count],
+        () => initialData.unreadCount ?? fallbackUnread,
+        [initialData.unreadCount, fallbackUnread],
     );
-
-    if (!user) {
-        return {
-            items: initialItems,
-            unreadCount: initialUnread,
-            hasUnread: initialUnread > 0,
-            markAllAsRead: async () => {},
-            isMarking: false,
-        } as const;
-    }
 
     const [items, setItems] = useState<NotificationList>(initialItems);
     const [unreadCount, setUnreadCount] = useState<number>(initialUnread);
@@ -43,51 +38,71 @@ export function useNotifications(initialData?: UseNotificationsOptions) {
 
     useEffect(() => {
         setItems(initialItems);
+    }, [initialItems]);
+
+    useEffect(() => {
         setUnreadCount(initialUnread);
-    }, [initialItems, initialUnread]);
+    }, [initialUnread]);
 
-    const channelName = useMemo(() => `App.Models.User.${user.id}`, [user.id]);
+    useEffect(() => {
+        if (!user) {
+            return;
+        }
 
-    useEchoNotification<any>(
-        channelName,
-        (notification) => {
+        const channelName = `App.Models.User.${user.id}`;
+        const echoInstance = echo();
+
+        if (!echoInstance) {
+            return;
+        }
+
+        const channel = echoInstance.private(channelName);
+
+        const handler = (notification: any) => {
             const raw = notification ?? {};
             const payloadData = raw.data ?? raw;
 
             const normalized: App.Http.Resources.NotificationResource = {
-                id: String(raw.id ?? crypto.randomUUID()),
+                id: String(raw.id ?? payloadData?.id ?? crypto.randomUUID()),
                 type: raw.type ?? null,
                 data: payloadData?.data ?? payloadData ?? {},
                 read_at: raw.read_at ?? null,
                 created_at: raw.created_at ?? new Date().toISOString(),
             };
 
-            setItems((current) => [normalized, ...current].slice(0, 15));
+            setItems((current) => [normalized, ...current].slice(0, MAX_ITEMS));
             setUnreadCount((current) => current + 1);
-        },
-        undefined,
-        [channelName],
-    );
+        };
+
+        channel.notification(handler);
+
+        return () => {
+            channel.stopListening('.Illuminate\\Notifications\\Events\\BroadcastNotificationCreated', handler);
+            echoInstance.leave(channelName);
+        };
+    }, [user?.id]);
 
     const markAllAsRead = useCallback(async () => {
-        if (isMarking || unreadCount === 0) return;
+        if (!user || isMarking || unreadCount === 0) return;
 
         try {
             setIsMarking(true);
             const response = await axios.post(route('notifications.read'));
+            const unread = response.data?.unread_count ?? 0;
+
             setItems((current) =>
                 current.map((notification) => ({
                     ...notification,
                     read_at: notification.read_at ?? new Date().toISOString(),
                 })),
             );
-            setUnreadCount(response.data?.unread_count ?? 0);
+            setUnreadCount(unread);
         } catch (error) {
             console.error('Failed to mark notifications as read', error);
         } finally {
             setIsMarking(false);
         }
-    }, [isMarking, unreadCount]);
+    }, [user?.id, isMarking, unreadCount]);
 
     return {
         items,
@@ -95,5 +110,5 @@ export function useNotifications(initialData?: UseNotificationsOptions) {
         hasUnread: unreadCount > 0,
         markAllAsRead,
         isMarking,
-    };
+    } as const;
 }
