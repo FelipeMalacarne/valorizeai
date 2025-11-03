@@ -21,6 +21,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('transactions', TransactionController::class);
     Route::resource('categories', CategoryController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
     Route::resource('budgets', BudgetController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::post('budgets/monthly-income', [BudgetController::class, 'updateMonthlyIncome'])->name('budgets.monthly-income');
     Route::post('budgets/allocate', [BudgetController::class, 'allocate'])->name('budgets.allocate');
     Route::post('budgets/move', [BudgetController::class, 'move'])->name('budgets.move');
 

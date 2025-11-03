@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Actions\Budget;
 
+use App\Exceptions\BudgetAllocationLimitExceeded;
 use App\Http\Requests\Budget\AllocateBudgetRequest;
 use App\Models\Budget;
 use App\Models\BudgetAllocation;
+use App\Models\BudgetMonthlyConfig;
 use App\Models\User;
+use App\ValueObjects\Money;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -29,14 +32,34 @@ final class AllocateBudget
 
             $month = CarbonImmutable::createFromFormat('Y-m', $data->month)->startOfMonth();
 
-            return $budget->allocations()->updateOrCreate(
-                [
-                    'month' => $month,
-                ],
-                [
-                    'budgeted_amount' => $data->amount->value,
-                ],
-            );
+            /** @var BudgetAllocation $allocation */
+            $allocation = $budget->allocations()->firstOrNew([
+                'month' => $month,
+            ]);
+
+            $currentValue = $allocation->exists ? (int) $allocation->budgeted_amount : 0;
+            $totalAllocated = $user->totalBudgetedForMonth($month);
+
+            $config = BudgetMonthlyConfig::forUserAndMonth($user->id, $month);
+
+            if ($config) {
+                $allocatedExcludingCurrent = $totalAllocated - $currentValue;
+                $remaining = $config->remainingIncome($allocatedExcludingCurrent);
+
+                if ($data->amount->value > max($remaining, 0)) {
+                    throw new BudgetAllocationLimitExceeded(
+                        new Money(
+                            max($remaining, 0),
+                            $user->preferred_currency
+                        )
+                    );
+                }
+            }
+
+            $allocation->budgeted_amount = $data->amount->value;
+            $allocation->save();
+
+            return $allocation;
         });
     }
 }

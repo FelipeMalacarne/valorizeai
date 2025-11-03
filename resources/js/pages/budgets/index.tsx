@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { BudgetRow } from './components/budget-row';
 import { CreateBudgetForm } from './components/create-budget-form';
 import { MoveMoneyForm } from './components/move-money-form';
+import { MonthlyIncomeForm } from './components/monthly-income-form';
 
 type BudgetsIndexProps = {
     filters: {
@@ -21,12 +22,15 @@ type BudgetsIndexProps = {
     overview: App.Http.Resources.BudgetOverviewResource[];
     budgets: App.Http.Resources.BudgetResource[];
     categories: App.Http.Resources.CategoryResource[];
+    monthly_summary: App.Http.Resources.BudgetMonthlySummaryResource;
 };
 
 const BudgetsIndex = (props: SharedData<BudgetsIndexProps>) => {
     const overview = props.overview ?? [];
+    const monthlySummary = props.monthly_summary;
     const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
     const [isMoveDialogOpen, setIsMoveDialogOpen] = useState(false);
+    const [isIncomeDialogOpen, setIsIncomeDialogOpen] = useState(false);
 
     const monthDate = useMemo(() => parse(`${props.filters.month}-01`, 'yyyy-MM-dd', new Date()), [props.filters.month]);
 
@@ -66,10 +70,65 @@ const BudgetsIndex = (props: SharedData<BudgetsIndexProps>) => {
         [currency],
     );
     const formatCurrency = (amount: number) => currencyFormatter.format(amount / 100);
+    const formatOptionalCurrency = (amount: number | null | undefined) =>
+        amount == null ? '—' : formatCurrency(amount);
+
+    const formatMonthLabel = (value: string) => {
+        const label = format(parse(`${value}-01`, 'yyyy-MM-dd', new Date()), 'MMMM yyyy', { locale: ptBR });
+        return label.charAt(0).toUpperCase() + label.slice(1);
+    };
+
+    const monthlyIncomeCurrency = (monthlySummary.income?.currency ?? monthlySummary.assigned.currency) as App.Enums.Currency;
+    const incomeDisplay = monthlySummary.has_income ? monthlySummary.income!.formatted : 'Não definido';
+    const incomeConfiguredMonth = monthlySummary.is_inherited && monthlySummary.income_month ? formatMonthLabel(monthlySummary.income_month) : null;
 
     const remainingTrend: SummaryTone =
         totals.remaining === 0 ? 'neutral' : totals.remaining > 0 ? 'positive' : 'negative';
     const spentShare = totals.budgeted === 0 ? 0 : Math.round((totals.spent / totals.budgeted) * 100);
+
+    const unassignedValue = monthlySummary.unassigned?.value ?? null;
+    const safeUnassignedValue = unassignedValue ?? 0;
+    const unassignedFormatted = monthlySummary.unassigned?.formatted ?? null;
+    const unassignedTone: SummaryTone =
+        unassignedValue === null
+            ? 'neutral'
+            : unassignedValue === 0
+                ? 'positive'
+                : unassignedValue > 0
+                    ? 'neutral'
+                    : 'negative';
+
+    let incomeHelper = monthlySummary.has_income
+        ? incomeConfiguredMonth
+            ? `Herdado de ${incomeConfiguredMonth}.`
+            : 'Definido especificamente para este mês.'
+        : 'Defina a renda para limitar quanto pode ser distribuído.';
+
+    if (monthlySummary.has_income && unassignedValue !== null) {
+        if (unassignedValue > 0) {
+            incomeHelper += ` Ainda faltam ${unassignedFormatted ?? formatOptionalCurrency(unassignedValue)} para categorizar.`;
+        } else if (unassignedValue < 0) {
+            incomeHelper += ` Você distribuiu ${formatCurrency(Math.abs(unassignedValue))} além da renda.`;
+        } else {
+            incomeHelper += ' Tudo distribuído para este mês.';
+        }
+    }
+
+    const spentHelper = totals.spent === 0
+        ? 'Nenhum gasto registrado no período.'
+        : `${spentShare}% do valor distribuído foi utilizado.`;
+
+    const unassignedHelper = monthlySummary.has_income
+        ? safeUnassignedValue === 0
+            ? 'Tudo distribuído para o mês.'
+            : safeUnassignedValue > 0
+                ? `${formatOptionalCurrency(safeUnassignedValue)} ainda sem categoria.`
+                : `Distribuição excede a renda em ${formatCurrency(Math.abs(safeUnassignedValue))}.`
+        : 'Defina a renda para acompanhar o que falta distribuir.';
+
+    const remainingHelper = totals.remaining >= 0
+        ? 'Valor restante após os gastos do mês.'
+        : 'Algumas categorias ultrapassaram o planejado.';
 
     const availableCategories = useMemo(() => {
         const budgetCategoryIds = new Set(props.budgets.map((budget) => budget.category.id));
@@ -112,27 +171,40 @@ const BudgetsIndex = (props: SharedData<BudgetsIndexProps>) => {
                             </div>
                         </div>
 
-                        <div className="grid gap-4 sm:grid-cols-3">
+                        <div className="flex flex-col gap-3 rounded-lg border bg-muted/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="space-y-1">
+                                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Renda do mês</p>
+                                <p className="text-lg font-semibold text-foreground">{incomeDisplay}</p>
+                                <p className="text-xs text-muted-foreground">{incomeHelper}</p>
+                            </div>
+                            <Button variant="outline" size="sm" onClick={() => setIsIncomeDialogOpen(true)}>
+                                Editar renda
+                            </Button>
+                        </div>
+
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             <SummaryStat
-                                label="Orçado"
-                                value={formatCurrency(totals.budgeted)}
-                                helper={`Inclui ${overview.length} ${overview.length === 1 ? 'categoria' : 'categorias'}`}
+                                label="Distribuído"
+                                value={monthlySummary.assigned.formatted}
+                                helper={`Distribuído em ${overview.length} ${overview.length === 1 ? 'categoria' : 'categorias'}.`}
                             />
                             <SummaryStat
                                 label="Gasto"
                                 tone="negative"
                                 value={formatCurrency(totals.spent)}
-                                helper={`${spentShare}% do valor planejado foi utilizado`}
+                                helper={spentHelper}
                             />
                             <SummaryStat
-                                label="Disponível"
+                                label="A atribuir"
+                                tone={unassignedTone}
+                                value={monthlySummary.has_income ? monthlySummary.unassigned!.formatted : '—'}
+                                helper={unassignedHelper}
+                            />
+                            <SummaryStat
+                                label="Saldo nos envelopes"
                                 tone={remainingTrend}
                                 value={formatCurrency(totals.remaining)}
-                                helper={
-                                    totals.remaining >= 0
-                                        ? 'Saldo pronto para ser utilizado'
-                                        : 'Revise envelopes para cobrir o déficit'
-                                }
+                                helper={remainingHelper}
                             />
                         </div>
                     </CardContent>
@@ -208,6 +280,20 @@ const BudgetsIndex = (props: SharedData<BudgetsIndexProps>) => {
             </div>
 
             <ResponsiveDialog
+                isOpen={isIncomeDialogOpen}
+                setIsOpen={setIsIncomeDialogOpen}
+                title="Definir renda do mês"
+                description="Informe quanto estará disponível para distribuir. Esse valor será reutilizado automaticamente nos meses seguintes até que seja atualizado."
+            >
+                <MonthlyIncomeForm
+                    month={props.filters.month}
+                    income={monthlySummary.income}
+                    currency={monthlyIncomeCurrency}
+                    onSuccess={() => setIsIncomeDialogOpen(false)}
+                />
+            </ResponsiveDialog>
+
+            <ResponsiveDialog
                 isOpen={isCreateDialogOpen}
                 setIsOpen={setIsCreateDialogOpen}
                 title="Novo orçamento"
@@ -255,7 +341,7 @@ type SummaryTone = 'positive' | 'negative' | 'neutral';
 
 type SummaryStatProps = {
     label: string;
-    value: string;
+    value: ReactNode;
     helper?: string;
     tone?: SummaryTone;
 };
