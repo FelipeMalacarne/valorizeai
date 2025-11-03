@@ -156,17 +156,38 @@ spent_amount: App.ValueObjects.Money;
 rollover_amount: App.ValueObjects.Money;
 remaining_amount: App.ValueObjects.Money;
 };
-export type BudgetResource = {
-id: string;
-name: string;
-currency: App.Enums.Currency;
-category: App.Http.Resources.CategoryResource;
-};
-export type CategoryAccountBreakdownResource = {
-account_id: string;
-account_name: string;
-debits: App.ValueObjects.Money;
-credits: App.ValueObjects.Money;
+    export type BudgetResource = {
+        id: string;
+        name: string;
+        currency: App.Enums.Currency;
+        category: App.Http.Resources.CategoryResource;
+    };
+    export type DashboardCategoryShareResource = {
+        category: App.Http.Resources.CategoryResource;
+        total: App.ValueObjects.Money;
+        percentage: number;
+    };
+    export type DashboardMonthlyTrendResource = {
+        month: string;
+        income: App.ValueObjects.Money;
+        expense: App.ValueObjects.Money;
+        profit: App.ValueObjects.Money;
+    };
+    export type DashboardSummaryResource = {
+        total_balance: App.ValueObjects.Money;
+        monthly_income: App.ValueObjects.Money;
+        monthly_expense: App.ValueObjects.Money;
+        monthly_profit: App.ValueObjects.Money;
+    };
+    export type DashboardMonthOption = {
+        value: string;
+        label: string;
+    };
+    export type CategoryAccountBreakdownResource = {
+        account_id: string;
+        account_name: string;
+        debits: App.ValueObjects.Money;
+        credits: App.ValueObjects.Money;
 };
 export type CategoryInsightsResource = {
 total_debits: App.ValueObjects.Money;
