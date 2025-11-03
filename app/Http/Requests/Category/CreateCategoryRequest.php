@@ -47,7 +47,7 @@ final class CreateCategoryRequest extends Data
                     }
                 },
             ],
-            'is_default'  => ['boolean'],
+            'is_default' => ['boolean'],
         ];
     }
 }

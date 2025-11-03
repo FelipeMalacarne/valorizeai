@@ -11,14 +11,13 @@ use App\Models\Account;
 use App\Models\Bank;
 use App\Models\Import;
 use App\Models\Transaction;
+use App\Notifications\ImportCompletedNotification;
 use App\Services\Statement\Parsers\OfxParser;
 use App\ValueObjects\Money;
-use App\Notifications\ImportCompletedNotification;
 use Illuminate\Broadcasting\BroadcastException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Notification;
 
 final class ProcessImport
 {

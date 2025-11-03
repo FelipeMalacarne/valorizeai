@@ -37,8 +37,8 @@ final class NotificationController extends Controller
         $user->unreadNotifications->markAsRead();
 
         return response()->json([
-            'status'        => 'ok',
-            'unread_count'  => $user?->unreadNotifications()->count() ?? 0,
+            'status'       => 'ok',
+            'unread_count' => $user?->unreadNotifications()->count() ?? 0,
         ]);
     }
 }

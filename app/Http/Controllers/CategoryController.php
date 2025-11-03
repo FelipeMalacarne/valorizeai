@@ -63,10 +63,10 @@ final class CategoryController extends Controller
         $usedColors = Category::ownedBy($user->id)->pluck('color')->all();
 
         return Inertia::render('categories/show', [
-            'category' => CategoryResource::from($category),
+            'category'         => CategoryResource::from($category),
             'available_colors' => $availableColors,
-            'used_colors' => $usedColors,
-            'insights' => $insights->resource($category, $user),
+            'used_colors'      => $usedColors,
+            'insights'         => $insights->resource($category, $user),
         ]);
     }
 

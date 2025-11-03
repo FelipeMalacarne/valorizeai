@@ -13,11 +13,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property string $id
  * @property string $user_id
- * @property \Carbon\CarbonImmutable $month
+ * @property CarbonImmutable $month
  * @property int $income_amount
- * @property \Carbon\CarbonImmutable|null $created_at
- * @property \Carbon\CarbonImmutable|null $updated_at
- *
+ * @property CarbonImmutable|null $created_at
+ * @property CarbonImmutable|null $updated_at
  * @property-read User $user
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|BudgetMonthlyConfig newModelQuery()
@@ -39,16 +38,13 @@ final class BudgetMonthlyConfig extends Model
         'income_amount',
     ];
 
-    /**
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public static function forUserAndMonth(string $userId, CarbonImmutable $month): ?self
     {
-        return [
-            'month'      => 'immutable_date',
-            'created_at' => 'immutable_datetime',
-            'updated_at' => 'immutable_datetime',
-        ];
+        return self::query()
+            ->where('user_id', $userId)
+            ->whereDate('month', '<=', $month->toDateString())
+            ->orderByDesc('month')
+            ->first();
     }
 
     /**
@@ -59,17 +55,20 @@ final class BudgetMonthlyConfig extends Model
         return $this->belongsTo(User::class);
     }
 
-    public static function forUserAndMonth(string $userId, CarbonImmutable $month): ?self
-    {
-        return static::query()
-            ->where('user_id', $userId)
-            ->whereDate('month', '<=', $month->toDateString())
-            ->orderByDesc('month')
-            ->first();
-    }
-
     public function remainingIncome(int $allocatedExcludingCurrent): int
     {
         return (int) $this->income_amount - $allocatedExcludingCurrent;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'month'      => 'immutable_date',
+            'created_at' => 'immutable_datetime',
+            'updated_at' => 'immutable_datetime',
+        ];
     }
 }

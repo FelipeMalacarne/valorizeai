@@ -27,8 +27,8 @@ use App\ValueObjects\Money;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -49,10 +49,10 @@ final class BudgetController extends Controller
             'filters' => [
                 'month' => $month->format('Y-m'),
             ],
-            'overview'   => fn () => $overview->resource($user, $month),
-            'budgets'          => fn () => BudgetResource::collect($budgets),
-            'categories'       => fn () => $categories->resource($user->id),
-            'monthly_summary'  => fn () => $monthlySummary,
+            'overview'        => fn () => $overview->resource($user, $month),
+            'budgets'         => fn () => BudgetResource::collect($budgets),
+            'categories'      => fn () => $categories->resource($user->id),
+            'monthly_summary' => fn () => $monthlySummary,
         ]);
     }
 

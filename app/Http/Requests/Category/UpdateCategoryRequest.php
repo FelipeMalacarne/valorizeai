@@ -50,7 +50,7 @@ final class UpdateCategoryRequest extends Data
                     }
                 },
             ],
-            'is_default'  => ['boolean'],
+            'is_default' => ['boolean'],
         ];
     }
 }

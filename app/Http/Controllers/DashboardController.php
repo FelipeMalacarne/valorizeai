@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
+use Throwable;
 
 final class DashboardController extends Controller
 {
@@ -44,7 +45,7 @@ final class DashboardController extends Controller
         if ($month && preg_match('/^\d{4}-\d{2}$/', $month)) {
             try {
                 return CarbonImmutable::createFromFormat('Y-m', $month)->startOfMonth();
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 // fall through to default
             }
         }

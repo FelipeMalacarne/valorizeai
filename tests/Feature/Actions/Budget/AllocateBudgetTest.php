@@ -7,12 +7,12 @@ use App\Enums\Currency;
 use App\Exceptions\BudgetAllocationLimitExceeded;
 use App\Http\Requests\Budget\AllocateBudgetRequest;
 use App\Models\Budget;
+use App\Models\BudgetAllocation;
+use App\Models\BudgetMonthlyConfig;
 use App\Models\User;
 use App\ValueObjects\Money;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\BudgetMonthlyConfig;
-use App\Models\BudgetAllocation;
 
 uses(RefreshDatabase::class);
 
@@ -68,7 +68,7 @@ test('it validates currency compatibility when allocating budget', function () {
         amount: new Money(10_000, Currency::USD),
     );
 
-    expect(fn () => $action->handle($request, $user))->toThrow(\InvalidArgumentException::class);
+    expect(fn () => $action->handle($request, $user))->toThrow(InvalidArgumentException::class);
 });
 
 test('it respects the monthly income cap when allocating budgets', function () {

@@ -59,7 +59,7 @@ final class HandleInertiaRequests extends Middleware
             ],
             'notifications' => fn () => $request->user()
                 ? [
-                    'items'        => $request->user()->notifications()->latest()->limit(15)->get()
+                    'items' => $request->user()->notifications()->latest()->limit(15)->get()
                         ->map(fn ($notification) => NotificationResource::fromModel($notification)->toArray())
                         ->all(),
                     'unread_count' => $request->user()->unreadNotifications()->count(),
