@@ -8,7 +8,7 @@ terraform {
 }
 
 resource "google_cloud_run_v2_service" "valorizeai_api" {
-  name     = "valorizeai"
+  name     = var.service_name
   location = var.region
   project  = var.project_id
   ingress  = "INGRESS_TRAFFIC_ALL"
@@ -34,16 +34,6 @@ resource "google_cloud_run_v2_service" "valorizeai_api" {
     }
 
     service_account = var.service_account_email
-
-    dynamic "volumes" {
-      for_each = length(var.cloud_sql_instances) > 0 ? [1] : []
-      content {
-        name = "cloudsql"
-        cloud_sql_instance {
-          instances = var.cloud_sql_instances
-        }
-      }
-    }
 
     containers {
       image = var.image
@@ -104,7 +94,7 @@ resource "google_cloud_run_v2_service" "valorizeai_api" {
 }
 
 resource "google_cloud_run_v2_job" "artisan_job" {
-  name                = "valorizeai-artisan"
+  name                = "${var.service_name}-artisan"
   location            = var.region
   project             = var.project_id
   deletion_protection = false

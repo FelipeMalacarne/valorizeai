@@ -54,7 +54,6 @@ module "cloudrun" {
   pgsql_database                 = var.pgsql_database
   pgsql_username                 = var.pgsql_username
   pgsql_password_secret_name     = google_secret_manager_secret.pgsql_password.secret_id
-  nightwatch_token_secret_name   = google_secret_manager_secret.nightwatch_token.secret_id
   image                          = "southamerica-east1-docker.pkg.dev/valorizeaitcc/valorize-repo/valorizeai:latest"
   enable_public_access           = true
   min_instances                  = 0

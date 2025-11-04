@@ -56,12 +56,6 @@ variable "resend_api_key" {
   sensitive   = true
 }
 
-variable "nightwatch_token" {
-  description = "Nightwatch API token for sending logs"
-  type        = string
-  sensitive   = true
-}
-
 variable "serverless_network_name" {
   description = "Name of the dedicated VPC network for serverless resources."
   type        = string
@@ -152,4 +146,77 @@ variable "cloudflare_record_name" {
   description = "Optional override for the DNS record name (defaults to the application domain)."
   type        = string
   default     = ""
+}
+
+variable "cloud_tasks_project" {
+  description = "Project ID where the Cloud Tasks queue lives (defaults to gcp_project_id)."
+  type        = string
+  default     = ""
+}
+
+variable "cloud_tasks_location" {
+  description = "Region/location of the Cloud Tasks queue."
+  type        = string
+  default     = ""
+}
+
+variable "cloud_tasks_queue" {
+  description = "Cloud Tasks queue name."
+  type        = string
+  default     = ""
+}
+
+variable "nightwatch_enabled" {
+  description = "Enable Nightwatch logging"
+  type        = bool
+  default     = true
+}
+
+variable "nightwatch_ingest_uri" {
+  description = "Nightwatch ingest URI (optional)."
+  type        = string
+  default     = ""
+}
+
+variable "nightwatch_server" {
+  description = "Nightwatch server identifier"
+  type        = string
+  default     = "nightwatch"
+}
+
+variable "nightwatch_request_sample_rate" {
+  description = "Nightwatch request sample rate (0-1)."
+  type        = number
+  default     = 0.5
+}
+
+variable "nightwatch_log_level" {
+  description = "Nightwatch log level"
+  type        = string
+  default     = "debug"
+}
+
+variable "deploy_nightwatch_service" {
+  description = "Deploy a Nightwatch ingest Cloud Run service"
+  type        = bool
+  default     = true
+}
+
+variable "google_credentials_json" {
+  description = "Optional service account JSON for GOOGLE_APPLICATION_CREDENTIALS"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "google_credentials_secret_name" {
+  description = "Existing Secret Manager name containing Google credentials JSON"
+  type        = string
+  default     = ""
+}
+
+variable "google_credentials_path" {
+  description = "Path inside the container for GOOGLE_APPLICATION_CREDENTIALS"
+  type        = string
+  default     = "/var/secrets/google/credentials.json"
 }

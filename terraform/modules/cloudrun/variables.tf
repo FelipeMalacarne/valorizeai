@@ -3,6 +3,12 @@ variable "project_id" {
   type        = string
 }
 
+variable "service_name" {
+  description = "Base name for the primary Cloud Run service."
+  type        = string
+  default     = "valorizeai"
+}
+
 variable "vpc_network" {
   description = "VPC network self link for direct Cloud Run attachment."
   type        = string
@@ -102,6 +108,78 @@ variable "domain" {
   default     = "valorizeai.felipemalacarne.com.br"
 }
 
+variable "cloud_tasks_project" {
+  description = "Cloud Tasks project ID for worker endpoints."
+  type        = string
+  default     = ""
+}
+
+variable "cloud_tasks_location" {
+  description = "Cloud Tasks location/region."
+  type        = string
+  default     = ""
+}
+
+variable "cloud_tasks_queue" {
+  description = "Primary Cloud Tasks queue name."
+  type        = string
+  default     = ""
+}
+
+variable "cloud_tasks_service_email" {
+  description = "Service account email used by Cloud Tasks push requests."
+  type        = string
+  default     = ""
+}
+
+variable "google_credentials_secret_name" {
+  description = "Secret Manager name that stores service account JSON for GOOGLE_APPLICATION_CREDENTIALS."
+  type        = string
+  default     = ""
+}
+
+variable "google_credentials_path" {
+  description = "Path inside container where GOOGLE_APPLICATION_CREDENTIALS JSON will be mounted."
+  type        = string
+  default     = "/var/secrets/google/credentials.json"
+}
+
+variable "enable_nightwatch_service" {
+  description = "Deploy a dedicated Nightwatch ingest service."
+  type        = bool
+  default     = true
+}
+
+variable "nightwatch_enabled" {
+  description = "Enable Nightwatch logging"
+  type        = bool
+  default     = true
+}
+
+variable "nightwatch_ingest_uri" {
+  description = "Nightwatch ingest URI"
+  type        = string
+  default     = ""
+}
+
+variable "nightwatch_server" {
+  description = "Nightwatch server identifier"
+  type        = string
+  default     = "nightwatch"
+}
+
+variable "nightwatch_request_sample_rate" {
+  description = "Nightwatch request sample rate (0-1)."
+  type        = number
+  default     = 0.5
+}
+
+variable "nightwatch_log_level" {
+  description = "Nightwatch log level"
+  type        = string
+  default     = "debug"
+}
+
 variable "cloud_sql_instances" {
   description = "Optional list of Cloud SQL instance connection names to mount."
   type        = list(string)
@@ -189,7 +267,7 @@ locals {
     },
     {
       name  = "SESSION_DRIVER"
-      value = "database"
+      value = "redis"
     },
     {
       name  = "SESSION_ENCRYPT"
@@ -199,10 +277,10 @@ locals {
       name  = "SESSION_PATH"
       value = "/"
     },
-    # {
-    #   name  = "SESSION_DOMAIN"
-    #   value = ".${var.domain}"
-    # },
+    {
+      name  = "SESSION_DOMAIN"
+      value = ".${var.domain}"
+    },
     {
       name  = "SESSION_LIFETIME"
       value = 120
@@ -217,7 +295,7 @@ locals {
     },
     {
       name  = "QUEUE_CONNECTION"
-      value = "redis"
+      value = "cloudtasks"
     },
     {
       name  = "CACHE_STORE"
@@ -242,6 +320,22 @@ locals {
     {
       name  = "TRUSTED_HOSTS"
       value = var.domain
+    },
+    {
+      name  = "CLOUD_TASKS_PROJECT"
+      value = var.cloud_tasks_project
+    },
+    {
+      name  = "CLOUD_TASKS_LOCATION"
+      value = var.cloud_tasks_location
+    },
+    {
+      name  = "CLOUD_TASKS_QUEUE"
+      value = var.cloud_tasks_queue
+    },
+    {
+      name  = "CLOUD_TASKS_SERVICE_EMAIL"
+      value = var.cloud_tasks_service_email
     },
   ]
 

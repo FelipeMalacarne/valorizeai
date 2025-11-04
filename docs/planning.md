@@ -1,206 +1,156 @@
-
-
-# 📘 Plano de TCC – ValorizeAI em Arquitetura Kubernetes (GKE Autopilot) com Baixo Vendor Lock-in
+# 📘 Plano de TCC – ValorizeAI em Arquitetura Serverless Gerenciada no GCP
 
 ## 🎯 Tema e Objetivos
 
-**Tema:** Documentar e validar a escalabilidade e a alta disponibilidade do aplicativo financeiro **ValorizeAI** executando integralmente em GKE Autopilot, complementado apenas por serviços mínimos como Cloud Tasks, priorizando baixo vendor lock-in.
+**Tema:** Documentar e validar a escalabilidade e a alta disponibilidade do aplicativo financeiro **ValorizeAI** utilizando exclusivamente serviços gerenciados do Google Cloud (Cloud Run, Cloud SQL, Memorystore, Cloud Tasks, Cloud Load Balancing).
 
 **Objetivos específicos**
 
-1. Apresentar a arquitetura completa do ValorizeAI (API, WebSockets, processamento assíncrono, plano de dados) destacando como os componentes em Kubernetes se relacionam.
-2. Definir SLOs de escalabilidade e disponibilidade e demonstrar, por meio de experimentos, que o ValorizeAI consegue atingi-los na plataforma escolhida.
-3. Fornecer infraestrutura como código (Terraform + GitOps) que permita reproduzir o ambiente com o mínimo de dependências proprietárias.
+1. Descrever a arquitetura completa do ValorizeAI destacando como cada serviço gerenciado contribui para escalabilidade, segurança e observabilidade.
+2. Definir SLOs viáveis (latência, disponibilidade e throughput) e demonstrar, via experimentos, que o ValorizeAI consegue atingi-los.
+3. Registrar o processo de implementação (Terraform + GitHub Actions/Cloud Build) e os testes de validação para que seja possível reproduzir o ambiente a partir do repositório atual.
 
 **Perguntas de pesquisa**
 
-* Quais limites de carga o ValorizeAI suporta antes de degradar os SLOs definidos?
-* Como o cluster GKE Autopilot se comporta diante de falhas planejadas (ex.: perda de um pod ou zona) mantendo o aplicativo disponível?
-* Qual o custo aproximado para manter o ambiente escalável com foco em componentes portáveis?
+* Qual é a capacidade máxima (RPS) que a API em Cloud Run suporta antes de violar o SLO de latência?
+* Como a combinação Cloud Run + Cloud SQL + Memorystore se comporta diante de falhas controladas (reinício da instância primária, indisponibilidade momentânea do cache)?
+* O pipeline assíncrono (Cloud Tasks → Worker Cloud Run) mantém consistência e tempo de processamento adequado sob backlog ampliado?
 
-> **Nota metodológica:** Não há pretensão de provar superioridade em relação a serviços 100% gerenciados; o objetivo é demonstrar que o desenho atual do ValorizeAI é válido, escalável e disponível dentro dos SLOs definidos.
-
----
-
-## ✅ Premissas e Propostas
-
-* **Premissas:** tráfego HTTP variável típico de um aplicativo financeiro, necessidade de consistência forte para operações críticas, uso intenso de tempo real (WebSockets) e busca semântica para recomendações.
-* **Proposta de valor:** executar tanto o plano de execução quanto o de dados dentro do GKE Autopilot (com namespaces isolados), mantendo flexibilidade para requisitos específicos do ValorizeAI (extensões Postgres, Redis Cluster, configurações personalizadas no Elasticsearch) e reduzindo dependência de serviços proprietários.
-* **Premissas de SLO:** latência P95 < 250 ms, indisponibilidade < 0.5% e capacidade de processar até 5k RPS com degradação controlada.
-* **Hipótese operacional:** se o desenho aderir às premissas (multi-zona, HPA, replicação), os SLOs do ValorizeAI serão atendidos mesmo sem serviços gerenciados proprietários.
+> **Nota metodológica:** o foco é demonstrar que o ValorizeAI, apoiado em serviços gerenciados do GCP, cumpre os SLOs definidos. Não há pretensão de compará-lo com soluções self-managed ou provar superioridade frente a outras clouds.
 
 ---
 
-## ☁️ Arquitetura Proposta
+## ✅ Premissas
+
+* Workload HTTP/HTTPS com picos ocasionais (campanhas financeiras).
+* Trilha de auditoria e consistência forte para transações críticas.
+* Requisitos de experiência em tempo real (notificações via Reverb/WebSockets).
+* Equipe pequena (autor do TCC) com necessidade de produtividade alta → foco em serviços gerenciados para reduzir toil operacional.
+
+**SLOs base**
+
+| Métrica                 | Valor alvo |
+| ----------------------- | ---------- |
+| Latência P95 (API)      | ≤ 250 ms   |
+| Erro percentual         | ≤ 0.5%     |
+| Disponibilidade mensal  | ≥ 99.5%    |
+| MTTR falha planejada    | ≤ 60 s     |
+
+---
+
+## ☁️ Arquitetura Proposta (Managed GCP)
 
 ### 🔹 Edge / Rede
 
-* **Cloud Load Balancing (HTTP(S)) + Cloud CDN**
-* **Cloud Armor** para WAF e rate limiting
-* **Identity-Aware Proxy** para painéis internos e acesso ao Kibana/pgAdmin
+* **Cloud Load Balancing (HTTP(S))** com **Cloud CDN** e **Cloud Armor** (WAF/rate limit).
+* Certificados gerenciados e roteamento custom domain (`valorizeai.*`).
 
-### 🔹 Plano de Execução (GKE Autopilot)
+### 🔹 Aplicação (Cloud Run)
 
-| Serviço                         | Plataforma / Recurso           | Observações                                                                 |
-| ------------------------------- | ------------------------------ | --------------------------------------------------------------------------- |
-| API Laravel                     | Deployment + HPA               | Pods stateless, autoscaling 1↔n, expostos via Ingress + Cloud Load Balancer |
-| Laravel Reverb / WebSockets     | Deployment + HPA               | Horizontal scaling com Redis Cluster; afinidade por zona opcional           |
-| Workers HTTP (push tasks)       | Deployment exposto via Service | Recebe requisições do Cloud Tasks; middleware de idempotência e DLQ local   |
-| Cronos críticos                 | Kubernetes CronJob             | Executam containers imutáveis; registram logs via FluentBit → Cloud Logging |
-| Workers batelados               | Kubernetes Job/Argo Workflow   | Disparados manualmente ou por CronJob; usam filas internas em Redis/DB      |
+| Serviço                         | Plataforma        | Observações                                                                    |
+| ------------------------------- | ----------------- | ------------------------------------------------------------------------------ |
+| API Laravel                     | Cloud Run         | Stateless; concurrency 80; VPC Connector para acessar Cloud SQL/Memorystore.   |
+| Laravel Reverb / WebSockets     | Cloud Run         | Mín 1 instância; escala horizontal; utiliza Memorystore como backend.          |
+| Workers HTTP (Cloud Tasks)      | Cloud Run         | Endpoint privado recebe push das filas; idempotência via Redis/outbox.         |
+| Jobs agendados                  | Cloud Run Jobs    | Disparados por Cloud Scheduler (cron diários, limpeza, relatórios).            |
 
-### 🔹 Plano de Dados em GKE Autopilot
+### 🔹 Dados e Cache
 
-| Componente      | implementação GKE Autopilot | Especificações principais                                                                                         |
-| --------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| PostgreSQL HA   | StatefulSet Patroni + PgBouncer | 3 pods data multi-zona + 1 pod witness; discos `pd-ssd` regionais; backups via pgBackRest para Cloud Storage         |
-| Réplicas leitura| Serviços Read-Only          | Expostas por `Service` dedicado; sincronismo assíncrono com atraso monitorado                                       |
-| Redis Cluster   | StatefulSet Redis 7         | Cluster mode enabled (3 masters + 3 replicas); failover automático; backups com `redis-cli --rdb`                  |
-| Elasticsearch   | StatefulSet (3 data + 2 master elegíveis + 1 ingest) | PVC `pd-balanced`, ILM + snapshots diários; upgrades orquestrados via `maxUnavailable=1`                           |
-| Operação        | Config Sync + Backup for GKE | ConfigMaps para parâmetros sensíveis, Secret Manager → CSI; monitoramento com GKE Managed Prometheus + Grafana      |
+| Serviço           | Uso principal                                          | Configuração                                      |
+| ----------------- | ------------------------------------------------------ | ------------------------------------------------- |
+| **Cloud SQL (PostgreSQL)** | Banco transacional; primária + réplica de leitura (RO) | HA, backups automáticos, TLS obrigatório.         |
+| **Memorystore (Redis)**    | Cache, filas curtas, backend do Reverb            | Tier Standard; failover automático; VPC privada.  |
+| **Cloud Storage**          | Uploads, relatórios, snapshots de testes          | Bucket versionado com CMEK e TTL para temporários. |
 
-Benefícios principais do Autopilot: nós gerenciados, segurança reforçada (sandbox gVisor), billing por pod e auto-provisionamento de nós multi-zona.
+### 🔹 Mensageria / Processamento Assíncrono
 
-### 🔹 Mensageria / Filas
+* **Cloud Tasks**: filas por domínio (ex.: `payments`, `notifications`), com política de retry e DLQ (Pub/Sub) para observação.
+* **Pub/Sub (opcional)**: usado apenas para broadcast de eventos que não exigem confirmação imediata (ex.: log de auditoria). Pode ser adiado se não der tempo.
 
-* **Cloud Tasks** para tarefas HTTP e controle de retries (push endpoint exposto via Ingress do cluster)
-* **Redis Streams / filas internas** para jobs batelados e padrões outbox
-* Eventuais automações são executadas por CronJobs ou fluxos GitOps, evitando dependência de Eventarc/Pub/Sub
+### 🔹 Observabilidade
 
-### 🔹 Observabilidade e Resiliência
-
-* **Cloud Monitoring + Managed Prometheus + Grafana** (dashboards específicos para workloads GKE)
-* **Logs estruturados** em Cloud Logging + roteamento para BigQuery/Elastic
-* **Tracing** com Cloud Trace e OpenTelemetry exporter
-* SLOs de referência: latência P95 < 250 ms, erro % < 0.5%, disponibilidade >= 99.5%
+* **Cloud Monitoring + Logging + Trace** integrados via OpenTelemetry.
+* Dashboards com métricas-chave: latência P95/P99, taxa de erro, consumo de Cloud SQL, conexões Redis, backlog Cloud Tasks.
+* Alertas básicos (latência > 250 ms, backlog > 5k jobs, uso CPU Cloud SQL > 80%).
 
 ### 🔹 Segurança
 
-* **VPC dedicada + sub-redes privadas**; GKE Autopilot Private Cluster
-* **Secret Manager + CSI Driver**, chaves KMS para discos
-* **Policies**: IAM mínimo necessário, Binary Authorization para imagens do cluster stateful
+* IAM mínimo necessário, **Secret Manager** para segredos (creds DB, Resend, etc.).
+* **VPC Connector** para Cloud Run → Cloud SQL/Memorystore.
+* Auditoria via Cloud Audit Logs.
 
-### 🔹 Infraestrutura (IaC)
+### 🔹 Infraestrutura como Código
 
 ```
-/envs
-  dev/
-  staging/
-  prod/
-/modules
-  gke_autopilot_cluster/
-  gke_workloads_app/
-  postgres_patroni_statefulset/
-  redis_cluster_statefulset/
-  elasticsearch_statefulset/
-  vpc_networking/
-  observability_stack/
-  secret_manager/
-  cloud_tasks_queue/
+terraform/
+  main.tf                      # módulos cloudrun, load balancer, secrets
+  modules/
+    cloudrun/
+    load-balancer/
+  ...
 ```
 
-* Pipelines: Cloud Build → testes Terraform (`terraform validate` + `tflint`), build/push de imagens, `kubectl apply`/GitOps (Config Sync / ArgoCD) para workloads GKE, verificação de saúde automatizada.
+* Terraform existente continuará sendo usado; ajustes focam em parametrizar Cloud SQL/Memorystore (provisionados fora do repo ou via módulos simples).
+* Pipeline: GitHub Actions → build container → deploy Cloud Run → execução de smoke tests.
 
 ---
 
-## 🧠 Hipóteses e Plano de Testes
+## 🧠 Hipóteses e Testes
 
 ### Hipóteses
 
-1. **Escalabilidade Horizontal**
-   * **H₀₁:** Ao elevar a carga do ValorizeAI até 5k RPS, a latência P95 excede 250 ms ou a taxa de erros ultrapassa 0,5%.
-   * **H₁₁:** Mesmo em 5k RPS, o sistema mantém os SLOs de latência e erro definidos.
-2. **Resiliência a Falhas**
-   * **H₀₂:** Falhas controladas (remoção de pod mestre do Postgres, perda de zona, indisponibilidade temporária do Redis) causam indisponibilidade superior a 60 segundos ou perda de dados.
-   * **H₁₂:** Os mecanismos de failover restauram o serviço em < 60 s sem perda percebida pelos usuários.
-3. **Processamento Assíncrono**
-   * **H₀₃:** O pipeline Cloud Tasks → Workers em GKE não consegue drenar um backlog 10× superior ao normal em tempo hábil (< 5 minutos) ou gera efeitos colaterais (duplicidade, jobs órfãos).
-   * **H₁₃:** O pipeline processa o backlog reforçado dentro do tempo alvo mantendo idempotência e consistência.
-4. **Busca Semântica e Experiência**
-   * **H₀₄:** Durante reindexações e rolling upgrades do cluster Elasticsearch, há degradação perceptível (latência P95 > 500 ms ou precisão@10 abaixo do baseline).
-   * **H₁₄:** O cluster mantém relevância e latência estáveis mesmo durante operações de manutenção.
-5. **Sustentabilidade Operacional**
-   * **H₀₅:** Para cumprir os SLOs, o custo mensal excede o orçamento definido ou as rotinas IaC/GitOps não garantem reprodutibilidade do ambiente.
-   * **H₁₅:** O ambiente opera dentro do orçamento previsto e pode ser reprovisionado integralmente via IaC/GitOps sem intervenção manual crítica.
-
-Cada teste da matriz abaixo aponta explicitamente qual hipótese está sendo verificada. Evidências contrárias mantêm a hipótese nula; evidências favoráveis permitem rejeitá-la e fortalecer a narrativa de escalabilidade e resiliência.
+1. **Escalabilidade da API Cloud Run**  
+   * **H₀₁:** Antes de atingir 2k RPS, a latência P95 excede 250 ms ou a taxa de erros passa de 0,5%.  
+   * **H₁₁:** A API mantém os SLOs até 2k RPS.
+2. **Resiliência do plano de dados**  
+   * **H₀₂:** Falhas controladas (failover Cloud SQL, reset de Memorystore) causam indisponibilidade > 60 s ou perda de requisições.  
+   * **H₁₂:** O app se recupera em < 60 s e mantém consistência.
+3. **Processamento assíncrono (Cloud Tasks)**  
+   * **H₀₃:** Um backlog 10× maior não é drenado em < 5 min ou gera duplicidade de jobs.  
+   * **H₁₃:** O worker Cloud Run processa o backlog com idempotência e dentro do tempo alvo.
+4. **Observabilidade/Custo básico**  
+   * **H₀₄:** Durante os testes, não há dados suficientes para provar SLOs ou o custo extrapola o orçamento definido.  
+   * **H₁₄:** Os dashboards capturam todas as métricas necessárias e o custo permanece dentro do planejado.
 
 ### Matriz de testes
 
-| # | Hipótese                  | Objetivo                             | Cenários / Premissas                                                                 | Métricas principais                            | Ferramentas                           | Critério de sucesso                                           |
-| - | ------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------ | ---------------------------------------------- | ------------------------------------- | ------------------------------------------------------------- |
-| 1 | H₀₁ vs H₁₁               | Escalabilidade horizontal            | Burst 0 → 5k RPS; Deployments da API no GKE até limite; HPA dos StatefulSets acionado | Latência P95, throughput, CPU/mem dos pods     | k6/Locust, Cloud Monitoring           | Latência P95 < 250 ms, erro % < 0.5%, throughput linear até 5k RPS |
-| 2 | H₀₂ vs H₁₂               | Resiliência a falhas                 | Derrubar pod PostgreSQL mestre, simular perda de zona, injetar latência em Redis    | MTTR, erro %, atraso de replicação, perda de dados | Chaos Mesh, Fault Injection policy, pg_stat_replication | MTTR < 60 s, erro % < 1%, sem perda de dados perceptível      |
-| 3 | H₀₃ vs H₁₃               | Processamento assíncrono             | Criar backlog 10× maior no Cloud Tasks; pausar e retomar Deployment de workers no GKE | Tempo para drenar fila, itens duplicados, jobs com falha | Cloud Tasks metrics, Cloud Logging, dashboards customizados | Backlog drenado < 5 min, zero duplicidade não tratada, erro < 0.5% |
-| 4 | H₀₄ vs H₁₄               | Busca semântica resiliente           | Rolling upgrade Elasticsearch + reindex + consulta golden queries                   | P95 busca, precisão@10, tempo de recovery      | Rally, Elastic Synthetics             | Zero downtime percebido, precisão >= baseline                 |
-| 5 | H₀₅ vs H₁₅               | Sustentabilidade operacional         | Simular um ciclo completo de provisioning via Terraform + GitOps e monitorar custos em cargas 10/50/100% | Tempo de reprovisionamento, custo por 1k requisições, horas de operação | Terraform Cloud/CLI, Config Sync, Billing Export → BigQuery | Reprovisionamento < 2h, custo dentro do orçamento, zero passos manuais críticos |
-
-Todos os testes registram evidências (scripts, dashboards, logs) anexados como apêndice do TCC.
+| # | Hipótese | Objetivo                        | Cenário / Procedimento                                                                 | Métricas principais                             | Ferramentas                                  | Critério de sucesso                                      |
+| - | -------- | ------------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------- | -------------------------------------------------------- |
+| 1 | H₀₁ vs H₁₁ | Escalabilidade da API          | k6/Locust gerando ramp-up 0→2k RPS na rota `/api/v1/...`; Cloud Run escalando até limite | Latência P95, P99, throughput, erro %            | k6 + Cloud Monitoring                        | P95 ≤ 250 ms, erro % ≤ 0.5 até 2k RPS                    |
+| 2 | H₀₂ vs H₁₂ | Falha em Cloud SQL / Redis     | Forçar failover manual no Cloud SQL + reiniciar Memorystore                            | MTTR, erro %, número de reconexões              | gcloud sql failover, Cloud Monitoring         | MTTR ≤ 60 s, erro % < 1%, aplicação retoma conexões      |
+| 3 | H₀₃ vs H₁₃ | Backlog Cloud Tasks            | Injetar 10× jobs (ex.: 10k notificações), suspender/retomar worker Cloud Run           | Tempo para zerar fila, jobs DLQ, duplicidade    | Cloud Tasks metrics, Cloud Logging            | Backlog drenado ≤ 5 min, DLQ ≤ 0.5%, duplicidade inexistente |
+| 4 | H₀₄ vs H₁₄ | Observabilidade/Custo          | Revisar dashboards/alertas durante testes + estimar custo diário (Billing export)      | Métricas coletadas, custo por 1k req            | Cloud Monitoring, Billing Export → BigQuery  | Todas as métricas coletadas + custo dentro do orçamento  |
 
 ---
 
-## ✍️ Plano Detalhado de Escrita do TCC
+## ✍️ Estrutura Proposta do TCC
 
-1. **Introdução**  
-   * Contexto do setor financeiro, problemas de escalabilidade e compliance.  
-   * Motivação para unir serverless e clusters stateful próprios.  
-   * Objetivos, perguntas de pesquisa e delimitações.
-2. **Contexto e Trabalhos Relacionados**  
-   * Panorama de serviços gerenciados e clusters Autopilot, indicando vantagens e limitações de cada abordagem.  
-   * Referenciais sobre arquiteturas híbridas serverless + Kubernetes e casos de uso semelhantes.
-3. **Fundamentação Teórica**  
-   * Conceitos de serverless, GKE Autopilot, consistência distribuída, padrões de resiliência.  
-   * Padrões arquiteturais (CQRS, outbox, circuit breakers).
-4. **Produto ValorizeAI e Requisitos**  
-   * Descrição do aplicativo, personas, fluxos críticos e requisitos não funcionais.  
-   * SLOs adotados, métricas de negócio e critérios de sucesso dos experimentos.
-5. **Arquitetura Proposta**  
-   * Diagramas de contexto e implantação.  
-   * Justificativas das escolhas (cluster único com namespaces isolados, operadores stateful, uso pontual de Cloud Tasks).  
-   * Matriz de riscos e mitigações.
-6. **Metodologia Experimental**  
-   * Ambiente (quotas, regiões, tamanhos de pods).  
-   * Ferramentas, scripts e métricas coletadas.  
-   * Procedimento para cada teste associado às hipóteses.
-7. **Implementação**  
-   * Organização dos módulos Terraform, pipelines, manifestos Kubernetes.  
-   * Adequações na aplicação Laravel (configurações, instrumentação, feature flags).  
-   * Detalhes das integrações (Reverb, Pub/Sub, Redis cluster, Cloud Tasks).
-8. **Experimentos e Resultados**  
-   * Apresentação visual (gráficos, tabelas) para cada teste.  
-   * Comparação entre resultados observados e SLOs/metas definidos.  
-   * Evidências que aceitam ou rejeitam cada hipótese.
-9. **Discussão e Trabalhos Futuros**  
-   * Impacto operacional, requisitos de equipe, riscos remanescentes.  
-   * Próximos passos técnicos (ex.: Spanner, AlloyDB, autoscaling baseado em AI).  
-10. **Conclusão**  
-    * Retoma objetivos e responde perguntas de pesquisa.  
-    * Recomendações práticas para equipes que desejam replicar o blueprint.
-
-Apêndices sugeridos: manifestos Terraform, scripts k6, dashboards, checklist de segurança.
+1. **Introdução** – Contexto do ValorizeAI, problema, objetivos e perguntas de pesquisa.  
+2. **Trabalhos Relacionados** – Aborda arquiteturas serverless em nuvem, referências sobre Cloud Run/Cloud SQL.  
+3. **Fundamentação Teórica** – Conceitos de serverless, filas assíncronas, SLO/SLA, observabilidade.  
+4. **Produto ValorizeAI** – Personas, fluxos críticos, requisitos funcionais/não funcionais.  
+5. **Arquitetura Serverless no GCP** – Descrição detalhada dos serviços usados, diagramas e justificativas.  
+6. **Metodologia e Plano Experimental** – Ambientes, ferramentas, scripts e hipóteses.  
+7. **Implementação e Infraestrutura** – Terraform, pipeline CI/CD, configurações da aplicação.  
+8. **Experimentos e Resultados** – Execução dos testes 1–4, análise dos dados, aceitação/rejeição das hipóteses.  
+9. **Discussão e Limitações** – Lições aprendidas, riscos, possíveis otimizações futuras (ex.: GKE).  
+10. **Conclusão** – Resumo das contribuições e recomendações.
 
 ---
 
-## 🗓️ Cronograma de 30 Dias (Implementação + Escrita)
+## 🗓️ Cronograma (3 semanas)
 
-| Semana | Foco Principal                          | Atividades chave                                                                 |
-| ------ | --------------------------------------- | --------------------------------------------------------------------------------- |
-| 1      | Planejamento & Infraestrutura           | Refinar SLOs, ajustar módulos Terraform, provisionar VPC + GKE Autopilot e Cloud Tasks |
-| 2      | Aplicação & Observabilidade             | Conectar Laravel a Postgres/Redis/ES no cluster, configurar métricas, GitOps      |
-| 3      | Testes e Evidências                     | Executar matriz de testes 1–4, coletar dashboards, ajustar automações             |
-| 4      | Custo, Análise e Escrita                | Rodar teste 5, consolidar dados, redigir capítulos 5–9, revisar conclusões        |
-
-Cada semana reserva blocos específicos para escrita (mín. 2 sessões) e revisão de orientador.
+| Semana | Foco                                 | Detalhes                                                                 |
+| ------ | ------------------------------------ | ------------------------------------------------------------------------ |
+| 1      | Infra & Documentação                  | Ajustar Terraform existente, provisionar Cloud SQL/Memorystore, atualizar docs, iniciar capítulos 1–5. |
+| 2      | Testes & Observabilidade              | Configurar k6, scripts de failover, dashboards; rodar testes 1 e 2; escrever capítulos 6–8 (parcial). |
+| 3      | Processamento assíncrono + Escrita    | Rodar teste 3 e 4, consolidar resultados, finalizar capítulos 8–10, revisão geral. |
 
 ---
 
-## 💡 Próximos Passos Imediatos
+## 💡 Próximos Passos
 
-1. Finalizar diagramas e checklist de requisitos para o cluster Autopilot (quotas, regiões, tamanhos de disco).
-2. Converter módulos Terraform existentes para o layout acima e preparar repositório GitOps dos manifests stateful.
-3. Esboçar scripts de teste (k6, PgBench, Chaos Mesh) e validar em ambiente dev.
-4. Criar template do TCC (Markdown/LaTeX) com a estrutura detalhada para iniciar a escrita incremental.
-
----
-
-Se quiser, posso ajudar a montar os módulos Terraform, scripts de teste ou o template de escrita. Só avisar! 😊
+1. Atualizar Terraform para parametrizar Cloud SQL/Memorystore (ou documentar provisioning manual caso já existam).  
+2. Garantir que Cloud Run (API + workers) esteja usando segredos do Secret Manager e conectores VPC.  
+3. Preparar scripts de teste (k6, failover, injeção Cloud Tasks) e dashboards no Cloud Monitoring.  
+4. Iniciar a escrita dos capítulos 1–5 usando este documento como guia, incrementando conforme testes avançarem.
