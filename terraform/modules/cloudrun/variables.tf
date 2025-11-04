@@ -2,9 +2,31 @@ variable "project_id" {
   description = "Google Cloud project ID"
   type        = string
 }
+
+variable "vpc_network" {
+  description = "VPC network self link for direct Cloud Run attachment."
+  type        = string
+}
+
+variable "vpc_subnetwork" {
+  description = "Subnetwork self link for direct Cloud Run attachment."
+  type        = string
+}
+
 variable "region" {
   description = "Google Cloud region for the Cloud Run service"
   type        = string
+}
+
+variable "redis_host" {
+  description = "Hostname/IP for Redis (Memorystore)."
+  type        = string
+}
+
+variable "redis_port" {
+  description = "Port for Redis."
+  type        = number
+  default     = 6379
 }
 
 variable "pgsql_host" {
@@ -35,9 +57,9 @@ variable "concurrency" {
 }
 
 variable "max_instances" {
-  description = "Maximum number of instances for the Cloud Run service"
+  description = "Maximum number of instances for the Cloud Run service (Cloud Run + VPC direct attachment supports at most 10)."
   type        = number
-  default     = 100
+  default     = 10
 }
 
 variable "min_instances" {
@@ -63,6 +85,11 @@ variable "image" {
   type        = string
 }
 
+variable "service_account_email" {
+  description = "Service account email used by Cloud Run service and jobs."
+  type        = string
+}
+
 variable "enable_public_access" {
   description = "Enable public access to Cloud Run service (disable if using Firebase Hosting)"
   type        = bool
@@ -73,6 +100,12 @@ variable "domain" {
   description = "Custom domain for the application"
   type        = string
   default     = "valorizeai.felipemalacarne.com.br"
+}
+
+variable "cloud_sql_instances" {
+  description = "Optional list of Cloud SQL instance connection names to mount."
+  type        = list(string)
+  default     = []
 }
 
 variable "job_max_retries" {
@@ -166,10 +199,10 @@ locals {
       name  = "SESSION_PATH"
       value = "/"
     },
-    {
-      name  = "SESSION_DOMAIN"
-      value = ".${var.domain}"
-    },
+    # {
+    #   name  = "SESSION_DOMAIN"
+    #   value = ".${var.domain}"
+    # },
     {
       name  = "SESSION_LIFETIME"
       value = 120
@@ -184,11 +217,19 @@ locals {
     },
     {
       name  = "QUEUE_CONNECTION"
-      value = "database"
+      value = "redis"
     },
     {
       name  = "CACHE_STORE"
-      value = "database"
+      value = "redis"
+    },
+    {
+      name  = "REDIS_HOST"
+      value = var.redis_host
+    },
+    {
+      name  = "REDIS_PORT"
+      value = tostring(var.redis_port)
     },
     {
       name  = "OCTANE_SERVER"

@@ -20,9 +20,29 @@ resource "google_cloud_run_v2_service" "valorizeai_api" {
 
     timeout = "300s"
 
+    vpc_access {
+      network_interfaces {
+        network    = var.vpc_network
+        subnetwork = var.vpc_subnetwork
+        tags       = ["valorizeai"]
+      }
+    }
+
     scaling {
       max_instance_count = var.max_instances
       min_instance_count = var.min_instances
+    }
+
+    service_account = var.service_account_email
+
+    dynamic "volumes" {
+      for_each = length(var.cloud_sql_instances) > 0 ? [1] : []
+      content {
+        name = "cloudsql"
+        cloud_sql_instance {
+          instances = var.cloud_sql_instances
+        }
+      }
     }
 
     containers {
@@ -71,6 +91,14 @@ resource "google_cloud_run_v2_service" "valorizeai_api" {
           port = 8080
         }
       }
+
+      dynamic "volume_mounts" {
+        for_each = length(var.cloud_sql_instances) > 0 ? [1] : []
+        content {
+          name       = "cloudsql"
+          mount_path = "/cloudsql"
+        }
+      }
     }
   }
 }
@@ -83,8 +111,16 @@ resource "google_cloud_run_v2_job" "artisan_job" {
 
   template {
     template {
-      max_retries = var.job_max_retries
-      timeout     = var.job_timeout
+      max_retries     = var.job_max_retries
+      timeout         = var.job_timeout
+      service_account = var.service_account_email
+      vpc_access {
+        network_interfaces {
+          network    = var.vpc_network
+          subnetwork = var.vpc_subnetwork
+          tags       = ["valorizeai"]
+        }
+      }
       containers {
         image   = var.image
         command = ["php", "artisan"]
