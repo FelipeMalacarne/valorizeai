@@ -1,7 +1,7 @@
 # Makefile for ValorizeAI deployment
 
 # Configuration
-PROJECT_ID := valorizeai
+PROJECT_ID := valorizeaitcc
 REGION := southamerica-east1
 REPOSITORY := valorize-repo
 IMAGE_NAME := valorizeai
