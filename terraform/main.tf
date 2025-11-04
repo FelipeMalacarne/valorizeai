@@ -36,24 +36,37 @@ locals {
   cloudflare_record   = var.cloudflare_record_name != "" ? var.cloudflare_record_name : (var.custom_domain != "" ? var.custom_domain : var.domain)
 }
 
+module "cloud_tasks" {
+  source                = "./modules/cloud_tasks_queue"
+  project_id            = var.gcp_project_id
+  location              = var.gcp_region
+  queue_name            = "default"
+  service_account_email = google_service_account.cloud_run_runtime.email
+}
+
 module "cloudrun" {
-  source                     = "./modules/cloudrun"
-  project_id                 = var.gcp_project_id
-  region                     = var.gcp_region
-  vpc_network                = google_compute_network.serverless.id
-  vpc_subnetwork             = google_compute_subnetwork.serverless.id
-  pgsql_host                 = local.db_host
-  pgsql_database             = var.pgsql_database
-  pgsql_username             = var.pgsql_username
-  pgsql_password_secret_name = google_secret_manager_secret.pgsql_password.secret_id
-  image                      = "southamerica-east1-docker.pkg.dev/valorizeaitcc/valorize-repo/valorizeai:latest"
-  enable_public_access       = true
-  min_instances              = 0
-  domain                     = local.app_domain
-  redis_host                 = local.redis_host
-  redis_port                 = local.redis_port
-  cloud_sql_instances        = local.cloud_sql_instances
-  service_account_email      = google_service_account.cloud_run_runtime.email
+  source                         = "./modules/cloudrun"
+  project_id                     = var.gcp_project_id
+  region                         = var.gcp_region
+  vpc_network                    = google_compute_network.serverless.id
+  vpc_subnetwork                 = google_compute_subnetwork.serverless.id
+  pgsql_host                     = local.db_host
+  pgsql_database                 = var.pgsql_database
+  pgsql_username                 = var.pgsql_username
+  pgsql_password_secret_name     = google_secret_manager_secret.pgsql_password.secret_id
+  nightwatch_token_secret_name   = google_secret_manager_secret.nightwatch_token.secret_id
+  image                          = "southamerica-east1-docker.pkg.dev/valorizeaitcc/valorize-repo/valorizeai:latest"
+  enable_public_access           = true
+  min_instances                  = 0
+  domain                         = local.app_domain
+  redis_host                     = local.redis_host
+  redis_port                     = local.redis_port
+  cloud_tasks_project            = module.cloud_tasks.project_id
+  cloud_tasks_location           = module.cloud_tasks.location
+  cloud_tasks_queue              = module.cloud_tasks.queue_name
+  cloud_tasks_service_email      = google_service_account.cloud_run_runtime.email
+  cloud_sql_instances            = local.cloud_sql_instances
+  service_account_email          = google_service_account.cloud_run_runtime.email
 }
 
 module "load_balancer" {

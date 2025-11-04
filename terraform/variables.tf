@@ -73,13 +73,6 @@ variable "serverless_subnet_cidr" {
   type        = string
   default     = "10.70.0.0/20"
 }
-
-variable "serverless_connector_cidr" {
-  description = "CIDR range for the Serverless VPC connector."
-  type        = string
-  default     = "10.72.0.0/28"
-}
-
 variable "cloudsql_instance_name" {
   description = "Name of the Cloud SQL instance."
   type        = string
