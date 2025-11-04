@@ -32,8 +32,8 @@ locals {
   cloud_sql_instances = [module.cloudsql.instance_connection_name]
   redis_host          = module.memorystore.host
   redis_port          = module.memorystore.port
-  app_domain          = var.custom_domain != "" ? var.custom_domain : var.domain
-  cloudflare_record   = var.cloudflare_record_name != "" ? var.cloudflare_record_name : (var.custom_domain != "" ? var.custom_domain : var.domain)
+  app_domain          = var.domain
+  cloudflare_record   = var.domain
 }
 
 module "cloud_tasks" {
@@ -64,8 +64,13 @@ module "cloudrun" {
   cloud_tasks_location           = module.cloud_tasks.location
   cloud_tasks_queue              = module.cloud_tasks.queue_name
   cloud_tasks_service_email      = google_service_account.cloud_run_runtime.email
+  google_credentials_secret_name = google_secret_manager_secret.cloud_run_credentials.secret_id
+  google_credentials_path        = var.google_credentials_path
   cloud_sql_instances            = local.cloud_sql_instances
   service_account_email          = google_service_account.cloud_run_runtime.email
+  depends_on = [
+    google_secret_manager_secret_version.cloud_run_credentials
+  ]
 }
 
 module "load_balancer" {

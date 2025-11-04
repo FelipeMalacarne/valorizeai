@@ -25,3 +25,4 @@ pgsql_username = "your-username"
 # nightwatch_request_sample_rate = 0.5
 # nightwatch_log_level     = "debug"
 # deploy_nightwatch_service = true
+# google_credentials_path        = "/var/secrets/google/credentials.json"

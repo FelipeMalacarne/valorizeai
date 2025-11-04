@@ -33,3 +33,16 @@ resource "google_project_iam_member" "runtime_tracing" {
   role    = "roles/cloudtrace.agent"
   member  = "serviceAccount:${google_service_account.cloud_run_runtime.email}"
 }
+
+resource "google_service_account_key" "cloud_run_runtime" {
+  service_account_id = google_service_account.cloud_run_runtime.name
+  # keepers = {
+  #   rotation = timestamp()
+  # }
+}
+
+resource "google_service_account_iam_member" "runtime_self_actas" {
+  service_account_id = google_service_account.cloud_run_runtime.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.cloud_run_runtime.email}"
+}

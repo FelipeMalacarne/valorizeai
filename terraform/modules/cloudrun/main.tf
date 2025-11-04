@@ -35,6 +35,30 @@ resource "google_cloud_run_v2_service" "valorizeai_api" {
 
     service_account = var.service_account_email
 
+    dynamic "volumes" {
+      for_each = length(var.cloud_sql_instances) > 0 ? [1] : []
+      content {
+        name = "cloudsql"
+        cloud_sql_instance {
+          instances = var.cloud_sql_instances
+        }
+      }
+    }
+
+    dynamic "volumes" {
+      for_each = [1]
+      content {
+        name = "google-credentials"
+        secret {
+          secret = var.google_credentials_secret_name
+          items {
+            path    = basename(var.google_credentials_path)
+            version = "latest"
+          }
+        }
+      }
+    }
+
     containers {
       image = var.image
       ports {
@@ -89,6 +113,16 @@ resource "google_cloud_run_v2_service" "valorizeai_api" {
           mount_path = "/cloudsql"
         }
       }
+
+      volume_mounts {
+        name       = "google-credentials"
+        mount_path = dirname(var.google_credentials_path)
+      }
+
+      env {
+        name  = "GOOGLE_APPLICATION_CREDENTIALS"
+        value = var.google_credentials_path
+      }
     }
   }
 }
@@ -108,9 +142,21 @@ resource "google_cloud_run_v2_job" "artisan_job" {
         network_interfaces {
           network    = var.vpc_network
           subnetwork = var.vpc_subnetwork
-          tags       = ["valorizeai"]
+          tags       = ["${var.service_name}-job"]
         }
       }
+
+      volumes {
+        name = "google-credentials"
+        secret {
+          secret = var.google_credentials_secret_name
+          items {
+            path    = basename(var.google_credentials_path)
+            version = "latest"
+          }
+        }
+      }
+
       containers {
         image   = var.image
         command = ["php", "artisan"]
@@ -143,6 +189,16 @@ resource "google_cloud_run_v2_job" "artisan_job" {
             cpu    = var.job_cpu
             memory = var.job_memory
           }
+        }
+
+        volume_mounts {
+          name       = "google-credentials"
+          mount_path = dirname(var.google_credentials_path)
+        }
+
+        env {
+          name  = "GOOGLE_APPLICATION_CREDENTIALS"
+          value = var.google_credentials_path
         }
       }
     }

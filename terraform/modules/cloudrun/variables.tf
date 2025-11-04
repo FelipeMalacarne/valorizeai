@@ -135,49 +135,12 @@ variable "cloud_tasks_service_email" {
 variable "google_credentials_secret_name" {
   description = "Secret Manager name that stores service account JSON for GOOGLE_APPLICATION_CREDENTIALS."
   type        = string
-  default     = ""
 }
 
 variable "google_credentials_path" {
   description = "Path inside container where GOOGLE_APPLICATION_CREDENTIALS JSON will be mounted."
   type        = string
   default     = "/var/secrets/google/credentials.json"
-}
-
-variable "enable_nightwatch_service" {
-  description = "Deploy a dedicated Nightwatch ingest service."
-  type        = bool
-  default     = true
-}
-
-variable "nightwatch_enabled" {
-  description = "Enable Nightwatch logging"
-  type        = bool
-  default     = true
-}
-
-variable "nightwatch_ingest_uri" {
-  description = "Nightwatch ingest URI"
-  type        = string
-  default     = ""
-}
-
-variable "nightwatch_server" {
-  description = "Nightwatch server identifier"
-  type        = string
-  default     = "nightwatch"
-}
-
-variable "nightwatch_request_sample_rate" {
-  description = "Nightwatch request sample rate (0-1)."
-  type        = number
-  default     = 0.5
-}
-
-variable "nightwatch_log_level" {
-  description = "Nightwatch log level"
-  type        = string
-  default     = "debug"
 }
 
 variable "cloud_sql_instances" {
@@ -277,10 +240,10 @@ locals {
       name  = "SESSION_PATH"
       value = "/"
     },
-    {
-      name  = "SESSION_DOMAIN"
-      value = ".${var.domain}"
-    },
+    # {
+    #   name  = "SESSION_DOMAIN"
+    #   value = ".${var.domain}"
+    # },
     {
       name  = "SESSION_LIFETIME"
       value = 120
