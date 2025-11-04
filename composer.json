@@ -23,6 +23,7 @@
         "spatie/laravel-data": "^4.15",
         "spatie/laravel-typescript-transformer": "^2.5",
         "spatie/typescript-transformer": "^2.5",
+        "stackkit/laravel-google-cloud-tasks-queue": "^5.0",
         "tightenco/ziggy": "^2.4"
     },
     "require-dev": {
