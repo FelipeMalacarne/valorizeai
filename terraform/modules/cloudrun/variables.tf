@@ -96,12 +96,6 @@ variable "service_account_email" {
   type        = string
 }
 
-variable "enable_public_access" {
-  description = "Enable public access to Cloud Run service (disable if using Firebase Hosting)"
-  type        = bool
-  default     = false
-}
-
 variable "domain" {
   description = "Custom domain for the application"
   type        = string
