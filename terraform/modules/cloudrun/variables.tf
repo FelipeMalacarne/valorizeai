@@ -234,10 +234,10 @@ locals {
       name  = "SESSION_PATH"
       value = "/"
     },
-    # {
-    #   name  = "SESSION_DOMAIN"
-    #   value = ".${var.domain}"
-    # },
+    {
+      name  = "SESSION_DOMAIN"
+      value = ".${var.domain}"
+    },
     {
       name  = "SESSION_LIFETIME"
       value = 120
@@ -280,11 +280,11 @@ locals {
     },
     {
       name  = "CLOUD_TASKS_PROJECT"
-      value = var.cloud_tasks_project
+      value = var.project_id
     },
     {
       name  = "CLOUD_TASKS_LOCATION"
-      value = var.cloud_tasks_location
+      value = var.region
     },
     {
       name  = "CLOUD_TASKS_QUEUE"
@@ -292,7 +292,7 @@ locals {
     },
     {
       name  = "CLOUD_TASKS_SERVICE_EMAIL"
-      value = var.cloud_tasks_service_email
+      value = var.service_account_email
     },
   ]
 

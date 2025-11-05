@@ -55,15 +55,11 @@ module "cloudrun" {
   pgsql_username                 = var.pgsql_username
   pgsql_password_secret_name     = google_secret_manager_secret.pgsql_password.secret_id
   image                          = "southamerica-east1-docker.pkg.dev/valorizeaitcc/valorize-repo/valorizeai:latest"
-  enable_public_access           = true
   min_instances                  = 0
   domain                         = local.app_domain
   redis_host                     = local.redis_host
   redis_port                     = local.redis_port
-  cloud_tasks_project            = module.cloud_tasks.project_id
-  cloud_tasks_location           = module.cloud_tasks.location
   cloud_tasks_queue              = module.cloud_tasks.queue_name
-  cloud_tasks_service_email      = google_service_account.cloud_run_runtime.email
   google_credentials_secret_name = google_secret_manager_secret.cloud_run_credentials.secret_id
   google_credentials_path        = var.google_credentials_path
   cloud_sql_instances            = local.cloud_sql_instances
