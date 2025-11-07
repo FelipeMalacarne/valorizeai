@@ -33,15 +33,15 @@ resource "google_secret_manager_secret_version" "cloud_run_credentials" {
 }
 
 resource "google_secret_manager_secret" "resend_api_key" {
-  secret_id = "resend-api-key"
-  project   = var.gcp_project_id
+    secret_id = "resend-api-key"
+    project   = var.gcp_project_id
 
-  replication {
-    auto {}
-  }
+    replication {
+      auto {}
+    }
 }
 
 resource "google_secret_manager_secret_version" "resend_api_key" {
-  secret      = google_secret_manager_secret.resend_api_key.id
-  secret_data = var.resend_api_key
+    secret      = google_secret_manager_secret.resend_api_key.id
+    secret_data = var.resend_api_key
 }

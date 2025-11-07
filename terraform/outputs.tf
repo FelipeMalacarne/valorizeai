@@ -1,37 +1,12 @@
 # Cloud Run outputs
 output "cloud_run_service_url" {
   description = "URL of the Cloud Run service"
-  value       = module.cloudrun_api.service_url
+  value       = module.cloudrun.service_url
 }
 
 output "cloud_run_service_name" {
   description = "Name of the Cloud Run service"
-  value       = module.cloudrun_api.service_name
-}
-
-output "cloud_run_artisan_job_name" {
-  description = "Name of the Cloud Run job used for artisan runs"
-  value       = module.cloudrun_artisan.job_name
-}
-
-output "cloud_run_worker_service_url" {
-  description = "URL of the worker Cloud Run service"
-  value       = module.cloudrun_worker.service_url
-}
-
-output "cloud_run_worker_service_name" {
-  description = "Name of the worker Cloud Run service"
-  value       = module.cloudrun_worker.service_name
-}
-
-output "cloud_run_reverb_service_url" {
-  description = "URL of the Reverb Cloud Run service"
-  value       = module.cloudrun_reverb.service_url
-}
-
-output "cloud_run_reverb_service_name" {
-  description = "Name of the Reverb Cloud Run service"
-  value       = module.cloudrun_reverb.service_name
+  value       = module.cloudrun.service_name
 }
 
 # Load Balancer outputs

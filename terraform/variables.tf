@@ -16,12 +16,6 @@ variable "gcp_zone" {
   default     = "southamerica-east1-a"
 }
 
-variable "container_image" {
-  description = "Full image reference deployed to Cloud Run workloads."
-  type        = string
-  default     = "southamerica-east1-docker.pkg.dev/valorizeaitcc/valorize-repo/valorizeai:latest"
-}
-
 variable "pgsql_database" {
   description = "Name of the PostgreSQL database"
   type        = string
