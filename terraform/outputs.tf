@@ -32,22 +32,22 @@ output "domains_configured" {
 
 output "cloudsql_connection_name" {
   description = "Cloud SQL connection name used by Cloud Run."
-  value       = var.enable_cloudsql ? module.cloudsql[0].instance_connection_name : null
+  value       = module.cloudsql.instance_connection_name
 }
 
 output "cloudsql_instance_name" {
   description = "Name of the Cloud SQL instance."
-  value       = var.enable_cloudsql ? module.cloudsql[0].instance_name : null
+  value       = module.cloudsql.instance_name
 }
 
 output "redis_host" {
   description = "Primary host of the Memorystore instance."
-  value       = var.enable_redis ? module.memorystore[0].host : var.redis_host_override
+  value       = module.memorystore.host
 }
 
 output "redis_port" {
   description = "Port of the Memorystore instance."
-  value       = var.enable_redis ? module.memorystore[0].port : var.redis_port_override
+  value       = module.memorystore.port
 }
 
 # DNS setup instructions
