@@ -16,6 +16,18 @@ variable "gcp_zone" {
   default     = "southamerica-east1-a"
 }
 
+variable "enable_cloudsql" {
+  description = "Whether to provision the Cloud SQL instance in this environment."
+  type        = bool
+  default     = true
+}
+
+variable "enable_redis" {
+  description = "Whether to provision the Memorystore (Redis) instance in this environment."
+  type        = bool
+  default     = true
+}
+
 variable "pgsql_database" {
   description = "Name of the PostgreSQL database"
   type        = string
@@ -125,6 +137,18 @@ variable "redis_version" {
   description = "Redis version."
   type        = string
   default     = "REDIS_7_0"
+}
+
+variable "redis_host_override" {
+  description = "Optional Redis host to use when Memorystore is disabled."
+  type        = string
+  default     = ""
+}
+
+variable "redis_port_override" {
+  description = "Optional Redis port to use when Memorystore is disabled."
+  type        = number
+  default     = 6379
 }
 
 variable "resource_labels" {

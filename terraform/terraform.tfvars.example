@@ -8,14 +8,18 @@ gcp_zone       = "southamerica-east1-a"
 # PostgreSQL configuration
 pgsql_database = "your-database-name"
 pgsql_username = "your-username"
-# Optional overrides
+# Optional overrides / cost-saving toggles
+# enable_cloudsql        = false
+# enable_redis           = false
 # custom_domain          = "app.example.com"
-# pgsql_host             = "/cloudsql/your-project:region:instance"
+# pgsql_host             = "/cloudsql/your-project:region:instance" # Required if enable_cloudsql = false
 # cloudsql_instance_name   = "valorizeai-db"
 # cloudsql_tier            = "db-custom-2-7680"
 # cloudsql_disk_size_gb    = 50
 # redis_instance_name      = "valorizeai-redis"
 # redis_memory_size_gb     = 5
+# redis_host_override      = "10.0.0.5" # Required if enable_redis = false and you still need Redis
+# redis_port_override      = 6379
 # cloudflare_api_token     = "cf-token"
 # cloudflare_zone_id       = "cf-zone-id"
 # cloudflare_record_name   = "app" # relative name or full domain

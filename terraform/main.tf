@@ -1,4 +1,5 @@
 module "cloudsql" {
+  count             = var.enable_cloudsql ? 1 : 0
   source            = "./modules/cloudsql_postgres"
   project_id        = var.gcp_project_id
   region            = var.gcp_region
@@ -12,11 +13,12 @@ module "cloudsql" {
   private_network   = google_compute_network.serverless.self_link
   enable_public_ip  = var.cloudsql_enable_public_ip
   labels            = var.resource_labels
-  edition          =  var.cloudsql_edition
+  edition           = var.cloudsql_edition
   depends_on        = [google_service_networking_connection.private_vpc_connection]
 }
 
 module "memorystore" {
+  count              = var.enable_redis ? 1 : 0
   source             = "./modules/memorystore_redis"
   project_id         = var.gcp_project_id
   region             = var.gcp_region
@@ -29,10 +31,10 @@ module "memorystore" {
 }
 
 locals {
-  db_host             = module.cloudsql.private_ip_address
-  cloud_sql_instances = [module.cloudsql.instance_connection_name]
-  redis_host          = module.memorystore.host
-  redis_port          = module.memorystore.port
+  db_host             = var.enable_cloudsql ? module.cloudsql[0].private_ip_address : var.pgsql_host
+  cloud_sql_instances = var.enable_cloudsql ? [module.cloudsql[0].instance_connection_name] : []
+  redis_host          = var.enable_redis ? module.memorystore[0].host : var.redis_host_override
+  redis_port          = var.enable_redis ? module.memorystore[0].port : var.redis_port_override
   app_domain          = var.domain
   cloudflare_record   = var.domain
 }
@@ -65,7 +67,7 @@ module "cloudrun" {
   google_credentials_path        = var.google_credentials_path
   cloud_sql_instances            = local.cloud_sql_instances
   service_account_email          = google_service_account.cloud_run_runtime.email
-  resend_key_secret_name = google_secret_manager_secret.resend_api_key.secret_id
+  resend_key_secret_name         = google_secret_manager_secret.resend_api_key.secret_id
   depends_on = [
     google_secret_manager_secret_version.cloud_run_credentials,
     google_secret_manager_secret_version.pgsql_password,
