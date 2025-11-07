@@ -7,7 +7,8 @@ terraform {
   }
 }
 
-resource "google_cloud_run_v2_service" "valorizeai_api" {
+resource "google_cloud_run_v2_service" "this" {
+  count    = local.is_service ? 1 : 0
   name     = var.service_name
   location = var.region
   project  = var.project_id
@@ -65,23 +66,25 @@ resource "google_cloud_run_v2_service" "valorizeai_api" {
         container_port = 8080
       }
 
+      command = local.container_command
+      args    = length(var.args) > 0 ? var.args : null
+
       dynamic "env" {
-        for_each = local.common_env_vars
+        for_each = local.env_vars
         content {
           name  = env.value.name
           value = env.value.value
         }
       }
 
-      # Secret-based environment variables
       dynamic "env" {
-        for_each = [for secret in local.secret_env_vars : secret if secret.secret != null]
+        for_each = local.secret_env_vars
         content {
           name = env.value.name
           value_source {
             secret_key_ref {
               secret  = env.value.secret
-              version = "latest"
+              version = env.value.version
             }
           }
         }
@@ -127,10 +130,11 @@ resource "google_cloud_run_v2_service" "valorizeai_api" {
   }
 }
 
-resource "google_cloud_run_v2_job" "artisan_job" {
-  name                = "${var.service_name}-artisan"
-  location            = var.region
-  project             = var.project_id
+resource "google_cloud_run_v2_job" "this" {
+  count              = local.is_job ? 1 : 0
+  name               = var.service_name
+  location           = var.region
+  project            = var.project_id
   deletion_protection = false
 
   template {
@@ -159,26 +163,25 @@ resource "google_cloud_run_v2_job" "artisan_job" {
 
       containers {
         image   = var.image
-        command = ["php", "artisan"]
+        command = local.job_command
+        args    = length(var.args) > 0 ? var.args : null
 
-        # Common environment variables
         dynamic "env" {
-          for_each = local.common_env_vars
+          for_each = local.env_vars
           content {
             name  = env.value.name
             value = env.value.value
           }
         }
 
-        # Secret-based environment variables
         dynamic "env" {
-          for_each = [for secret in local.secret_env_vars : secret if secret.secret != null]
+          for_each = local.secret_env_vars
           content {
             name = env.value.name
             value_source {
               secret_key_ref {
                 secret  = env.value.secret
-                version = "latest"
+                version = env.value.version
               }
             }
           }
@@ -206,9 +209,10 @@ resource "google_cloud_run_v2_job" "artisan_job" {
 }
 
 resource "google_cloud_run_v2_service_iam_member" "public_invoker" {
-  name     = google_cloud_run_v2_service.valorizeai_api.name
-  project  = var.project_id
+  count   = local.is_service ? 1 : 0
+  name    = google_cloud_run_v2_service.this[count.index].name
+  project = var.project_id
   location = var.region
-  role     = "roles/run.invoker"
-  member   = "allUsers"
+  role    = "roles/run.invoker"
+  member  = "allUsers"
 }

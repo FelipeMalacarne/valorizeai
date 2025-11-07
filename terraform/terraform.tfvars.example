@@ -4,6 +4,7 @@
 gcp_project_id = "valorizeai"
 gcp_region     = "southamerica-east1"
 gcp_zone       = "southamerica-east1-a"
+# container_image = "gcr.io/valorizeai/valorizeai:latest"
 
 # PostgreSQL configuration
 pgsql_database = "your-database-name"

@@ -9,6 +9,16 @@ variable "service_name" {
   default     = "valorizeai"
 }
 
+variable "deployment_kind" {
+  description = "Type of Cloud Run workload to create (service or job)."
+  type        = string
+  default     = "service"
+  validation {
+    condition     = contains(["service", "job"], lower(var.deployment_kind))
+    error_message = "deployment_kind must be either \"service\" or \"job\"."
+  }
+}
+
 variable "vpc_network" {
   description = "VPC network self link for direct Cloud Run attachment."
   type        = string
@@ -102,6 +112,18 @@ variable "domain" {
   default     = "valorizeai.felipemalacarne.com.br"
 }
 
+variable "command" {
+  description = "Optional override for the container entrypoint command."
+  type        = list(string)
+  default     = []
+}
+
+variable "args" {
+  description = "Optional arguments passed to the container."
+  type        = list(string)
+  default     = []
+}
+
 variable "cloud_tasks_queue" {
   description = "Primary Cloud Tasks queue name."
   type        = string
@@ -114,8 +136,8 @@ variable "google_credentials_secret_name" {
 }
 
 variable "resend_key_secret_name" {
-    description = "Secret Manager name that stores Resend API key."
-    type        = string
+  description = "Secret Manager name that stores Resend API key."
+  type        = string
 }
 
 variable "google_credentials_path" {
@@ -147,8 +169,36 @@ variable "job_timeout" {
   default = "36000s"
 }
 
+variable "env_overrides" {
+  description = "Map of environment variables that should override the defaults."
+  type        = map(any)
+  default     = {}
+}
+
+variable "additional_env_vars" {
+  description = "Additional environment variables to append to the defaults."
+  type = list(object({
+    name  = string
+    value = any
+  }))
+  default = []
+}
+
+variable "additional_secret_env_vars" {
+  description = "Additional secret-backed environment variables."
+  type = list(object({
+    name    = string
+    secret  = string
+    version = optional(string, "latest")
+  }))
+  default = []
+}
+
 locals {
-  common_env_vars = [
+  is_service = lower(var.deployment_kind) == "service"
+  is_job     = lower(var.deployment_kind) == "job"
+
+  base_env_vars = [
     {
       name  = "APP_URL"
       value = "https://${var.domain}"
@@ -282,6 +332,10 @@ locals {
       value = var.service_account_email
     },
     {
+      name  = "CLOUD_TASKS_DISABLE_TASK_HANDLER"
+      value = false
+    },
+    {
       name = "MAIL_MAILER"
       value = "resend"
     },
@@ -296,14 +350,47 @@ locals {
   ]
 
   # Secret-based environment variables
-  secret_env_vars = [
+  base_secret_env_vars = [
     {
-      name   = "DB_PASSWORD"
-      secret = var.pgsql_password_secret_name
+      name    = "DB_PASSWORD"
+      secret  = var.pgsql_password_secret_name
+      version = "latest"
     },
     {
-      name   = "RESEND_API_KEY"
-      secret = var.resend_key_secret_name
+      name    = "RESEND_API_KEY"
+      secret  = var.resend_key_secret_name
+      version = "latest"
     }
   ]
+
+  env_override_map = { for k, v in var.env_overrides : k => tostring(v) }
+
+  base_env_map = { for env in local.base_env_vars : env.name => tostring(env.value) }
+
+  merged_env_vars = [
+    for name, value in merge(local.base_env_map, local.env_override_map) : {
+      name  = name
+      value = value
+    }
+  ]
+
+  env_vars = concat(
+    local.merged_env_vars,
+    [for env in var.additional_env_vars : {
+      name  = env.name
+      value = tostring(env.value)
+    }]
+  )
+
+  secret_env_vars = concat(
+    [for env in local.base_secret_env_vars : env if env.secret != null],
+    [for env in var.additional_secret_env_vars : {
+      name    = env.name
+      secret  = env.secret
+      version = coalesce(env.version, "latest")
+    }]
+  )
+
+  container_command = length(var.command) > 0 ? var.command : null
+  job_command       = length(var.command) > 0 ? var.command : ["php", "artisan"]
 }

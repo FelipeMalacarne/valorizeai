@@ -12,7 +12,7 @@ module "cloudsql" {
   private_network   = google_compute_network.serverless.self_link
   enable_public_ip  = var.cloudsql_enable_public_ip
   labels            = var.resource_labels
-  edition          =  var.cloudsql_edition
+  edition           = var.cloudsql_edition
   depends_on        = [google_service_networking_connection.private_vpc_connection]
 }
 
@@ -45,17 +45,19 @@ module "cloud_tasks" {
   service_account_email = google_service_account.cloud_run_runtime.email
 }
 
-module "cloudrun" {
+module "cloudrun_api" {
   source                         = "./modules/cloudrun"
   project_id                     = var.gcp_project_id
   region                         = var.gcp_region
+  service_name                   = "valorizeai-api"
+  deployment_kind                = "service"
   vpc_network                    = google_compute_network.serverless.id
   vpc_subnetwork                 = google_compute_subnetwork.serverless.id
   pgsql_host                     = local.db_host
   pgsql_database                 = var.pgsql_database
   pgsql_username                 = var.pgsql_username
   pgsql_password_secret_name     = google_secret_manager_secret.pgsql_password.secret_id
-  image                          = "southamerica-east1-docker.pkg.dev/valorizeaitcc/valorize-repo/valorizeai:latest"
+  image                          = var.container_image
   min_instances                  = 0
   domain                         = local.app_domain
   redis_host                     = local.redis_host
@@ -65,7 +67,104 @@ module "cloudrun" {
   google_credentials_path        = var.google_credentials_path
   cloud_sql_instances            = local.cloud_sql_instances
   service_account_email          = google_service_account.cloud_run_runtime.email
-  resend_key_secret_name = google_secret_manager_secret.resend_api_key.secret_id
+  resend_key_secret_name         = google_secret_manager_secret.resend_api_key.secret_id
+  env_overrides = {
+    CLOUD_TASKS_DISABLE_TASK_HANDLER = false
+    CLOUD_TASKS_SERVICE_HANDLER      = module.cloudrun_worker.service_url
+  }
+  depends_on = [
+    google_secret_manager_secret_version.cloud_run_credentials,
+    google_secret_manager_secret_version.pgsql_password,
+    google_secret_manager_secret_version.resend_api_key
+  ]
+}
+
+module "cloudrun_worker" {
+  source                         = "./modules/cloudrun"
+  project_id                     = var.gcp_project_id
+  region                         = var.gcp_region
+  service_name                   = "valorizeai-worker"
+  deployment_kind                = "service"
+  vpc_network                    = google_compute_network.serverless.id
+  vpc_subnetwork                 = google_compute_subnetwork.serverless.id
+  pgsql_host                     = local.db_host
+  pgsql_database                 = var.pgsql_database
+  pgsql_username                 = var.pgsql_username
+  pgsql_password_secret_name     = google_secret_manager_secret.pgsql_password.secret_id
+  image                          = var.container_image
+  min_instances                  = 0
+  domain                         = local.app_domain
+  redis_host                     = local.redis_host
+  redis_port                     = local.redis_port
+  cloud_tasks_queue              = module.cloud_tasks.queue_name
+  google_credentials_secret_name = google_secret_manager_secret.cloud_run_credentials.secret_id
+  google_credentials_path        = var.google_credentials_path
+  cloud_sql_instances            = local.cloud_sql_instances
+  service_account_email          = google_service_account.cloud_run_runtime.email
+  resend_key_secret_name         = google_secret_manager_secret.resend_api_key.secret_id
+  env_overrides = {
+    CLOUD_TASKS_DISABLE_TASK_HANDLER = true
+  }
+  depends_on = [
+    google_secret_manager_secret_version.cloud_run_credentials,
+    google_secret_manager_secret_version.pgsql_password,
+    google_secret_manager_secret_version.resend_api_key
+  ]
+}
+
+module "cloudrun_artisan" {
+  source                         = "./modules/cloudrun"
+  project_id                     = var.gcp_project_id
+  region                         = var.gcp_region
+  service_name                   = "valorizeai-artisan"
+  deployment_kind                = "job"
+  vpc_network                    = google_compute_network.serverless.id
+  vpc_subnetwork                 = google_compute_subnetwork.serverless.id
+  pgsql_host                     = local.db_host
+  pgsql_database                 = var.pgsql_database
+  pgsql_username                 = var.pgsql_username
+  pgsql_password_secret_name     = google_secret_manager_secret.pgsql_password.secret_id
+  image                          = var.container_image
+  domain                         = local.app_domain
+  redis_host                     = local.redis_host
+  redis_port                     = local.redis_port
+  cloud_tasks_queue              = module.cloud_tasks.queue_name
+  google_credentials_secret_name = google_secret_manager_secret.cloud_run_credentials.secret_id
+  google_credentials_path        = var.google_credentials_path
+  cloud_sql_instances            = local.cloud_sql_instances
+  service_account_email          = google_service_account.cloud_run_runtime.email
+  resend_key_secret_name         = google_secret_manager_secret.resend_api_key.secret_id
+  depends_on = [
+    google_secret_manager_secret_version.cloud_run_credentials,
+    google_secret_manager_secret_version.pgsql_password,
+    google_secret_manager_secret_version.resend_api_key
+  ]
+}
+
+module "cloudrun_reverb" {
+  source                         = "./modules/cloudrun"
+  project_id                     = var.gcp_project_id
+  region                         = var.gcp_region
+  service_name                   = "valorizeai-reverb"
+  deployment_kind                = "service"
+  vpc_network                    = google_compute_network.serverless.id
+  vpc_subnetwork                 = google_compute_subnetwork.serverless.id
+  pgsql_host                     = local.db_host
+  pgsql_database                 = var.pgsql_database
+  pgsql_username                 = var.pgsql_username
+  pgsql_password_secret_name     = google_secret_manager_secret.pgsql_password.secret_id
+  image                          = var.container_image
+  min_instances                  = 1
+  domain                         = local.app_domain
+  redis_host                     = local.redis_host
+  redis_port                     = local.redis_port
+  cloud_tasks_queue              = module.cloud_tasks.queue_name
+  google_credentials_secret_name = google_secret_manager_secret.cloud_run_credentials.secret_id
+  google_credentials_path        = var.google_credentials_path
+  cloud_sql_instances            = local.cloud_sql_instances
+  service_account_email          = google_service_account.cloud_run_runtime.email
+  resend_key_secret_name         = google_secret_manager_secret.resend_api_key.secret_id
+  command                        = ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
   depends_on = [
     google_secret_manager_secret_version.cloud_run_credentials,
     google_secret_manager_secret_version.pgsql_password,
@@ -77,7 +176,7 @@ module "load_balancer" {
   source                 = "./modules/load-balancer"
   project_id             = var.gcp_project_id
   region                 = var.gcp_region
-  cloud_run_service_name = module.cloudrun.service_name
+  cloud_run_service_name = module.cloudrun_api.service_name
   domains                = [local.app_domain]
   enable_cdn             = true
   enable_logging         = false
