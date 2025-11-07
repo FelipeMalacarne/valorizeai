@@ -12,6 +12,7 @@ module "cloudsql" {
   private_network   = google_compute_network.serverless.self_link
   enable_public_ip  = var.cloudsql_enable_public_ip
   labels            = var.resource_labels
+  edition          =  var.cloudsql_edition
   depends_on        = [google_service_networking_connection.private_vpc_connection]
 }
 

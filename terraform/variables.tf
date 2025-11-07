@@ -97,6 +97,12 @@ variable "cloudsql_enable_public_ip" {
   default     = false
 }
 
+variable "cloudsql_edition" {
+  description = "Edition of the Cloud SQL instance."
+  type        = string
+  default     = "ENTERPRISE"
+}
+
 variable "redis_instance_name" {
   description = "Name of the Memorystore Redis instance."
   type        = string

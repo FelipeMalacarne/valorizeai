@@ -50,7 +50,7 @@ variable "disk_size_gb" {
 variable "database_version" {
   description = "PostgreSQL version."
   type        = string
-  default     = "POSTGRES_16"
+  default     = "POSTGRES_17"
 }
 
 variable "private_network" {
@@ -80,4 +80,10 @@ variable "labels" {
   description = "Labels applied to Cloud SQL resources."
   type        = map(string)
   default     = {}
+}
+
+variable "edition" {
+  description = "Cloud SQL edition (ENTERPRISE or ENTERPRISE PLUS)."
+  type        = string
+  default     = "ENTERPRISE"
 }
