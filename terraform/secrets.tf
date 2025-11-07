@@ -31,3 +31,17 @@ resource "google_secret_manager_secret_version" "cloud_run_credentials" {
   secret      = google_secret_manager_secret.cloud_run_credentials.id
   secret_data = base64decode(google_service_account_key.cloud_run_runtime.private_key)
 }
+
+resource "google_secret_manager_secret" "resend_api_key" {
+    secret_id = "resend-api-key"
+    project   = var.gcp_project_id
+
+    replication {
+      auto {}
+    }
+}
+
+resource "google_secret_manager_secret_version" "resend_api_key" {
+    secret      = google_secret_manager_secret.resend_api_key.id
+    secret_data = var.resend_api_key
+}

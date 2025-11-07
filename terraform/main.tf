@@ -65,8 +65,11 @@ module "cloudrun" {
   google_credentials_path        = var.google_credentials_path
   cloud_sql_instances            = local.cloud_sql_instances
   service_account_email          = google_service_account.cloud_run_runtime.email
+  resend_key_secret_name = google_secret_manager_secret.resend_api_key.secret_id
   depends_on = [
-    google_secret_manager_secret_version.cloud_run_credentials
+    google_secret_manager_secret_version.cloud_run_credentials,
+    google_secret_manager_secret_version.pgsql_password,
+    google_secret_manager_secret_version.resend_api_key
   ]
 }
 

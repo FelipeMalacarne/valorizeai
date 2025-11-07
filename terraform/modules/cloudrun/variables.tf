@@ -102,26 +102,8 @@ variable "domain" {
   default     = "valorizeai.felipemalacarne.com.br"
 }
 
-variable "cloud_tasks_project" {
-  description = "Cloud Tasks project ID for worker endpoints."
-  type        = string
-  default     = ""
-}
-
-variable "cloud_tasks_location" {
-  description = "Cloud Tasks location/region."
-  type        = string
-  default     = ""
-}
-
 variable "cloud_tasks_queue" {
   description = "Primary Cloud Tasks queue name."
-  type        = string
-  default     = ""
-}
-
-variable "cloud_tasks_service_email" {
-  description = "Service account email used by Cloud Tasks push requests."
   type        = string
   default     = ""
 }
@@ -129,6 +111,11 @@ variable "cloud_tasks_service_email" {
 variable "google_credentials_secret_name" {
   description = "Secret Manager name that stores service account JSON for GOOGLE_APPLICATION_CREDENTIALS."
   type        = string
+}
+
+variable "resend_key_secret_name" {
+    description = "Secret Manager name that stores Resend API key."
+    type        = string
 }
 
 variable "google_credentials_path" {
@@ -294,6 +281,18 @@ locals {
       name  = "CLOUD_TASKS_SERVICE_EMAIL"
       value = var.service_account_email
     },
+    {
+      name = "MAIL_MAILER"
+      value = "resend"
+    },
+    {
+      name  = "MAIL_FROM_NAME"
+      value = "valorizeai"
+    },
+    {
+      name  = "MAIL_FROM_ADDRESS"
+      value = "contato@transactional.felipemalacarne.com.br"
+    },
   ]
 
   # Secret-based environment variables
@@ -302,5 +301,9 @@ locals {
       name   = "DB_PASSWORD"
       secret = var.pgsql_password_secret_name
     },
+    {
+      name   = "RESEND_API_KEY"
+      secret = var.resend_key_secret_name
+    }
   ]
 }
