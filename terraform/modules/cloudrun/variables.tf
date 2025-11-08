@@ -2,9 +2,37 @@ variable "project_id" {
   description = "Google Cloud project ID"
   type        = string
 }
+
+variable "service_name" {
+  description = "Base name for the primary Cloud Run service."
+  type        = string
+  default     = "valorizeai"
+}
+
+variable "vpc_network" {
+  description = "VPC network self link for direct Cloud Run attachment."
+  type        = string
+}
+
+variable "vpc_subnetwork" {
+  description = "Subnetwork self link for direct Cloud Run attachment."
+  type        = string
+}
+
 variable "region" {
   description = "Google Cloud region for the Cloud Run service"
   type        = string
+}
+
+variable "redis_host" {
+  description = "Hostname/IP for Redis (Memorystore)."
+  type        = string
+}
+
+variable "redis_port" {
+  description = "Port for Redis."
+  type        = number
+  default     = 6379
 }
 
 variable "pgsql_host" {
@@ -35,9 +63,9 @@ variable "concurrency" {
 }
 
 variable "max_instances" {
-  description = "Maximum number of instances for the Cloud Run service"
+  description = "Maximum number of instances for the Cloud Run service (Cloud Run + VPC direct attachment supports at most 10)."
   type        = number
-  default     = 100
+  default     = 10
 }
 
 variable "min_instances" {
@@ -63,16 +91,43 @@ variable "image" {
   type        = string
 }
 
-variable "enable_public_access" {
-  description = "Enable public access to Cloud Run service (disable if using Firebase Hosting)"
-  type        = bool
-  default     = false
+variable "service_account_email" {
+  description = "Service account email used by Cloud Run service and jobs."
+  type        = string
 }
 
 variable "domain" {
   description = "Custom domain for the application"
   type        = string
   default     = "valorizeai.felipemalacarne.com.br"
+}
+
+variable "cloud_tasks_queue" {
+  description = "Primary Cloud Tasks queue name."
+  type        = string
+  default     = ""
+}
+
+variable "google_credentials_secret_name" {
+  description = "Secret Manager name that stores service account JSON for GOOGLE_APPLICATION_CREDENTIALS."
+  type        = string
+}
+
+variable "resend_key_secret_name" {
+    description = "Secret Manager name that stores Resend API key."
+    type        = string
+}
+
+variable "google_credentials_path" {
+  description = "Path inside container where GOOGLE_APPLICATION_CREDENTIALS JSON will be mounted."
+  type        = string
+  default     = "/var/secrets/google/credentials.json"
+}
+
+variable "cloud_sql_instances" {
+  description = "Optional list of Cloud SQL instance connection names to mount."
+  type        = list(string)
+  default     = []
 }
 
 variable "job_max_retries" {
@@ -156,7 +211,7 @@ locals {
     },
     {
       name  = "SESSION_DRIVER"
-      value = "database"
+      value = "redis"
     },
     {
       name  = "SESSION_ENCRYPT"
@@ -184,11 +239,19 @@ locals {
     },
     {
       name  = "QUEUE_CONNECTION"
-      value = "database"
+      value = "cloudtasks"
     },
     {
       name  = "CACHE_STORE"
-      value = "database"
+      value = "redis"
+    },
+    {
+      name  = "REDIS_HOST"
+      value = var.redis_host
+    },
+    {
+      name  = "REDIS_PORT"
+      value = tostring(var.redis_port)
     },
     {
       name  = "OCTANE_SERVER"
@@ -202,6 +265,34 @@ locals {
       name  = "TRUSTED_HOSTS"
       value = var.domain
     },
+    {
+      name  = "CLOUD_TASKS_PROJECT"
+      value = var.project_id
+    },
+    {
+      name  = "CLOUD_TASKS_LOCATION"
+      value = var.region
+    },
+    {
+      name  = "CLOUD_TASKS_QUEUE"
+      value = var.cloud_tasks_queue
+    },
+    {
+      name  = "CLOUD_TASKS_SERVICE_EMAIL"
+      value = var.service_account_email
+    },
+    {
+      name = "MAIL_MAILER"
+      value = "resend"
+    },
+    {
+      name  = "MAIL_FROM_NAME"
+      value = "valorizeai"
+    },
+    {
+      name  = "MAIL_FROM_ADDRESS"
+      value = "contato@transactional.felipemalacarne.com.br"
+    },
   ]
 
   # Secret-based environment variables
@@ -210,5 +301,9 @@ locals {
       name   = "DB_PASSWORD"
       secret = var.pgsql_password_secret_name
     },
+    {
+      name   = "RESEND_API_KEY"
+      secret = var.resend_key_secret_name
+    }
   ]
 }

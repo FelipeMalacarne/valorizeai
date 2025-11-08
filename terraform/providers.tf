@@ -2,7 +2,7 @@ terraform {
   required_version = ">= 1.5.0"
 
   backend "gcs" {
-    bucket = "valorizeai-tf-state"
+    bucket = "valorize-tf-state"
     prefix = "terraform/state"
   }
 
@@ -11,13 +11,13 @@ terraform {
       source  = "hashicorp/google"
       version = "6.49.0"
     }
-    docker = {
-      source  = "kreuzwerker/docker"
-      version = "~> 3.0"
-    }
     random = {
       source  = "hashicorp/random"
       version = "3.6.2"
+    }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 4.0"
     }
   }
 }
@@ -28,7 +28,6 @@ provider "google" {
   zone    = var.gcp_zone
 }
 
-provider "docker" {
-  // Uses local SSH agent and ~/.ssh/config for auth
-  host = "ssh://ubuntu@${var.vm_host}"
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
 }

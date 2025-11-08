@@ -5,12 +5,24 @@ gcp_project_id = "valorizeai"
 gcp_region     = "southamerica-east1"
 gcp_zone       = "southamerica-east1-a"
 
-# PostgreSQL connection details
-pgsql_host     = "your-postgres-host"
+# PostgreSQL configuration
 pgsql_database = "your-database-name"
 pgsql_username = "your-username"
-pgsql_password = "your-secure-password"  # This will be stored in Secret Manager
-
-# Toggle to enable/disable GCP infrastructure provisioning
-# Set to false to keep only Artifact Registry (not managed here)
-enable_gcp_infra = true
+# Optional overrides
+# custom_domain          = "app.example.com"
+# pgsql_host             = "/cloudsql/your-project:region:instance"
+# cloudsql_instance_name   = "valorizeai-db"
+# cloudsql_tier            = "db-custom-2-7680"
+# cloudsql_disk_size_gb    = 50
+# redis_instance_name      = "valorizeai-redis"
+# redis_memory_size_gb     = 5
+# cloudflare_api_token     = "cf-token"
+# cloudflare_zone_id       = "cf-zone-id"
+# cloudflare_record_name   = "app" # relative name or full domain
+# nightwatch_token         = "nw-token"
+# nightwatch_ingest_uri    = "https://nightwatch.example.com"
+# nightwatch_server        = "nightwatch"
+# nightwatch_request_sample_rate = 0.5
+# nightwatch_log_level     = "debug"
+# deploy_nightwatch_service = true
+# google_credentials_path        = "/var/secrets/google/credentials.json"

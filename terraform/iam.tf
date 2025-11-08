@@ -1,51 +1,48 @@
-resource "google_service_account" "github_actions" {
-  account_id   = "github-actions"
-  display_name = "GitHub Actions"
+resource "google_service_account" "cloud_run_runtime" {
+  account_id   = "valorizeai-runtime"
+  display_name = "ValorizeAI Cloud Run Runtime"
   project      = var.gcp_project_id
 }
 
-resource "google_project_iam_member" "github_cloud_run_admin" {
+resource "google_project_iam_member" "runtime_cloudsql_client" {
   project = var.gcp_project_id
-  role    = "roles/run.admin"
-  member  = "serviceAccount:${google_service_account.github_actions.email}"
+  role    = "roles/cloudsql.client"
+  member  = "serviceAccount:${google_service_account.cloud_run_runtime.email}"
 }
 
-resource "google_project_iam_member" "github_cloud_build_editor" {
+resource "google_project_iam_member" "runtime_secret_accessor" {
   project = var.gcp_project_id
-  role    = "roles/cloudbuild.builds.editor"
-  member  = "serviceAccount:${google_service_account.github_actions.email}"
+  role    = "roles/secretmanager.secretAccessor"
+  member  = "serviceAccount:${google_service_account.cloud_run_runtime.email}"
 }
 
-resource "google_project_iam_member" "github_artifact_registry_writer" {
+resource "google_project_iam_member" "runtime_logging" {
   project = var.gcp_project_id
-  role    = "roles/artifactregistry.writer"
-  member  = "serviceAccount:${google_service_account.github_actions.email}"
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.cloud_run_runtime.email}"
 }
 
-resource "google_project_iam_member" "github_service_account_user" {
+resource "google_project_iam_member" "runtime_monitoring" {
   project = var.gcp_project_id
-  role    = "roles/iam.serviceAccountUser"
-  member  = "serviceAccount:${google_service_account.github_actions.email}"
+  role    = "roles/monitoring.metricWriter"
+  member  = "serviceAccount:${google_service_account.cloud_run_runtime.email}"
 }
 
-resource "google_service_account_key" "github_actions" {
-  service_account_id = google_service_account.github_actions.name
-}
-
-resource "google_project_iam_member" "github_service_usage_admin" {
+resource "google_project_iam_member" "runtime_tracing" {
   project = var.gcp_project_id
-  role    = "roles/serviceusage.serviceUsageAdmin"
-  member  = "serviceAccount:${google_service_account.github_actions.email}"
+  role    = "roles/cloudtrace.agent"
+  member  = "serviceAccount:${google_service_account.cloud_run_runtime.email}"
 }
 
-resource "google_storage_bucket_iam_member" "github_cloudbuild_bucket_access" {
-  bucket = "valorizeai_cloudbuild"
-  role   = "roles/storage.objectAdmin"
-  member = "serviceAccount:${google_service_account.github_actions.email}"
+resource "google_service_account_key" "cloud_run_runtime" {
+  service_account_id = google_service_account.cloud_run_runtime.name
+  # keepers = {
+  #   rotation = timestamp()
+  # }
 }
 
-resource "google_project_iam_member" "github_viewer" {
-  project = var.gcp_project_id
-  role    = "roles/viewer"
-  member  = "serviceAccount:${google_service_account.github_actions.email}"
+resource "google_service_account_iam_member" "runtime_self_actas" {
+  service_account_id = google_service_account.cloud_run_runtime.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.cloud_run_runtime.email}"
 }

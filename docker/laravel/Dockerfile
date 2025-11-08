@@ -37,6 +37,7 @@ RUN apk add --no-cache bash && \
     install-php-extensions \
     redis \
     pdo_pgsql \
+    bcmath \
     zip \
     sockets \
     intl \
