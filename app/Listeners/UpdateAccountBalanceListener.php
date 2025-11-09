@@ -6,9 +6,10 @@ namespace App\Listeners;
 
 use App\Actions\Account\UpdateAccountBalance;
 use App\Events\Contracts\ShouldUpdateAccountBalance;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-final class UpdateAccountBalanceListener
+final class UpdateAccountBalanceListener implements ShouldQueue
 {
     use InteractsWithQueue;
 
