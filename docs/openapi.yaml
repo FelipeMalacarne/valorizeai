@@ -1,0 +1,863 @@
+openapi: 3.0.3
+info:
+  title: Valorize API
+  version: 1.0.0
+  description: |
+    Sanctum-protected endpoints that mirror the business actions already used by the Inertia SPA.
+    All monetary values are expressed in cents inside the `value` field and expose a formatted helper string.
+servers:
+  - url: https://valorizeai.test/api
+    description: Local development
+  - url: https://api.valorizeai.com/v1
+    description: Production (example)
+security:
+  - SanctumToken: []
+tags:
+  - name: Accounts
+    description: Manage financial accounts and their balances.
+  - name: Categories
+    description: Manage spending categories.
+  - name: Transactions
+    description: Capture money movements across accounts and categories.
+  - name: Budgets
+    description: Configure user budgets per category.
+paths:
+  /accounts:
+    get:
+      summary: List accounts
+      description: Returns a paginated collection of the authenticated user's accounts.
+      operationId: listAccounts
+      tags: [Accounts]
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Filter by account name or number.
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/AccountType'
+          description: Filter by account type.
+        - name: currency
+          in: query
+          schema:
+            $ref: '#/components/schemas/Currency'
+          description: Filter by preferred currency.
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+          description: Page number (defaults to 1).
+      responses:
+        '200':
+          description: Accounts page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      summary: Create account
+      operationId: createAccount
+      tags: [Accounts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountInput'
+      responses:
+        '201':
+          description: Account created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /accounts/{account}:
+    parameters:
+      - $ref: '#/components/parameters/AccountId'
+    get:
+      summary: Get account
+      operationId: getAccount
+      tags: [Accounts]
+      responses:
+        '200':
+          description: Account details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update account
+      operationId: updateAccount
+      tags: [Accounts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountInput'
+      responses:
+        '200':
+          description: Updated account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      summary: Delete account
+      operationId: deleteAccount
+      tags: [Accounts]
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Unable to delete account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /categories:
+    get:
+      summary: List categories
+      operationId: listCategories
+      tags: [Categories]
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: is_default
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      summary: Create category
+      operationId: createCategory
+      tags: [Categories]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /categories/{category}:
+    parameters:
+      - $ref: '#/components/parameters/CategoryId'
+    get:
+      summary: Get category
+      operationId: getCategory
+      tags: [Categories]
+      responses:
+        '200':
+          description: Category details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update category
+      operationId: updateCategory
+      tags: [Categories]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+      responses:
+        '200':
+          description: Updated category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      summary: Delete category
+      operationId: deleteCategory
+      tags: [Categories]
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Unable to delete category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /transactions:
+    get:
+      summary: List transactions
+      description: Returns a paginated list filtered via the query parameters.
+      operationId: listTransactions
+      tags: [Transactions]
+      parameters:
+        - name: accounts
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+          style: form
+          explode: true
+        - name: categories
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+          style: form
+          explode: true
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/TransactionType'
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Transactions page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionListResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      summary: Create transaction
+      operationId: createTransaction
+      tags: [Transactions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionInput'
+      responses:
+        '201':
+          description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /transactions/{transaction}:
+    parameters:
+      - $ref: '#/components/parameters/TransactionId'
+    get:
+      summary: Get transaction
+      operationId: getTransaction
+      tags: [Transactions]
+      responses:
+        '200':
+          description: Transaction details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update transaction
+      operationId: updateTransaction
+      tags: [Transactions]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionUpdateInput'
+      responses:
+        '200':
+          description: Updated transaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      summary: Delete transaction
+      operationId: deleteTransaction
+      tags: [Transactions]
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Unable to delete transaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /budgets:
+    get:
+      summary: List budgets
+      operationId: listBudgets
+      tags: [Budgets]
+      responses:
+        '200':
+          description: Collection of budgets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Budget'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      summary: Create budget
+      operationId: createBudget
+      tags: [Budgets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetInput'
+      responses:
+        '201':
+          description: Budget created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /budgets/{budget}:
+    parameters:
+      - $ref: '#/components/parameters/BudgetId'
+    get:
+      summary: Get budget
+      operationId: getBudget
+      tags: [Budgets]
+      responses:
+        '200':
+          description: Budget details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      summary: Update budget
+      operationId: updateBudget
+      tags: [Budgets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetUpdateInput'
+      responses:
+        '200':
+          description: Updated budget
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      summary: Delete budget
+      operationId: deleteBudget
+      tags: [Budgets]
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Unable to delete budget
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    SanctumToken:
+      type: http
+      scheme: bearer
+      bearerFormat: Token
+      description: "Use `Authorization: Bearer {token}` with a Laravel Sanctum personal access token."
+  parameters:
+    AccountId:
+      name: account
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CategoryId:
+      name: category
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    TransactionId:
+      name: transaction
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    BudgetId:
+      name: budget
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Action not allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ValidationError:
+      description: Validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+  schemas:
+    AccountListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Account'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    TransactionListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    PaginationLinks:
+      type: object
+      properties:
+        first:
+          type: string
+          format: uri
+          nullable: true
+        last:
+          type: string
+          format: uri
+          nullable: true
+        prev:
+          type: string
+          format: uri
+          nullable: true
+        next:
+          type: string
+          format: uri
+          nullable: true
+    PaginationMeta:
+      type: object
+      properties:
+        current_page:
+          type: integer
+        from:
+          type: integer
+          nullable: true
+        last_page:
+          type: integer
+        path:
+          type: string
+        per_page:
+          type: integer
+        to:
+          type: integer
+          nullable: true
+        total:
+          type: integer
+    Account:
+      type: object
+      required: [id, name, currency, type, balance, bank]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        number:
+          type: string
+          nullable: true
+        balance:
+          $ref: '#/components/schemas/Money'
+        currency:
+          $ref: '#/components/schemas/Currency'
+        type:
+          $ref: '#/components/schemas/AccountType'
+        bank:
+          $ref: '#/components/schemas/Bank'
+    AccountInput:
+      type: object
+      required: [name, currency, type, bank_id]
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 255
+        number:
+          type: string
+          nullable: true
+        currency:
+          $ref: '#/components/schemas/Currency'
+        type:
+          $ref: '#/components/schemas/AccountType'
+        bank_id:
+          type: string
+          format: uuid
+    Category:
+      type: object
+      required: [id, name, color, is_default]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        color:
+          $ref: '#/components/schemas/Color'
+        description:
+          type: string
+          nullable: true
+        is_default:
+          type: boolean
+    CategoryInput:
+      type: object
+      required: [name, color]
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        color:
+          $ref: '#/components/schemas/Color'
+        description:
+          type: string
+          nullable: true
+        is_default:
+          type: boolean
+          default: false
+    Transaction:
+      type: object
+      required:
+        [id, amount, type, date, account]
+      properties:
+        id:
+          type: string
+          format: uuid
+        amount:
+          $ref: '#/components/schemas/Money'
+        fitid:
+          type: string
+          nullable: true
+        memo:
+          type: string
+          nullable: true
+        type:
+          $ref: '#/components/schemas/TransactionType'
+        date:
+          type: string
+          format: date-time
+        category:
+          $ref: '#/components/schemas/Category'
+          nullable: true
+        account:
+          $ref: '#/components/schemas/Account'
+        splits:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionSplit'
+          nullable: true
+    TransactionSplit:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        amount:
+          $ref: '#/components/schemas/Money'
+        memo:
+          type: string
+          nullable: true
+        category:
+          $ref: '#/components/schemas/Category'
+    TransactionInput:
+      type: object
+      required: [account_id, amount, date]
+      properties:
+        account_id:
+          type: string
+          format: uuid
+        category_id:
+          type: string
+          format: uuid
+          nullable: true
+        amount:
+          $ref: '#/components/schemas/MoneyInput'
+        date:
+          type: string
+          format: date
+        memo:
+          type: string
+          nullable: true
+    TransactionUpdateInput:
+      type: object
+      required: [amount, date]
+      properties:
+        amount:
+          $ref: '#/components/schemas/MoneyInput'
+        date:
+          type: string
+          format: date
+        memo:
+          type: string
+          nullable: true
+        category_id:
+          type: string
+          format: uuid
+          nullable: true
+    Budget:
+      type: object
+      required: [id, name, currency, category]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        currency:
+          $ref: '#/components/schemas/Currency'
+        category:
+          $ref: '#/components/schemas/Category'
+    BudgetInput:
+      type: object
+      required: [category_id]
+      properties:
+        category_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+    BudgetUpdateInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+    Money:
+      type: object
+      properties:
+        value:
+          type: integer
+          description: Stored in the smallest currency unit (cents).
+        formatted:
+          type: string
+        currency:
+          $ref: '#/components/schemas/Currency'
+    MoneyInput:
+      type: object
+      required: [value, currency]
+      properties:
+        value:
+          type: integer
+          description: Amount in the smallest currency unit (cents).
+        currency:
+          $ref: '#/components/schemas/Currency'
+    Bank:
+      type: object
+      required: [id, code, name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    ValidationErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+        - type: object
+          properties:
+            errors:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+    Currency:
+      type: string
+      enum: [BRL, USD, EUR]
+    AccountType:
+      type: string
+      enum: [checking, savings, investment, credit]
+    TransactionType:
+      type: string
+      enum: [debit, credit]
+    Color:
+      type: string
+      enum:
+        [lavender, blue, green, yellow, red, rosewater, flamingo, pink, mauve, maroon, peach, teal, sky, sapphire]
