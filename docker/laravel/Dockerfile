@@ -51,6 +51,8 @@ COPY . .
 
 RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
 
+COPY docker/laravel/php.ini $PHP_INI_DIR/php.ini
+
 COPY ./docker/laravel/start-container.sh ./start-container.sh
 RUN chmod +x ./start-container.sh
 
