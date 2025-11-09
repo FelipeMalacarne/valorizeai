@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, DollarSign, Folder, Home, Landmark, PiggyBank, Tags } from 'lucide-react';
+import { BookOpen, DollarSign, Folder, Home, Key, Landmark, PiggyBank, Tags, Webhook } from 'lucide-react';
 import AppLogo from './app-logo';
 import { NavList } from './nav-list';
 
@@ -53,6 +53,19 @@ const platformNavItems: NavItem[] = [
     // },
 ];
 
+const developerNavItems: NavItem[] = [
+    {
+        title: 'Tokens',
+        href: route('tokens.index', undefined, false),
+        icon: Key,
+    },
+    // {
+    //     title: 'Webhooks',
+    //     href: route('webhooks.index', undefined, false),
+    //     icon: Webhook,
+    // }
+];
+
 export function AppSidebar() {
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -71,7 +84,8 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavList label="Plataforma" items={platformNavItems} />
+                <NavList label="Financeiro" items={platformNavItems} />
+                <NavList label="Desenvolvedor" items={developerNavItems} />
             </SidebarContent>
 
             <SidebarFooter>
