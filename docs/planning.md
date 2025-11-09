@@ -154,3 +154,107 @@ terraform/
 2. Garantir que Cloud Run (API + workers) esteja usando segredos do Secret Manager e conectores VPC.  
 3. Preparar scripts de teste (k6, failover, injeção Cloud Tasks) e dashboards no Cloud Monitoring.  
 4. Iniciar a escrita dos capítulos 1–5 usando este documento como guia, incrementando conforme testes avançarem.
+
+---
+
+## 🧪 Plano de Testes com k6
+
+### Objetivos
+
+1. Validar os SLOs definidos (latência P95 ≤ 250 ms, erro ≤ 0,5%) para as rotas críticas da API.  
+2. Medir a capacidade máxima de RPS sustentado em Cloud Run antes de violar os SLOs.  
+3. Obter insumos para o capítulo de “Experimentos e Resultados” (gráficos, tabelas, logs).
+
+### Escopo Inicial
+
+| Cenário | Rota / Fluxo                                                | Objetivo principal                            | Duração | Carga alvo (Stg → Prod) |
+| ------- | ----------------------------------------------------------- | --------------------------------------------- | ------- | ----------------------- |
+| C1      | `POST /api/token` (login) + `GET /api/accounts`             | Medir latência de autenticação + listagem     | 10 min  | 50→150 → **400** RPS    |
+| C2      | `POST /api/transactions`                                    | Validar criação de transações sob pico        | 15 min  | 25→120 → **300** RPS    |
+| C3      | `GET /api/dashboard` (ou `/dashboard` SSR)                  | Observar endpoints mais pesados de leitura    | 15 min  | 10→60 → **120** RPS     |
+| C4      | Mix (50% `GET /api/transactions`, 30% `POST /api/transactions`, 20% `GET /api/accounts`) | Emular tráfego realista com mix read/write | 20 min  | 30→100 → **350** RPS    |
+
+> Ajustar rotas conforme os novos controladores API. Ambientes de staging começam com as cargas menores; em produção, as fases finais devem atingir as metas em negrito.  
+> O cenário C4 garante metade do tráfego em `GET /api/transactions` e a outra metade dividida entre `POST /api/transactions` e `GET /api/accounts`, cobrindo leitura e escrita no mesmo domínio.
+
+### Organização do Projeto k6
+
+```
+tests/k6/
+  README.md                  # instruções de execução
+  env.example                # variáveis (BASE_URL, TOKEN, etc.)
+  scenarios/
+    accounts.js
+    transactions.js
+    mix.js
+  helpers/
+    auth.js                  # função para obter token via Sanctum
+    metrics.js               # registradores customizados
+```
+
+### Estrutura de Script (exemplo)
+
+```js
+import http from 'k6/http';
+import { sleep, check } from 'k6';
+
+export const options = {
+  stages: [
+    { duration: '2m', target: 50 },
+    { duration: '5m', target: 150 },
+    { duration: '3m', target: 0 },
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)<250'],
+    http_req_failed: ['rate<0.005'],
+  },
+};
+
+export default function () {
+  const res = http.get(`${__ENV.BASE_URL}/api/accounts`, {
+    headers: { Authorization: `Bearer ${__ENV.TOKEN}` },
+  });
+
+  check(res, {
+    'status 200': (r) => r.status === 200,
+  });
+
+  sleep(1);
+}
+```
+
+### Variáveis e Segredos
+
+| Variável      | Descrição                                | Origem                         |
+| ------------- | ---------------------------------------- | ------------------------------ |
+| `BASE_URL`    | URL pública do Cloud Run / Load Balancer | `.env` local ou Secret Manager |
+| `TOKEN`       | Token gerado via `/api/tokens`           | Criar usuário de teste         |
+| `ACCOUNT_ID`  | ID fixo para cenários POST               | Preenchido via script setup    |
+
+No `README` incluir instruções para gerar o token automaticamente (ex.: rodar `php artisan user:token` ou chamar endpoint de login via script `setup()` no k6).
+
+### Execução
+
+```bash
+cd tests/k6
+cp env.example .env          # preencher valores
+export $(xargs < .env)
+k6 run scenarios/accounts.js
+```
+
+Para execuções automatizadas (CI/CD ou Cloud Build), usar `k6 run --out cloud` ou integrar com o k6 Cloud se houver licença. Também registrar métricas no Cloud Monitoring via `otel collector` (opcional).
+
+### Coleta e Análise
+
+* Armazenar o CSV de resultados (`k6 run --out csv=out/accounts.csv`).  
+* Gerar gráficos a partir do CSV (Planilha ou Grafana).  
+* Comparar P95/P99 com os SLOs e documentar no capítulo de resultados.  
+* Correlacionar com logs do Cloud Run / Cloud Monitoring (ex.: screenshot de dashboard de CPU/RPS durante o teste).
+
+### Próximos Passos Específicos
+
+1. Criar diretório `tests/k6` seguindo a estrutura proposta.  
+2. Escrever `README.md` com preparo de ambiente (Credenciais, Base URL, geração de token).  
+3. Implementar o primeiro cenário (C1) e executar contra ambiente de staging.  
+4. Registrar métricas e ajustar thresholds antes de rodar os demais cenários.  
+5. Automatizar a coleta (CSV + dashboards) para uso no TCC.
