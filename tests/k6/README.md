@@ -25,7 +25,7 @@ export $(xargs < .env)
 | `TOKEN` | Sanctum personal access token used in `Authorization: Bearer ...` |
 | `TRANSACTION_ACCOUNT_ID` | Account ID (UUID) for POST tests *(optional – auto-detected if omitted)* |
 | `TRANSACTION_CATEGORY_ID` | Category ID (UUID) *(optional – auto-detected if omitted)* |
-| `TRANSACTION_CURRENCY` | Currency code for transaction payloads (defaults to account currency or `BRL`) |
+| `TRANSACTION_CURRENCY` | Currency code override for transaction payloads |
 
 If you omit the account/category IDs, the `transactions.js` script fetches the first available resources via the API. It will `fail()` if none exist, so make sure the test user already has at least one account and category.
 
@@ -33,13 +33,15 @@ If you omit the account/category IDs, the `transactions.js` script fetches the f
 
 ## Running Scenarios
 
-### C1 – Accounts listing (GET `/api/accounts`)
+### C1 – Transaction listing with filters (GET `/api/transactions`)
 
 ```bash
 cd tests/k6
 export $(xargs < .env)
-k6 run scenarios/accounts.js
+k6 run scenarios/transactions-list.js
 ```
+
+The script alternates between filtering by **accounts** or **categories** (never both simultaneously) and always requests the first page with 15 items (no date filters). Stress stages now push to ~2.5k RPS (adjust timers if you need a longer plateau).
 
 ### C2 – Transaction creation (POST `/api/transactions`)
 
@@ -47,7 +49,15 @@ k6 run scenarios/accounts.js
 k6 run scenarios/transactions.js
 ```
 
-If `TRANSACTION_ACCOUNT_ID`/`TRANSACTION_CATEGORY_ID` are unset, the script fetches the first available account/category via the API during `setup()`.
+The payload uses random accounts, categories, amounts, and dates in the recent past. If `TRANSACTION_ACCOUNT_ID`/`TRANSACTION_CATEGORY_ID` are unset, the script fetches available resources during `setup()`. Stress stages ramp toward ~2.5k RPS.
+
+### C3 – Mix (GET + POST Transactions + GET Accounts)
+
+```bash
+k6 run scenarios/mix.js
+```
+
+Each iteration chooses between `GET /api/transactions` (50%), `POST /api/transactions` (30%), and `GET /api/accounts` (20%), matching the mix defined in `docs/planning.md`. The final plateau now peaks near 3.5k RPS; ensure Cloud Run, Cloud SQL, and Memorystore are scaled appropriately before running the stress window.
 
 ## Adjusting Load Profiles
 
