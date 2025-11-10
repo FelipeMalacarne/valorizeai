@@ -203,15 +203,13 @@ deploy_with_health_check: submit
 # Run artisan commands
 .PHONY: artisan
 artisan:
-	@if [ -z "$(CMD)" ]; then \
-		echo "$(RED)Error: Please provide a command. Usage: make artisan CMD='migrate'$(NC)"; \
-		exit 1; \
-	fi
-	@echo "$(YELLOW)Running artisan command: $(CMD)$(NC)"
-	@gcloud run jobs execute $(JOB_NAME) \
-		--region $(REGION) \
-		--project $(PROJECT_ID) \
-		--args=\"$(CMD)\"
+	@read -p "Enter the command to run (e.g., 'migrate'): " COMMAND; \
+	echo "Running command: $$COMMAND"; \
+	gcloud run jobs execute $(JOB_NAME) \
+		--region=$(REGION) \
+		--project=$(PROJECT_ID) \
+		--args="$${COMMAND// /,}" \
+		--wait;
 
 # Quick deploy for development (local build + push + update)
 .PHONY: quick_deploy
