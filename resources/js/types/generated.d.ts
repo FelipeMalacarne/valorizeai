@@ -107,9 +107,33 @@ declare namespace App.Http.Requests.Category {
     };
 }
 declare namespace App.Http.Requests.Import {
+    export type ApproveImportTransactionRequest = {
+        category_id: string | null;
+        replace_existing: boolean;
+    };
+    export type BulkApproveImportTransactionsRequest = {
+        transaction_ids: Array<any>;
+        category_id: string | null;
+    };
     export type ImportRequest = {
         files: Array<any>;
         account_id: string | null;
+    };
+    export type ImportTransactionIndexRequest = {
+        search: string | null;
+        status: App.Enums.ImportTransactionStatus | null;
+        type: App.Enums.TransactionType | null;
+        page: number;
+        per_page: number;
+    };
+    export type IndexImportRequest = {
+        search: string | null;
+        status: App.Enums.ImportStatus | null;
+        page: number;
+        per_page: number;
+    };
+    export type UpdateImportAccountRequest = {
+        account_id: string;
     };
 }
 declare namespace App.Http.Requests.Transaction {
@@ -228,6 +252,43 @@ declare namespace App.Http.Resources {
         monthly_income: App.ValueObjects.Money;
         monthly_expense: App.ValueObjects.Money;
         monthly_profit: App.ValueObjects.Money;
+    };
+    export type ImportMatchedTransactionResource = {
+        amount_formatted: string;
+        id: string;
+        amount: App.ValueObjects.Money;
+        type: App.Enums.TransactionType;
+        date: string;
+        memo: string | null;
+    };
+    export type ImportResource = {
+        id: string;
+        status: App.Enums.ImportStatus;
+        extension: App.Enums.ImportExtension;
+        file_name: string;
+        new_count: number;
+        matched_count: number;
+        conflicted_count: number;
+        pending_transactions: number;
+        approved_transactions: number;
+        rejected_transactions: number;
+        created_at: string;
+        updated_at: string | null;
+        account: App.Http.Resources.AccountResource | null;
+    };
+    export type ImportTransactionResource = {
+        amount_formatted: string;
+        id: string;
+        status: App.Enums.ImportTransactionStatus;
+        type: App.Enums.TransactionType;
+        amount: App.ValueObjects.Money;
+        date: string;
+        memo: string;
+        fitid: string | null;
+        category: App.Http.Resources.CategoryResource | null;
+        matched_transaction: App.Http.Resources.ImportMatchedTransactionResource | null;
+        transaction_id: string | null;
+        created_at: string;
     };
     export type NotificationResource = {
         id: string;
