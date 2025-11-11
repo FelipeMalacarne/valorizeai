@@ -27,6 +27,7 @@ final class ImportTransactionFactory extends Factory
         return [
             'import_id'              => Import::factory(),
             'matched_transaction_id' => null,
+            'transaction_id'         => null,
             'category_id'            => Category::factory(),
             'status'                 => $this->faker->randomElement(ImportTransactionStatus::cases()),
             'fitid'                  => $this->faker->uuid(),
