@@ -23,12 +23,11 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
-use Mockery;
 
 uses(RefreshDatabase::class);
 
 afterEach(function (): void {
-    Mockery::close();
+    \Mockery::close();
 });
 
 test('it marks imported transactions as matched when fitid corresponds to an existing transaction', function () {
@@ -88,7 +87,7 @@ test('it marks imported transactions as matched when fitid corresponds to an exi
         ),
     );
 
-    $parser = Mockery::mock(OfxParser::class);
+    $parser = \Mockery::mock(OfxParser::class);
     $parser->shouldReceive('parse')->once()->andReturn($statement);
 
     (new ProcessImport($parser))->handle($import);
@@ -98,7 +97,8 @@ test('it marks imported transactions as matched when fitid corresponds to an exi
     expect($import->status)->toBe(ImportStatus::COMPLETED)
         ->and($import->matched_count)->toBe(1)
         ->and($import->new_count)->toBe(0)
-        ->and($import->conflicted_count)->toBe(0);
+        ->and($import->conflicted_count)->toBe(0)
+        ->and($import->account_id)->toBe($account->id);
 
     $importTransaction = $import->importTransactions()->first();
 
@@ -155,17 +155,18 @@ test('it marks imported transactions as new when no matches are found', function
         ),
     );
 
-    $parser = Mockery::mock(OfxParser::class);
+    $parser = \Mockery::mock(OfxParser::class);
     $parser->shouldReceive('parse')->once()->andReturn($statement);
 
     (new ProcessImport($parser))->handle($import);
 
     $import->refresh();
 
-    expect($import->status)->toBe(ImportStatus::COMPLETED)
+    expect($import->status)->toBe(ImportStatus::PENDING_REVIEW)
         ->and($import->new_count)->toBe(1)
         ->and($import->matched_count)->toBe(0)
-        ->and($import->conflicted_count)->toBe(0);
+        ->and($import->conflicted_count)->toBe(0)
+        ->and($import->account_id)->not()->toBeNull();
 
     $importTransaction = $import->importTransactions()->first();
 
@@ -231,17 +232,18 @@ test('it marks imported transactions as conflicted when multiple candidates exis
         ),
     );
 
-    $parser = Mockery::mock(OfxParser::class);
+    $parser = \Mockery::mock(OfxParser::class);
     $parser->shouldReceive('parse')->once()->andReturn($statement);
 
     (new ProcessImport($parser))->handle($import);
 
     $import->refresh();
 
-    expect($import->status)->toBe(ImportStatus::COMPLETED)
+    expect($import->status)->toBe(ImportStatus::PENDING_REVIEW)
         ->and($import->conflicted_count)->toBe(1)
         ->and($import->matched_count)->toBe(0)
-        ->and($import->new_count)->toBe(0);
+        ->and($import->new_count)->toBe(0)
+        ->and($import->account_id)->toBe($account->id);
 
     $importTransaction = $import->importTransactions()->first();
 

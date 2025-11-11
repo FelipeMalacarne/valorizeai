@@ -71,3 +71,24 @@ it('can store multiple import files and dispatch events', function () {
         return $event->import->id === $import2['id'];
     });
 });
+
+it('can update the account linked to an import', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $accountA = Account::factory()->create(['user_id' => $user->id]);
+    $accountB = Account::factory()->create(['user_id' => $user->id]);
+
+    $import = \App\Models\Import::factory()->create([
+        'user_id'    => $user->id,
+        'account_id' => $accountA->id,
+    ]);
+
+    $response = $this->patch(route('imports.account.update', $import), [
+        'account_id' => $accountB->id,
+    ]);
+
+    $response->assertRedirect();
+
+    expect($import->fresh()->account_id)->toBe($accountB->id);
+});
