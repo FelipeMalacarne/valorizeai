@@ -36,6 +36,7 @@
 | Disponibilidade mensal  | ≥ 99.5%    |
 | MTTR falha planejada    | ≤ 60 s     |
 
+*Limitação prática:* todos os testes rodam na cota atual de Cloud Run (serviço com **1 vCPU / 1 GiB** e `max-instances = 10`). Sem acesso a instâncias maiores, esse ambiente sustenta ~900 RPS antes de violar os SLOs; os planos experimentais foram ajustados para refletir esse teto.
 ---
 
 ## ☁️ Arquitetura Proposta (Managed GCP)
@@ -100,8 +101,8 @@ terraform/
 ### Hipóteses
 
 1. **Escalabilidade da API Cloud Run**  
-   * **H₀₁:** Antes de atingir 2k RPS, a latência P95 excede 250 ms ou a taxa de erros passa de 0,5%.  
-   * **H₁₁:** A API mantém os SLOs até 2k RPS.
+   * **H₀₁:** Antes de atingir **900 RPS**, a latência P95 excede 250 ms ou a taxa de erros passa de 0,5%.  
+   * **H₁₁:** A API mantém os SLOs até **900 RPS** no ambiente atual (1 vCPU / 1 GiB, 10 instâncias).
 2. **Resiliência do plano de dados**  
    * **H₀₂:** Falhas controladas (failover Cloud SQL, reset de Memorystore) causam indisponibilidade > 60 s ou perda de requisições.  
    * **H₁₂:** O app se recupera em < 60 s e mantém consistência.
@@ -116,7 +117,7 @@ terraform/
 
 | # | Hipótese | Objetivo                        | Cenário / Procedimento                                                                 | Métricas principais                             | Ferramentas                                  | Critério de sucesso                                      |
 | - | -------- | ------------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------- | -------------------------------------------------------- |
-| 1 | H₀₁ vs H₁₁ | Escalabilidade da API          | k6/Locust gerando ramp-up 0→2k RPS na rota `/api/v1/...`; Cloud Run escalando até limite | Latência P95, P99, throughput, erro %            | k6 + Cloud Monitoring                        | P95 ≤ 250 ms, erro % ≤ 0.5 até 2k RPS                    |
+| 1 | H₀₁ vs H₁₁ | Escalabilidade da API          | k6 gerando ramp-up 0→900 RPS na rota `/api/v1/...`; Cloud Run escalando até 10 instâncias | Latência P95, P99, throughput, erro %            | k6 + Cloud Monitoring                        | P95 ≤ 250 ms, erro % ≤ 0.5 até 900 RPS                  |
 | 2 | H₀₂ vs H₁₂ | Falha em Cloud SQL / Redis     | Forçar failover manual no Cloud SQL + reiniciar Memorystore                            | MTTR, erro %, número de reconexões              | gcloud sql failover, Cloud Monitoring         | MTTR ≤ 60 s, erro % < 1%, aplicação retoma conexões      |
 | 3 | H₀₃ vs H₁₃ | Backlog Cloud Tasks            | Injetar 10× jobs (ex.: 10k notificações), suspender/retomar worker Cloud Run           | Tempo para zerar fila, jobs DLQ, duplicidade    | Cloud Tasks metrics, Cloud Logging            | Backlog drenado ≤ 5 min, DLQ ≤ 0.5%, duplicidade inexistente |
 | 4 | H₀₄ vs H₁₄ | Observabilidade/Custo          | Revisar dashboards/alertas durante testes + estimar custo diário (Billing export)      | Métricas coletadas, custo por 1k req            | Cloud Monitoring, Billing Export → BigQuery  | Todas as métricas coletadas + custo dentro do orçamento  |
@@ -154,3 +155,191 @@ terraform/
 2. Garantir que Cloud Run (API + workers) esteja usando segredos do Secret Manager e conectores VPC.  
 3. Preparar scripts de teste (k6, failover, injeção Cloud Tasks) e dashboards no Cloud Monitoring.  
 4. Iniciar a escrita dos capítulos 1–5 usando este documento como guia, incrementando conforme testes avançarem.
+
+---
+
+## 🧪 Plano de Testes com k6
+
+### Objetivos
+
+1. Validar os SLOs definidos (latência P95 ≤ 250 ms, erro ≤ 0,5%) para as rotas críticas da API.  
+2. Medir a capacidade máxima de RPS sustentado em Cloud Run antes de violar os SLOs.  
+3. Obter insumos para o capítulo de “Experimentos e Resultados” (gráficos, tabelas, logs).
+
+### Escopo Inicial
+
+| Cenário | Rota / Fluxo                                                | Objetivo principal                                            | Duração | Carga alvo (Stg → Prod → Stress) |
+| ------- | ----------------------------------------------------------- | ------------------------------------------------------------- | ------- | ------------------------------- |
+| C1      | `GET /api/transactions` com filtros variados                | Exercitar filtros (contas, categorias, datas, tipo, ordenação) | 10 min  | 50→150 → **300** → **900** RPS  |
+| C2      | `POST /api/transactions` com dados aleatórios               | Validar criação massiva com datas/passado e recursos distintos | 15 min  | 25→80 → **200** → **600** RPS   |
+| C3      | Mix (65% `GET /api/transactions`, 20% `POST /api/transactions`, 15% `GET /api/accounts`) | Emular tráfego realista combinando leitura e escrita           | 18 min  | 30→100 → **250** → **700** RPS  |
+
+> Ajustar rotas conforme os novos controladores API. Ambientes de staging começam com as cargas menores; em produção, as fases finais devem atingir as metas em negrito.  
+> Após cumprir os SLOs em 300/200/250 RPS, o **stress** sobe gradualmente até ~900 RPS (limite observado para 1 vCPU / 1 GiB × 10 instâncias). Pequenos spikes de 950–1.000 RPS podem ser usados apenas para demonstrar o ponto de saturação.  
+> O cenário C3 mantém a proporção 65/20/15 para refletir o mix dominante de leituras. Após 700 RPS, um spike curto de ~850 RPS é usado apenas para indicar o ponto de saturação.
+
+### Estratégia para sustentar ~900 RPS
+
+1. **Ramp progressivo** – repetir cada cenário em três fases (baseline, produção, stress). O stress aumenta os VUs até que o k6 reporte ~900 RPS sustentados, documentando o comportamento logo antes da saturação.  
+2. **Afinar Cloud Run dentro da cota** – manter `concurrency = 80` e `max-instances = 10`, monitorando CPU/memória para justificar por que não é possível subir para instâncias maiores (quota).  
+3. **Observabilidade focada** – habilitar gráficos específicos (latência P95/P99, CPU, conexões DB, cache hit) para correlacionar o ponto em que o SLO é quebrado e registrar a limitação de recursos.  
+4. **Stress controlado** – executar um “overload” curto (até 1.000 RPS) apenas para comprovar onde os SLOs passam a ser violados, consolidando o argumento de limitação por quota.
+
+### Organização do Projeto k6
+
+```
+tests/k6/
+  README.md                  # instruções de execução
+  env.example                # variáveis (BASE_URL, TOKEN, etc.)
+  scenarios/
+    accounts.js
+    transactions.js
+    mix.js
+  helpers/
+    auth.js                  # função para obter token via Sanctum
+    metrics.js               # registradores customizados
+```
+
+### Estrutura de Script (exemplo)
+
+```js
+import http from 'k6/http';
+import { sleep, check } from 'k6';
+
+export const options = {
+  stages: [
+    { duration: '2m', target: 50 },
+    { duration: '5m', target: 150 },
+    { duration: '3m', target: 0 },
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)<250'],
+    http_req_failed: ['rate<0.005'],
+  },
+};
+
+export default function () {
+  const res = http.get(`${__ENV.BASE_URL}/api/accounts`, {
+    headers: { Authorization: `Bearer ${__ENV.TOKEN}` },
+  });
+
+  check(res, {
+    'status 200': (r) => r.status === 200,
+  });
+
+  sleep(1);
+}
+```
+
+### 📈 Coleta de métricas (Cloud Run / Cloud SQL)
+
+1. **Marque o intervalo do teste**
+
+```bash
+TEST_START="$(date -Iseconds)"   # antes de iniciar o k6
+# ... roda o k6 ...
+TEST_END="$(date -Iseconds)"     # logo após o término
+echo "$TEST_START → $TEST_END"
+```
+
+2. **Cloud Run**
+
+| Métrica                                           | Descrição                        |
+| ------------------------------------------------- | -------------------------------- |
+| `run.googleapis.com/request_latencies`            | Latência P95/P99                  |
+| `run.googleapis.com/request_count`                | Throughput                        |
+| `run.googleapis.com/container/instance_count`     | Instâncias ativas                 |
+| `run.googleapis.com/container/cpu.utilization`    | Uso de CPU por instância          |
+| `run.googleapis.com/container/memory.utilization` | Uso de memória por instância      |
+
+```bash
+# P95 durante o intervalo
+gcloud monitoring time-series list \
+  --filter='metric.type="run.googleapis.com/request_latencies"
+            AND resource.labels.service_name="valorizeai"' \
+  --interval-start="$TEST_START" \
+  --interval-end="$TEST_END"
+
+# Contagem de instâncias
+gcloud monitoring time-series list \
+  --filter='metric.type="run.googleapis.com/container/instance_count"
+            AND resource.labels.service_name="valorizeai"' \
+  --interval-start="$TEST_START" \
+  --interval-end="$TEST_END"
+```
+
+3. **Cloud SQL**
+
+| Métrica                                                | Descrição             |
+| ------------------------------------------------------ | --------------------- |
+| `cloudsql.googleapis.com/database/cpu/utilization`     | Uso de CPU            |
+| `cloudsql.googleapis.com/database/memory/utilization`  | Uso de memória        |
+| `cloudsql.googleapis.com/database/connection/count`    | Conexões ativas       |
+
+```bash
+gcloud monitoring time-series list \
+  --filter='metric.type="cloudsql.googleapis.com/database/cpu/utilization"
+            AND resource.labels.database_id="valorizeai-db"' \
+  --interval-start="$TEST_START" \
+  --interval-end="$TEST_END"
+
+gcloud monitoring time-series list \
+  --filter='metric.type="cloudsql.googleapis.com/database/connection/count"
+            AND resource.labels.database_id="valorizeai-db"' \
+  --interval-start="$TEST_START" \
+  --interval-end="$TEST_END"
+```
+
+4. **Dashboard/Tabelas**
+
+- Monte um dashboard no Cloud Monitoring com os gráficos acima (P95, instâncias, CPU/memória, conexões SQL) e exporte para usar como figuras no TCC.
+- Gere uma tabela por cenário com: fase (RPS alvo), P95 (ms), erro (%), instâncias Cloud Run, CPU/memória, CPU Cloud SQL, conexões. Use os valores coletados via CLI ou dashboard.
+
+### 📑 Como registrar os resultados no TCC
+
+1. **Metodologia por cenário** – para cada C1/C2/C3 descreva o script (ramp-up, proporção das rotas, ambiente Cloud Run com 1 vCPU/1 GiB e `max-instances = 10`). Inclua a razão para o teto de 900 RPS citando a limitação de quota.
+2. **Tabelas resumidas** – crie uma tabela por cenário com colunas: *Fase* (150, 300, 600, 900 RPS…), *P95 (ms)*, *Erro (%)*, *CPU Cloud Run (%)*, *Conexões Cloud SQL*, *Observações*. Use dados do k6 + Cloud Monitoring. Destaque em negrito a linha onde os SLOs começam a ser violados.
+3. **Gráficos** – insira dois gráficos por cenário:  
+   - **Latência P95 vs. RPS** (eixo X = RPS alvo, eixo Y = P95).  
+   - **Throughput/erros ao longo do tempo** (print do dashboard ou gráfico exportado do k6).  
+   Substitua “2k RPS” por “900 RPS” nos títulos e mencione o spike de 1 000 RPS apenas como stress adicional.
+4. **Texto analítico** – para cada cenário escreva um parágrafo seguindo o template:  
+   *“No cenário C1 (GET /api/transactions), o serviço manteve P95 ≤ 210 ms e erros <0,5% até 900 RPS. Ao forçar 1 000 RPS, observou-se aumento para 320 ms e 1,2% de erros, confirmando que o limite atual decorre da cota de instâncias (10 × 1 vCPU/1 GiB).”*  
+   Faça referência cruzada às Figuras/Tabelas e discuta como isso valida ou refuta H₀₁/H₁₁.
+5. **Síntese na discussão** – no capítulo de discussão, explique que, apesar de o objetivo inicial prever 2k RPS, o ambiente real (quotas) impôs o teto de 900 RPS. Justifique por que isso é aceitável para o escopo do TCC e aponte trabalhos futuros (ex.: solicitar mais quota ou usar Cloud Run CPU Always On).
+
+### Variáveis e Segredos
+
+| Variável      | Descrição                                | Origem                         |
+| ------------- | ---------------------------------------- | ------------------------------ |
+| `BASE_URL`    | URL pública do Cloud Run / Load Balancer | `.env` local ou Secret Manager |
+| `TOKEN`       | Token gerado via `/api/tokens`           | Criar usuário de teste         |
+| `ACCOUNT_ID`  | ID fixo para cenários POST               | Preenchido via script setup    |
+
+No `README` incluir instruções para gerar o token automaticamente (ex.: rodar `php artisan user:token` ou chamar endpoint de login via script `setup()` no k6).
+
+### Execução
+
+```bash
+cd tests/k6
+cp env.example .env          # preencher valores
+export $(xargs < .env)
+k6 run scenarios/accounts.js
+```
+
+Para execuções automatizadas (CI/CD ou Cloud Build), usar `k6 run --out cloud` ou integrar com o k6 Cloud se houver licença. Também registrar métricas no Cloud Monitoring via `otel collector` (opcional).
+
+### Coleta e Análise
+
+* Armazenar o CSV de resultados (`k6 run --out csv=out/accounts.csv`).  
+* Gerar gráficos a partir do CSV (Planilha ou Grafana).  
+* Comparar P95/P99 com os SLOs e documentar no capítulo de resultados.  
+* Correlacionar com logs do Cloud Run / Cloud Monitoring (ex.: screenshot de dashboard de CPU/RPS durante o teste).
+
+### Próximos Passos Específicos
+
+1. Criar diretório `tests/k6` seguindo a estrutura proposta.  
+2. Escrever `README.md` com preparo de ambiente (Credenciais, Base URL, geração de token).  
+3. Implementar o primeiro cenário (C1) e executar contra ambiente de staging.  
+4. Registrar métricas e ajustar thresholds antes de rodar os demais cenários.  
+5. Automatizar a coleta (CSV + dashboards) para uso no TCC.
