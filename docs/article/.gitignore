@@ -1,0 +1,28 @@
+# LaTeX build artifacts
+*.aux
+*.log
+*.synctex.gz
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.out
+*.toc
+*.lof
+*.lot
+*.nav
+*.snm
+*.vrb
+*.dvi
+*.ps
+
+# LaTeX temporary files
+*.tmp
+*.backup
+*.bak
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store

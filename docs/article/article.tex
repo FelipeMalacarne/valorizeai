@@ -1,0 +1,100 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% How to use writeLaTeX:
+%
+% You edit the source code here on the left, and the preview on the
+% right shows you the result within a few seconds.
+%
+% Bookmark this page and share the URL with your co-authors. They can
+% edit at the same time!
+%
+% You can upload figures, bibliographies, custom classes and
+% styles using the files menu.
+%
+% Modifyied by Prof. MSc. Daniel Menin Tortelli
+% Computer Science - URICER - Brazil
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[12pt]{article}
+
+\usepackage{article-config/sbc-template}
+
+\usepackage{graphicx,url}
+
+\usepackage[brazilian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{graphicx,url}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{textcomp}
+\usepackage{url}
+\usepackage{enumerate}
+\usepackage{multirow}
+\usepackage{soul}
+\usepackage{verbatim}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage[shortlabels]{enumitem}
+\usepackage{scalefnt}
+\usepackage{comment}
+\usepackage{lscape}
+\usepackage{fancyhdr}
+\usepackage{article-config/pages-style}
+\usepackage[super]{nth}
+\usepackage[table]{xcolor}
+
+
+\tolerance=1
+\emergencystretch=\maxdimen
+\hyphenpenalty=10000
+\hbadness=10000
+
+\sloppy
+
+\input{article-config/event-info}
+
+\title{placeholder \\
+\medskip
+\small{
+    \textit{Title: }
+}
+}
+
+\author{Felipe Tomkiel Malacarne, Prof. Me. Marcos André Lucas aaaa}
+
+\address{
+    Universidade Regional Integrada do Alto Uruguai e das Missões \\
+    Departamento de Engenharias e Ciência da Computação\\
+  Caixa Postal 743 -- 99.709-910 -- Erechim -- RS -- Brasil
+\email{101090@uricer.edu.br, mlucas@uricer.edu.br}
+}
+
+
+\begin{document}
+
+\maketitle
+
+\thispagestyle{plain}
+\pagestyle{plain2}
+
+\begin{abstract}
+\end{abstract}
+
+\keywords{Word 1, Word 2, Word 3, Word 4, Word 5.}
+
+\begin{resumo}
+\end{resumo}
+
+\palavraschave{Palavra 1, Palavra 2, Palavra 3, Palavra 4, Palavra 5.}
+
+\input{sections/introduction}
+\input{sections/theoretical-framework}
+\input{sections/metodology}
+\input{sections/results}
+\input{sections/conclusion}
+
+\bibliographystyle{article-config/sbc}
+\bibliography{Referencias/referencias}
+
+\end{document}

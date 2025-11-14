@@ -1,0 +1,51 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Modifyied by Prof. MSc. Daniel Menin Tortelli
+% Computer Science - URICER - Brazil
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand*\DefVar[1]{\@namedef{#1}##1{\global\@namedef{get#1}{##1}}}
+\DefVar{anais}
+\DefVar{curso}
+\DefVar{ano}
+\DefVar{local}
+\DefVar{edicao}
+\DefVar{evento}
+\DefVar{anais}
+
+\evento{\getedicao~Trabalho de Conclusão de Curso \getano - \getlocal}
+
+
+
+% Updated in 17 apr 2024
+% Avoid warning
+\setlength{\headheight}{47.02956pt}
+
+
+\fancypagestyle{plain}
+{
+    \fancyhf{} 
+    \fancyhead[C]{\includegraphics[width=15.5cm, height=1.5cm]{article-config/logo.png}}
+    \renewcommand{\headrulewidth}{0.4pt}
+}
+
+\fancypagestyle{plain2}
+{
+    \fancyhf{} 
+    \fancyhead[L]{
+    {\scriptsize
+        \begin{tabular}[t]{@{}l@{}}
+           \getevento\\
+           %\getanais\\
+        \end{tabular}
+    }
+}
+\fancyhead[R]{
+    {\scriptsize
+        
+        \begin{tabular}[t]{@{}r@{}}
+            Curso: \getcurso
+        \end{tabular}
+    }
+}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyfoot[C]{\hfill\thepage\hfill}
+}
