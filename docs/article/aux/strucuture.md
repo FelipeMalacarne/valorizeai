@@ -14,7 +14,7 @@ Este guia traduz a estrutura clássica da SBC para a realidade do projeto Valori
 ## Justificativa
 
 > **Texto base:**  
-> Plataformas financeiras que oferecem conciliação bancária, planejamento de budgets e acompanhamento de investimentos concentram fluxos críticos: eles exigem consistência forte, rastreabilidade para auditoria e resposta instantânea em picos imprevisíveis (folha de pagamento, virada de ciclo de cartão, liquidações de bolsa). Apesar de existirem guias fragmentados sobre cada tecnologia, há pouco material que conecte os blocos arquiteturais — balanceadores com CDN, camadas de cache e filas assíncronas, servidores de WebSockets e pipelines de dados — aos resultados práticos de testes de performance. Ao construir o ValorizeAI end-to-end e registrar os experimentos `transactions-list` e `mix` (`docs/test-results.md`), este TCC evidencia como essas decisões se traduzem em métricas: um cenário mantém a latência P95 em 158 ms, outro revela gargalos ao combinar escrita intensa e streaming simultâneo. Documentar esse caminho, apoiado por infraestrutura como código e monitoramento de custo, fornece uma referência concreta para equipes que precisam justificar arquiteturas orientadas a eventos com elasticidade horizontal automática.
+> Plataformas financeiras que oferecem conciliação bancária, planejamento de budgets e acompanhamento de investimentos concentram fluxos críticos: eles exigem consistência forte, rastreabilidade para auditoria e resposta instantânea em picos imprevisíveis (folha de pagamento, virada de ciclo de cartão, liquidações de bolsa). Apesar de existirem guias fragmentados sobre cada tecnologia, há pouco material que conecte os blocos arquiteturais — balanceadores com CDN, camadas de cache e filas assíncronas, servidores de WebSockets e pipelines de dados — aos resultados práticos de testes de performance. Ao construir o ValorizeAI end-to-end e registrar os experimentos de leitura, leitura e escrita (`docs/test-results.md`) e o teste de processamento assíncrono documentado em `docs/tests/3-test-queue/README.md`, este TCC evidencia como essas decisões se traduzem em métricas: o teste de leitura mantém a latência P95 em 158 ms, o de leitura e escrita revela gargalos ao combinar escrita intensa/streaming, e o teste de processamento assíncrono mostra que 51,58 mil tarefas foram drenadas em ~10 min. Documentar esse caminho, apoiado por infraestrutura como código e monitoramento de custo, fornece uma referência concreta para equipes que precisam justificar arquiteturas orientadas a eventos com elasticidade horizontal automática.
 
 ## Objetivos
 
@@ -26,7 +26,7 @@ Demonstrar, por meio de documentação técnica e experimentos de desempenho, qu
 
 1. **Mapear a arquitetura end-to-end**, destacando o papel do balanceador/CDN, das instâncias de containers, do servidor de WebSockets, das filas assíncronas, dos buckets de armazenamento e do Redis para garantir consistência e baixa latência (`docs/planning.md`, `docs/system-design.md`).
 2. **Documentar o desenvolvimento do backend Laravel, do frontend React e dos fluxos assíncronos**, com foco nos módulos de conciliação, budgets, cartões e investimentos, aproveitando os registros em `docs/features/*`, `app/` e `resources/`.
-3. **Planejar e executar os testes de carga** (k6, cenários `transactions-list` e `mix`) para validar horizontalmente a arquitetura frente aos SLOs e identificar gargalos usando os scripts em `tests/k6/scenarios/*`.
+3. **Planejar e executar os testes de carga** (k6, cenários de leitura e de leitura/escrita) e o teste de processamento assíncrono (`docs/tests/3-test-queue/README.md`) para validar horizontalmente a arquitetura frente aos SLOs e identificar gargalos usando os scripts em `tests/k6/scenarios/*`.
 4. **Interpretar os resultados e propor otimizações**, relacionando desempenho, elasticidade e custo (ex.: ajustes de limites de instância, estratégias de cache e particionamento de consultas) e apontando como essas evidências fundamentam decisões para workloads financeiros.
 
 ---
@@ -34,9 +34,9 @@ Demonstrar, por meio de documentação técnica e experimentos de desempenho, qu
 ## Guia por seção da estrutura SBC
 
 ### Resumo (Abstract)
-- **Foco narrativo:** sintetizar o problema (complexidade de operar sistemas financeiros), a abordagem arquitetural (balanceador + CDN, containers com escalabilidade horizontal, WebSockets dedicados, filas assíncronas, cache Redis e armazenamento em buckets) e os principais achados dos testes de carga (um cenário cumpre SLO, outro revela gargalos).
-- **Dados obrigatórios:** objetivos, metodologia (infra como código + k6), principais resultados (p95=158 ms para `transactions-list`, p95=4,03 s para `mix`) e conclusões sobre escalabilidade.
-- **Fontes no repositório:** `docs/planning.md` (SLOs e premissas), `docs/test-results.md` (métricas).
+- **Foco narrativo:** sintetizar o problema (complexidade de operar sistemas financeiros), a abordagem arquitetural (balanceador + CDN, containers com escalabilidade horizontal, WebSockets dedicados, filas assíncronas, cache Redis e armazenamento em buckets) e os principais achados dos testes de carga (teste de leitura cumpre SLO, teste de leitura e escrita revela gargalos, teste de processamento assíncrono confirma drenagem dentro da meta de 10 min).
+- **Dados obrigatórios:** objetivos, metodologia (infra como código + k6), principais resultados (p95=158 ms para o teste de leitura, p95=4,03 s para o teste de leitura e escrita, 51,58 mil tarefas drenadas em ~10 min no teste de processamento assíncrono) e conclusões sobre escalabilidade.
+- **Fontes no repositório:** `docs/planning.md` (SLOs e premissas), `docs/test-results.md` (métricas k6), `docs/tests/3-test-queue/README.md` (fila/Cloud Tasks).
 - **Sugestões de referências:** guias da própria SBC sobre resumos estruturados e normas ABNT 6028 para reforçar a padronização.
 
 ### 1. Introdução
@@ -69,7 +69,7 @@ Demonstrar, por meio de documentação técnica e experimentos de desempenho, qu
   1. **Planejamento (docs/planning.md):** apresente premissas, SLOs (latência P95 ≤ 250 ms, erro ≤ 0,5%, disponibilidade ≥ 99,5%) e limites práticos do ambiente de containers (1 vCPU / 1 GiB por instância, `max-instances = 10`).
   2. **Implementação incremental:** cite o workflow Git, uso de Laravel/PHP 8.3, React/Vite, e como cada módulo foi desenvolvido com testes locais e pipelines.
   3. **Infraestrutura como código:** detalhe como o diretório `terraform/` e o `Makefile` orquestram ambientes, incluindo secret management e automações com os pipelines de CI/CD (GitHub Actions ou pipelines nativos da nuvem utilizados).
-  4. **Planejamento e execução de testes:** explique a escolha do k6, apresente os scripts em `tests/k6/scenarios/*.js`, parâmetros dos estágios (até 1000 VUs) e como os resultados foram coletados (`csv` + `docs/test-results.md`).
+  4. **Planejamento e execução de testes:** explique a escolha do k6, apresente os scripts em `tests/k6/scenarios/*.js`, parâmetros dos estágios (até 1000 VUs) e como os resultados foram coletados (`csv` + `docs/test-results.md`). Inclua também o teste de processamento assíncrono descrito em `docs/tests/3-test-queue/README.md`, detalhando como 51,58 mil tarefas foram geradas e drenadas em aproximadamente 10 min.
 - **Ferramentas e datasets:** mencione a stack de observabilidade da nuvem, o banco PostgreSQL gerenciado, o Redis utilizado como cache/lock, o servidor de WebSockets (Reverb) e os dados sintéticos criados para as simulações.
 
 ### 5. Implementação / Desenvolvimento
@@ -83,9 +83,10 @@ Demonstrar, por meio de documentação técnica e experimentos de desempenho, qu
 
 ### 6. Resultados e Discussão
 - **Apresente os experimentos:**
-  - **Cenário `transactions-list` (19:07–19:25):** 1000 VUs, p95=158,48 ms, taxa de erro 0,00 % (cumpriu os SLOs). Destaque o throughput (470 req/s) e suponha impactos no banco relacional e no Redis.
-  - **Cenário `mix` (22:53–23:13):** 650 VUs, p95=4,03 s (SLO violado). Analise os gargalos observados (latência média 1,55 s, picos de 9,57 s) e discuta possíveis causas (limites do autoscaling de containers, contencioso no banco relacional, saturação de WebSockets).
-- **Discussão:** conecte os resultados às premissas — o ambiente com `max-instances=10` e 1 vCPU impõe teto de ~900 RPS, conforme documentado em `docs/planning.md`. Proponha mitigadores (mais instâncias, particionamento de consultas, caching de contas/contatos, habilitar CPU always-on para os containers ou dedicar pods para workloads de escrita).
+  - **Teste de leitura (19:07–19:25):** 1000 VUs, p95=158,48 ms, taxa de erro 0,00 % (cumpriu os SLOs). Destaque o throughput (470 req/s) e suponha impactos no banco relacional e no Redis.
+  - **Teste de leitura e escrita (22:53–23:13):** 650 VUs, p95=4,03 s (SLO violado). Analise os gargalos observados (latência média 1,55 s, picos de 9,57 s) e discuta possíveis causas (limites do autoscaling de containers, contencioso no banco relacional, saturação de WebSockets).
+  - **Teste de processamento assíncrono (01:08–01:18):** 51,58 mil tarefas na Cloud Tasks drenadas em aproximadamente 10 min, sem DLQ. Usar `docs/tests/3-test-queue/README.md` para relatar o setup (geração de jobs, observação da drenagem em tempo real) e correlacionar com a elasticidade dos workers.
+- **Discussão:** conecte os resultados às premissas — o ambiente com `max-instances=10` e 1 vCPU impõe teto de ~900 RPS, conforme documentado em `docs/planning.md`. Proponha mitigadores (mais instâncias, particionamento de consultas, caching de contas/contatos, habilitar CPU always-on para os containers ou dedicar pods para workloads de escrita) e destaque que o teste de processamento assíncrono confirma a capacidade atual de drenar ~52 mil tarefas em 10 min, mas depende da mesma cota de instâncias, exigindo monitoramento para evitar backlog.
 - **Visualizações:** inclua gráficos derivados dos CSVs (`transactions.csv`, `mix.csv`) ou métricas coletadas na plataforma de observabilidade para ilustrar a análise.
 
 ### 7. Conclusão e Trabalhos Futuros
@@ -115,7 +116,7 @@ Demonstrar, por meio de documentação técnica e experimentos de desempenho, qu
 | Trabalhos Relacionados / Fundamentação | Referências externas + alinhamento com princípios descritos em `docs/system-design.md` e `docs/features/*`       |
 | Metodologia                         | `docs/planning.md`, `terraform/`, `docker/`, `Makefile`, `tests/k6/scenarios/*`, `docs/test-results.md`           |
 | Implementação                       | `app/`, `resources/`, `routes/`, `database/`, `docs/features/*`, `docs/system-design.md`                          |
-| Resultados                          | `docs/test-results.md`, CSVs exportados pelos testes, métricas capturadas na plataforma de observabilidade (capturas a serem incluídas)   |
+| Resultados                          | `docs/test-results.md`, `docs/tests/3-test-queue/README.md`, CSVs exportados pelos testes, métricas capturadas na plataforma de observabilidade (capturas a serem incluídas)   |
 | Conclusão e Trabalhos Futuros       | Síntese das análises + backlog técnico (issues/roadmap)                                                           |
 | Referências / Apêndices             | `docs/database-schema.md`, diagramas, scripts k6 e Terraform para reprodutibilidade                               |
 
