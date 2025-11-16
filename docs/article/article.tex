@@ -43,6 +43,8 @@
 \usepackage{article-config/pages-style}
 \usepackage[super]{nth}
 \usepackage[table]{xcolor}
+\usepackage{longtable}
+\usepackage{booktabs}
 
 
 \tolerance=1
@@ -79,22 +81,27 @@
 \pagestyle{plain2}
 
 \begin{abstract}
+    todo
 \end{abstract}
 
-\keywords{Word 1, Word 2, Word 3, Word 4, Word 5.}
+\keywords{Serverless Computing, Cloud Run, Financial Platforms, Performance Testing, Observability.}
 
 \begin{resumo}
+    todo
 \end{resumo}
 
-\palavraschave{Palavra 1, Palavra 2, Palavra 3, Palavra 4, Palavra 5.}
+\palavraschave{Computação Serverless, Cloud Run, Plataformas Financeiras, Testes de Carga, Observabilidade.}
 
-\input{sections/introduction}
-\input{sections/theoretical-framework}
+\input{sections/1-introduction}
+\input{sections/2-related-works}
+\input{sections/3-theoretical-framework}
 \input{sections/metodology}
 \input{sections/results}
 \input{sections/conclusion}
 
+% \nocite{BCB_Economia_Bancaria_2024,Febraban_Tecnologia_2024,Febraban_Transacoes_2025}
+
 \bibliographystyle{article-config/sbc}
-\bibliography{Referencias/referencias}
+\bibliography{references/references}
 
 \end{document}
