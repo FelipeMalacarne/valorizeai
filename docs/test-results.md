@@ -93,3 +93,9 @@
 
 
 running (21m00.7s), 000/650 VUs, 127506 complete and 0 interrupted iterations
+
+
+queue consuption test
+
+total tasks on queue: 51,58k
+time to procedss all: 01:08 - 01:18 (10mins) dia 10

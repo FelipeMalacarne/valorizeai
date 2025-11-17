@@ -1,0 +1,98 @@
+\section{Metodologia}
+\label{sec:metodologia}
+
+Este capítulo descreve como o estudo foi conduzido desde o planejamento dos SLOs até a coleta e análise dos experimentos. O objetivo é permitir que outros pesquisadores repliquem o ambiente e os testes usando os artefatos versionados no repositório ValorizeAI.
+
+\subsection{Tipo de Pesquisa e Estratégia Geral}
+
+O trabalho caracteriza-se como \textbf{pesquisa aplicada} com método \textbf{experimental} e abordagem \textbf{estudo de caso}. O objeto de estudo é o sistema ValorizeAI executando em serviços gerenciados do Google Cloud. O recorte temporal corresponde aos experimentos realizados entre maio e outubro de 2025, registrados diretamente neste repositório. A estratégia adotada foi:
+\begin{enumerate}
+    \item Planejar a arquitetura e os SLOs (\texttt{docs/planning.md}, \texttt{docs/system-design.md}).
+    \item Provisionar a infraestrutura via IaC (Terraform) e automatizar ambientes locais com Docker/Makefile.
+    \item Implementar os módulos backend/frontend e instrumentar observabilidade.
+    \item Executar experimentos de carga (k6) e filas (Cloud Tasks) sobre o ambiente provisionado.
+    \item Consolidar resultados (\texttt{docs/test-results.md}, \texttt{docs/tests/3-test-queue/README.md}) e interpretá-los nos capítulos seguintes.
+\end{enumerate}
+
+\subsection{Fontes de Dados e Artefatos do Repositório}
+
+Todo o ciclo de desenvolvimento foi versionado para garantir rastreabilidade:
+\begin{itemize}
+    \item \textbf{Documentação de planejamento}: SLOs, perguntas de pesquisa e limites de infraestrutura em \texttt{docs/planning.md}; descrição modular da arquitetura em \texttt{docs/system-design.md}; backlog funcional em \texttt{docs/features/*}.
+    \item \textbf{Código e testes}: backend Laravel/PHP em \texttt{app/}, frontend React em \texttt{resources/js}, rotas em \texttt{routes/}, testes automatizados (Pest/PHPUnit) em \texttt{tests/}.
+    \item \textbf{Infraestrutura e automação}: módulos Terraform para Cloud Run, Cloud SQL, Memorystore, Cloud Tasks e Load Balancer em \texttt{terraform/}; scripts Docker Compose em \texttt{docker/} (stack de observabilidade, PostgreSQL local, ambientes PHP 8.4); tarefas no \texttt{Makefile} para lint, testes e provisionamento.
+    \item \textbf{Experimentação}: cenários k6 em \texttt{tests/k6/scenarios/*.js}, CSVs gerados, dashboards e scripts auxiliares; registros do teste de filas em \texttt{docs/tests/3-test-queue/README.md}.
+\end{itemize}
+
+\subsection{Ferramentas e Workflow de Desenvolvimento}
+
+O fluxo de trabalho combinou automações locais e em nuvem:
+\begin{itemize}
+    \item \textbf{Controle de versão e CI}: Git (GitHub) com branches temáticos. Cada PR dispara pipelines (GitHub Actions) para lint, testes e build, garantindo que o código aplicado aos ambientes Cloud Run seja aquele documentado no repositório.
+    \item \textbf{Ambiente local}: \texttt{docker/stack-app.yml} sobe os serviços auxiliares (PostgreSQL 16, Redis, Loki/Tempo para observabilidade) alinhados com produção. O Makefile encapsula tarefas como \texttt{make setup}, \texttt{make test}, \texttt{make k6-transactions}.
+    \item \textbf{Provisionamento IaC}: Terraform (\texttt{terraform/main.tf} e módulos em \texttt{terraform/modules/*}) descreve VPC, Cloud Run (API, Reverb, workers), Cloud SQL (PostgreSQL HA), Memorystore, Cloud Tasks e Cloud Load Balancer. Variáveis sensíveis são tratadas via arquivos \texttt{*.tfvars} e Secret Manager.
+\end{itemize}
+
+\subsection{Planejamento de SLOs e Cenários Experimentais}
+
+Os SLOs definidos em \texttt{docs/planning.md}, baseados em práticas de SRE \cite{mccoy_slo_2020,google_sre_book_main}, são:
+\begin{itemize}
+    \item \textbf{Latência P95 (API REST)} $\leq 250$~ms.
+    \item \textbf{Taxa de erro} $<$ 0{,}5\%.
+    \item \textbf{Disponibilidade mensal} $\geq 99{,}5\%$.
+\end{itemize}
+Limitações práticas do ambiente (instâncias Cloud Run com 1~vCPU/1~GiB e \texttt{max-instances = 10}) impõem um teto aproximado de 900 RPS; por isso, os cenários foram ajustados para refletir esse limite.
+
+Dois tipos de experimentos foram planejados:
+\begin{enumerate}
+    \item \textbf{Testes de carga HTTP} com k6 para os fluxos síncronos mais críticos (listagem de transações e operações combinadas leitura/escrita).
+    \item \textbf{Teste de drenagem de filas} com Cloud Tasks para avaliar o comportamento do pipeline assíncrono sob backlog artificial.
+\end{enumerate}
+
+\subsection{Execução dos Testes de Carga com k6}
+
+Os scripts localizados em \texttt{tests/k6/scenarios} modelam dois perfis:
+\begin{itemize}
+    \item \texttt{transactions-list.js}: simula 1{.}000 usuários virtuais (VUs) acessando o endpoint de listagem de transações durante 17 minutos (6 estágios), validando o SLO de leitura. Métricas: latência P95, \textit{throughput}, taxa de erro.
+    \item \texttt{mix.js}: combina leituras e escritas (criação de transações, consulta de contas) com 650 VUs e 7 estágios, forçando locking no banco de dados e no Redis para identificar gargalos sob escrita intensa.
+\end{itemize}
+
+Cada execução segue o pipeline:
+\begin{enumerate}
+    \item Preparação do banco com dados sintéticos e seeds (Pest factories) alinhados ao cenário.
+    \item Execução do script via \texttt{make k6-\{scenario\}} apontando para o endpoint público da API em Cloud Run.
+    \item Exportação automática de métricas para CSV (\texttt{transactions.csv}, \texttt{mix.csv}) e registro agregado em \texttt{docs/test-results.md}.
+\end{enumerate}
+
+O teste de leitura manteve \textbf{p95=158{,}48~ms} e \textbf{470 req/s} sem erros, confirmando o SLO. O cenário combinado registrou \textbf{p95=4{,}03~s} (violação do SLO) e serve como base para a discussão de gargalos na Seção 6.
+
+\subsection{Execução do Teste de Filas (Cloud Tasks)}
+
+Para o pipeline assíncrono, um script customizado gera 51{,}58~mil tarefas na fila monitorada pelo serviço de workers HTTP. O procedimento, descrito em \texttt{docs/tests/3-test-queue/README.md}, consiste em:
+\begin{enumerate}
+    \item Popular a fila \texttt{valorizeai-jobs} com jobs heterogêneos (processamento de importações, notificações).
+    \item Monitorar métricas de Cloud Tasks e Cloud Run (workers) via Cloud Monitoring.
+    \item Registrar o intervalo entre 01:08 e 01:18 (10 minutos) necessário para drenar 100\% das tarefas sem DLQ.
+\end{enumerate}
+Esse experimento confirma a elasticidade dos workers e dimensiona o tempo de resposta assíncrono usado na análise de resultados.
+
+\subsection{Coleta, Consolidação e Análise}
+
+As métricas coletadas são consolidadas da seguinte forma:
+\begin{itemize}
+    \item \textbf{k6}: além do resumo textual salvo em \texttt{docs/test-results.md}, os CSVs permitem gerar gráficos (latência vs. tempo, uso de VUs) utilizados na Seção 6. Os indicadores principais são latência P95, média, máximo e erro.
+    \item \textbf{Observabilidade}: logs e métricas do Cloud Monitoring são exportados como capturas e séries temporais (não incluídas neste repositório por conterem dados sensíveis, mas descritas textualmente no Capítulo de Resultados).
+    \item \textbf{Cloud Tasks}: registros de backlog e taxa de processamento documentados no README específico das filas.
+\end{itemize}
+A interpretação dos resultados segue a metodologia SRE: cada métrica é comparada aos SLOs definidos e, quando há violação, são propostos mitigadores (aumentar \texttt{max-instances}, otimizar queries, ajustar limites de worker) que alimentam a discussão do Capítulo 6.
+
+\subsection{Rastreabilidade e Transição para a Implementação}
+
+Todas as etapas descritas acima têm correspondência direta com arquivos versionados, formando uma trilha de auditoria:
+\begin{itemize}
+    \item Planejamento → \texttt{docs/planning.md} e \texttt{docs/system-design.md}.
+    \item Provisionamento → \texttt{terraform/*}, \texttt{Makefile}, \texttt{docker/*}.
+    \item Execução de testes → \texttt{tests/k6/scenarios/*}, \texttt{docs/test-results.md}, \texttt{docs/tests/3-test-queue/README.md}.
+    \item Código e ajustes → commits nos diretórios \texttt{app/}, \texttt{resources/}, \texttt{routes/}, \texttt{database/}.
+\end{itemize}
+Essa rastreabilidade prepara o terreno para o Capítulo 5, que detalha como cada componente foi implementado e instrumentado a partir da metodologia descrita.

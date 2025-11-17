@@ -1,0 +1,15 @@
+TimeSeries ID,database/cpu/utilization.cloudsql_database.ALIGN_MAX.metric.type="cloudsql.googleapis.com/database/cpu/utilization" resource.type="cloudsql_database" resource.label.database_id="valorizeaitcc:valorizeai-db".database_id:valorizeaitcc:valorizeai-db.project_id:valorizeaitcc.region:southamerica-east1
+region,southamerica-east1
+project_id,valorizeaitcc
+database_id,valorizeaitcc:valorizeai-db
+Sun Nov 09 2025 19:06:00 GMT-0300 (Brasilia Standard Time),0.22933562213653053
+Sun Nov 09 2025 19:08:00 GMT-0300 (Brasilia Standard Time),0.06522247435641428
+Sun Nov 09 2025 19:10:00 GMT-0300 (Brasilia Standard Time),0.0912869368011305
+Sun Nov 09 2025 19:12:00 GMT-0300 (Brasilia Standard Time),0.12567701402816928
+Sun Nov 09 2025 19:14:00 GMT-0300 (Brasilia Standard Time),0.16162785424361534
+Sun Nov 09 2025 19:16:00 GMT-0300 (Brasilia Standard Time),0.20426771765214274
+Sun Nov 09 2025 19:18:00 GMT-0300 (Brasilia Standard Time),0.24717148797780433
+Sun Nov 09 2025 19:20:00 GMT-0300 (Brasilia Standard Time),0.3006325465436523
+Sun Nov 09 2025 19:22:00 GMT-0300 (Brasilia Standard Time),0.31664710885926106
+Sun Nov 09 2025 19:24:00 GMT-0300 (Brasilia Standard Time),0.28143610217969883
+Sun Nov 09 2025 19:26:00 GMT-0300 (Brasilia Standard Time),0.07328827613247882

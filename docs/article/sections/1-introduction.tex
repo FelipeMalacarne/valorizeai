@@ -76,9 +76,21 @@ Demonstrar, por meio de documentação técnica e experimentos de desempenho, qu
     \item \textbf{Interpretar os resultados e propor otimizações}, relacionando desempenho, elasticidade e custo (ex.: ajustes de limites de instância, estratégias de cache) e apontando como essas evidências fundamentam decisões para \textit{workloads} transacionais de alta criticidade.
 \end{enumerate}
 
+\subsection{Contribuições e Evidências Disponíveis}
+\label{sec:contribuicoes}
+
+O trabalho entrega quatro contribuições tangíveis, cada uma acompanhada de evidências versionadas no repositório:
+\begin{itemize}
+    \item \textbf{Arquitetura documentada fim a fim}, conectando decisões de rede, aplicação, dados e observabilidade (`docs/system-design.md`, `docs/features/*`, `GEMINI.md`), permitindo que outros pesquisadores repliquem o raciocínio arquitetural.
+    \item \textbf{Infraestrutura como Código reproduzível}, com módulos Terraform para Cloud Run, Cloud SQL, Memorystore, Cloud Tasks e balanceamento (`terraform/`), além de receitas Docker/Makefile para ambiente local (`docker/`, `Makefile`), garantindo que qualquer leitor possa criar o mesmo ambiente experimental.
+    \item \textbf{Pipeline de testes de desempenho versionado}, incluindo os cenários k6 (`tests/k6/scenarios/*.js`), scripts auxiliares e os resultados originais em \texttt{docs/test-results.md}, o que assegura transparência no tratamento dos SLOs.
+    \item \textbf{Registro dos experimentos assíncronos} (Cloud Tasks → workers HTTP) em `docs/tests/3-test-queue/README.md`, demonstrando a elasticidade das filas e o tempo de drenagem de 51{,}58~mil tarefas em aproximadamente 10~min.
+\end{itemize}
+Essas evidências funcionam como um “pacote de replicação” que acompanha o texto do TCC e reforçam a natureza aplicada deste estudo de caso.
+
 \subsection{Estrutura do Trabalho}
 \label{sec:estrutura}
 
-Este trabalho está organizado da seguinte forma: O Capítulo \ref{sec:relacionados} apresenta uma revisão da literatura sobre paradigmas de execução em nuvem, padrões arquiteturais e metodologias de validação, identificando a lacuna que este TCC se propõe a preencher. O Capítulo \ref{sec:fundamentacao} define os conceitos teóricos e técnicos canônicos que fundamentam o design do sistema e a metodologia de testes. O Capítulo 4 detalha a metodologia empregada, incluindo os SLOs definidos e a configuração dos testes. O Capítulo 5 descreve a implementação da arquitetura ValorizeAI. O Capítulo 6 apresenta e discute os resultados dos experimentos de desempenho. Finalmente, o Capítulo 7 conclui o trabalho e sugere direções para pesquisas futuras.
+Este trabalho está organizado da seguinte forma: O Capítulo \ref{sec:relacionados} apresenta uma revisão da literatura sobre paradigmas de execução em nuvem, padrões arquiteturais e metodologias de validação, identificando a lacuna que este TCC se propõe a preencher. O Capítulo \ref{sec:fundamentacao} define os conceitos teóricos e técnicos canônicos que fundamentam o design do sistema e a metodologia de testes. O Capítulo \ref{sec:metodologia} descreve a abordagem experimental adotada, do planejamento (SLOs, IaC) aos procedimentos de coleta com k6 e Cloud Tasks. O Capítulo 5 detalha a implementação da arquitetura ValorizeAI. O Capítulo 6 apresenta e discute os resultados dos experimentos de desempenho. Finalmente, o Capítulo 7 conclui o trabalho e sugere direções para pesquisas futuras.
 
 \newpage
