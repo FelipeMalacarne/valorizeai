@@ -1,7 +1,7 @@
 \section{Fundamentação Teórica}
 \label{sec:fundamentacao}
 
-Este capítulo estabelece o vocabulário canônico e os fundamentos conceituais utilizados no design, implementação e validação do sistema ValorizeAI. São apresentados os princípios de design de software, as arquiteturas de componentes tecnológicos e os conceitos de engenharia de confiabilidade que formam a base deste trabalho.
+Segue uma síntese do vocabulário e das bases conceituais utilizados no design, implementação e validação do ValorizeAI, cobrindo princípios de design de software, arquitetura dos componentes e fundamentos de engenharia de confiabilidade.
 
 \subsection{Princípios de Design de Software}
 \label{sec:principios_design}
@@ -44,7 +44,7 @@ A infraestrutura do ValorizeAI é composta por serviços gerenciados na nuvem, e
 \subsubsection{Google Cloud Run e Cloud Tasks}
 \label{sec:cloud_run}
 
-O Google Cloud Run é uma plataforma de computação CaaS (Container-as-a-Service) totalmente gerenciada. Ele permite a execução de contêineres \textit{stateless} que escalam horizontalmente de forma automática, com a capacidade de escalar até zero instâncias quando não há tráfego, eliminando custos ociosos \cite{google_elasticity_2024}. Conforme discutido na Seção \ref{sec:paradigmas}, o Cloud Run foi escolhido por combinar a elasticidade do FaaS com a flexibilidade dos contêineres, sendo capaz de executar tanto os serviços web \textit{stateless} do ValorizeAI quanto o servidor \textit{stateful} de WebSockets.
+O Google Cloud Run é uma plataforma de computação CaaS (Container-as-a-Service) totalmente gerenciada. Ele permite a execução de contêineres \textit{stateless} que escalam horizontalmente de forma automática, com a capacidade de escalar até zero instâncias quando não há tráfego, eliminando custos ociosos \cite{google_elasticity_2024}. O serviço foi escolhido por combinar a elasticidade típica de funções serverless com a flexibilidade dos contêineres, executando tanto os serviços web \textit{stateless} do ValorizeAI quanto o servidor \textit{stateful} de WebSockets.
 
 O Google Cloud Tasks é o serviço de enfileiramento de tarefas gerenciado. Ele é usado para implementar o processamento assíncrono (EDA), permitindo que a aplicação principal (síncrona) enfileire tarefas de longa duração (ex: processamento de lotes) para execução em \textit{workers} separados, garantindo resiliência e baixa latência na resposta ao usuário.
 
@@ -53,7 +53,7 @@ O Google Cloud Tasks é o serviço de enfileiramento de tarefas gerenciado. Ele 
 
 O Laravel Reverb é o servidor WebSocket oficial de primeira-parte para aplicações Laravel, projetado para comunicação em tempo real de alto desempenho \cite{laravel_reverb_docs_2025}. Ele utiliza o protocolo Pusher, integrando-se nativamente ao sistema de \textit{broadcasting} do Laravel para facilitar o envio de notificações \textit{push} aos clientes conectados.
 
-A característica arquitetural mais importante do Reverb para este TCC é seu suporte à escalabilidade horizontal. Para operar em um ambiente elástico como o Cloud Run (com múltiplas instâncias de servidor), o Reverb utiliza um \textit{backplane} de mensagens, que no caso do ValorizeAI é implementado com o Redis (ver Seção \ref{sec:redis}) \cite{laravel_reverb_docs_2025}.
+A característica arquitetural mais importante do Reverb para este TCC é seu suporte à escalabilidade horizontal. Para operar em um ambiente elástico como o Cloud Run (com múltiplas instâncias de servidor), o Reverb utiliza um \textit{backplane} de mensagens, que no caso do ValorizeAI é implementado com o Redis (detalhado na subseção sobre cache) \cite{laravel_reverb_docs_2025}.
 
 \subsubsection{Redis (Remote Dictionary Server)}
 \label{sec:redis}
@@ -81,4 +81,4 @@ Os conceitos centrais do SRE utilizados para a validação do ValorizeAI são:
     \item \textbf{Orçamento de Erro (Error Budget):} O orçamento de erro é o complemento do SLO (ou seja, $100\% - SLO\%$) \cite{google_sre_book_main}. Ele representa a quantidade de falhas "permitidas" (ex: requisições lentas ou com erro) durante o período. O orçamento de erro é uma ferramenta de gerenciamento: enquanto houver orçamento, a equipe de desenvolvimento tem "permissão" para lançar novas funcionalidades (que inerentemente trazem risco); se o orçamento se esgotar, o foco da equipe deve mudar para a melhoria da confiabilidade \cite{google_sre_book_main}.
 \end{itemize}
 
-Esses fundamentos serão operacionalizados no Capítulo \ref{sec:metodologia}, que detalha como o planejamento dos SLOs, a infraestrutura como código e os experimentos com k6 e Cloud Tasks foram conduzidos para gerar as evidências analisadas nos capítulos posteriores.
+Esses fundamentos orientam a abordagem metodológica detalhada na Seção \ref{sec:metodologia}, que explica como o planejamento dos SLOs, a infraestrutura como código e os experimentos com k6 e Cloud Tasks foram conduzidos para gerar as evidências analisadas posteriormente.

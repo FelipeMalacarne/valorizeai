@@ -1,11 +1,11 @@
 \section{Metodologia}
 \label{sec:metodologia}
 
-Esta seção descreve como o estudo foi conduzido, desde o planejamento dos objetivos de nível de serviço (SLOs) até a coleta e interpretação dos experimentos. O enfoque é aplicado e experimental: toda a instrumentação foi construída diretamente no repositório ValorizeAI, o que permite a reprodução dos resultados.
+O estudo foi conduzido de ponta a ponta, do planejamento dos objetivos de nível de serviço (SLOs) à coleta e interpretação dos experimentos. O enfoque é aplicado e experimental: toda a instrumentação foi construída diretamente no repositório ValorizeAI, o que permite a reprodução dos resultados.
 
 \subsection{Tipo de Pesquisa e Estratégia Geral}
 
-O trabalho caracteriza-se como uma \textbf{pesquisa aplicada} conduzida como \textbf{estudo de caso} de um sistema real em produção. A estratégia seguiu quatro fases iterativas. No \textbf{planejamento}, foram definidos os SLOs (latência P95 de 250~ms, erro $<$0{,}5\%, disponibilidade $\geq$99{,}5\%), mapeadas as cotas vigentes do Cloud Run (10 instâncias de 1~vCPU / 1~GiB, totalizando 10 vCPU) e estimado como essa limitação poderia afetar o throughput — nos ensaios preliminares o workload saturou próximo de 900 RPS, valor usado apenas como referência empírica. Em seguida veio a \textbf{preparação do ambiente}: módulos Terraform provisionaram rede, bancos e serviços gerenciados; Docker Compose reproduziu localmente PostgreSQL, Redis e a stack de observabilidade; o Makefile encapsulou tarefas de lint, testes e execução dos cenários. Na etapa de \textbf{execução controlada}, os cenários k6 de leitura e leitura/escrita foram disparados contra a API em Cloud Run enquanto o pipeline assíncrono recebia 51{,}58~mil tarefas no Cloud Tasks, exercitando os workers HTTP. Por fim, na \textbf{coleta e análise}, as métricas agregadas (latência, throughput, taxa de erro) foram extraídas dos CSVs e painéis do Cloud Monitoring, e as observações qualitativas sobre o teste de filas foram registradas juntamente com o tempo total de drenagem, subsidiando os capítulos de implementação e resultados.
+O trabalho caracteriza-se como uma \textbf{pesquisa aplicada} conduzida como \textbf{estudo de caso} de um sistema real em produção. A estratégia seguiu quatro fases iterativas. No \textbf{planejamento}, foram definidos os SLOs (latência P95 de 250~ms, erro $<$0{,}5\%, disponibilidade $\geq$99{,}5\%), mapeadas as cotas vigentes do Cloud Run (10 instâncias de 1~vCPU / 1~GiB, totalizando 10 vCPU) e estimado como essa limitação poderia afetar o throughput — nos ensaios preliminares o workload saturou próximo de 900 RPS, valor usado apenas como referência empírica. Em seguida veio a \textbf{preparação do ambiente}: módulos Terraform provisionaram rede, bancos e serviços gerenciados; Docker Compose reproduziu localmente PostgreSQL, Redis e a stack de observabilidade; o Makefile encapsulou tarefas de lint, testes e execução dos cenários. Na etapa de \textbf{execução controlada}, os cenários k6 de leitura e leitura/escrita foram disparados contra a API em Cloud Run enquanto o pipeline assíncrono recebia um lote adicional de tarefas no Cloud Tasks, exercitando os workers HTTP. Por fim, na \textbf{coleta e análise}, as métricas agregadas (latência, throughput, taxa de erro) foram extraídas dos CSVs e painéis do Cloud Monitoring, e as observações qualitativas sobre o teste de filas foram registradas juntamente com o tempo total de drenagem, subsidiando os capítulos de implementação e resultados.
 
 \subsection{Arquitetura do Ambiente Experimental}
 
@@ -57,27 +57,25 @@ Dois cenários foram modelados:
     \item \textbf{Leitura intensiva}: 1{.}000 usuários virtuais consultando listas de transações por 17 minutos em seis estágios, exercitando cache Redis + réplica de leitura do PostgreSQL.
     \item \textbf{Mistura leitura/escrita}: 650 usuários virtuais alternando consultas e criação de transações durante 21 minutos, forçando locks no banco e pressionando o pipeline de escrita.
 \end{enumerate}
-Além desses ensaios HTTP, foi planejado um \textbf{teste de filas} no qual 51{,}58~mil tarefas artificialmente geradas percorrem o fluxo Cloud Tasks → workers HTTP, mensurando o tempo de drenagem e a elasticidade dos workers.
+Além desses ensaios HTTP, foi planejado um \textbf{teste de filas} no qual um volume elevado de tarefas artificiais percorre o fluxo Cloud Tasks → workers HTTP, permitindo observar o tempo de drenagem e a elasticidade dos consumidores assíncronos.
 
 \subsection{Execução dos Experimentos}
 
 Cada rodada segue os passos:
 \begin{enumerate}
     \item \textbf{Preparação dos dados}: seeds e factories povoam o PostgreSQL com contas, transações e orçamentos realistas; a instância Redis é pre-aquecida com métricas e dashboards frequentes.
-    \item \textbf{Disparo do cenário}: os scripts k6 (\texttt{transactions-list.js} e \texttt{mix.js}) são executados via Makefile, apontando para o domínio público do Cloud Load Balancer; parâmetros como estágios, VUs e SLIs monitorados são idênticos aos descritos em \texttt{docs/test-results.md}.
-    \item \textbf{Registro automático}: os resultados agregados são gravados em CSVs (latência, taxa de erro, uso de VUs) e resumidos no relatório textual. Paralelamente, Cloud Monitoring marca o período da execução para correlacionar com métricas de infraestrutura.
-    \item \textbf{Teste de filas}: um script HTTP enfileira 51{,}58~mil mensagens; a drenagem é observada via Cloud Tasks e logs dos workers (descrita em \texttt{docs/tests/3-test-queue/README.md}).
+    \item \textbf{Disparo do cenário}: os perfis do k6 focados em leitura e no mix leitura/escrita são executados via Makefile, apontando para o domínio público do Cloud Load Balancer; estágios, VUs e SLIs monitorados seguem o planejamento experimental.
+    \item \textbf{Registro automático}: os resultados agregados são gravados em CSVs (latência, taxa de erro, uso de VUs) e correlacionados com as métricas de infraestrutura capturadas pelo Cloud Monitoring.
+    \item \textbf{Teste de filas}: um script HTTP produz um lote adicional de tarefas e a drenagem é acompanhada por meio das métricas do Cloud Tasks e dos logs dos workers.
 \end{enumerate}
-
-Os experimentos mostraram que o cenário de leitura manteve P95 em 158{,}48~ms e throughput médio de 470 req/s, enquanto o cenário misto violou o SLO (P95 de 4{,}03~s), apontando gargalos de escrita. O teste de filas drenou todo o backlog em aproximadamente 10 minutos sem DLQ, confirmando a resiliência do pipeline assíncrono para o volume simulado.
 
 \subsection{Coleta e Integração das Evidências}
 
-As evidências produzidas alimentam os capítulos seguintes:
+As evidências produzidas sustentam as análises de arquitetura, implementação e resultados:
 \begin{itemize}
-    \item \textbf{Planilhas de latência e throughput}: derivadas dos CSVs exportados pelo k6, utilizadas na análise do Capítulo 6 para comparar métricas observadas com os SLOs.
-    \item \textbf{Series temporais de infraestrutura}: capturas dos dashboards do Cloud Monitoring documentam uso de CPU das instâncias Cloud Run, saturação do Redis e backlog do Cloud Tasks durante cada rodada.
-    \item \textbf{Relato textual}: \texttt{docs/test-results.md} e \texttt{docs/tests/3-test-queue/README.md} consolidam horários, parâmetros e observações, funcionando como diário de laboratório.
+    \item \textbf{Planilhas de latência e throughput}: derivadas dos CSVs exportados pelo k6, utilizadas posteriormente para comparar as métricas observadas com os SLOs.
+    \item \textbf{Series temporais de infraestrutura}: capturas dos dashboards do Cloud Monitoring registram uso de CPU das instâncias Cloud Run, saturação do Redis e backlog do Cloud Tasks durante cada rodada.
+    \item \textbf{Relatos de execução}: cada rodada é registrada em um diário experimental com horários, parâmetros e observações qualitativas sobre o comportamento do sistema.
 \end{itemize}
 
-Essa metodologia garante rastreabilidade completa entre arquitetura (Capítulo \ref{sec:fundamentacao}), implementação (Capítulo 5) e resultados (Capítulo 6), pois cada passo experimental está ancorado em artefatos versionados do projeto.
+Essa metodologia garante rastreabilidade completa entre arquitetura, implementação e resultados, pois cada passo experimental está ancorado em artefatos versionados do projeto.
