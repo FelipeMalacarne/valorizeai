@@ -41,6 +41,45 @@ Ambos os serviços acessam o \textbf{Memorystore for Redis}, usado simultaneamen
     \label{fig:arquitetura}
 \end{figure}
 
+\subsection{Desenvolvimento da Aplicação e Modelo de Dados}
+
+O desenvolvimento do ValorizeAI avançou em paralelo à infraestrutura. O \textit{backend} Laravel concentra o domínio financeiro (contas, orçamentos, categorizações) e expõe APIs REST e eventos WebSocket consumidos pelo painel React. Essa base inclui ingestão automática de extratos (OFX/CSV), reconciliação assistida por filas, categorização por embeddings e automações que propagam atualizações de saldo e metas em tempo real. Os 	extit{workers} HTTP são os responsáveis por processar os pipelines mais caros (importação de transações, geração de relatórios, envio de notificações) e publicam eventos para o Reverb, fechando o ciclo com a interface.
+
+O modelo relacional, sintetizado na Figura \ref{fig:modelo-dados}, reflete os invariantes do domínio multi-inquilino. Usuários controlam múltiplas contas vinculadas a bancos e moedas distintas, cada conta agrega transações com divisão por categorias, e os orçamentos mensais impõem limites e alocações que retroalimentam o painel de metas. Camadas de auditoria (logs de importação, feedback de categorização e embeddings vetoriais em pgvector) conectam a coleta de dados com os recursos de IA usados para sugerir classificações.
+
+\begin{figure}[ht]
+    \centering
+    \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[
+        table/.style={draw, rounded corners, fill=gray!10, minimum width=3.3cm, minimum height=1.1cm, font=\scriptsize, align=center},
+        node distance=1.6cm and 1.8cm,
+        >=latex
+    ]
+        \node (users) [table] {Users\\(id, email, preferred\_currency)};
+        \node (banks) [table, below left=1.6cm and 2.7cm of users] {Banks\\(id, code, name)};
+        \node (accounts) [table, below=1.6cm of users] {Accounts\\(user\_id, bank\_id, balance)};
+        \node (transactions) [table, below=1.6cm of accounts] {Transactions\\(account\_id, category\_id, amount, date)};
+        \node (splits) [table, below=1.6cm of transactions] {Transaction Splits\\(transaction\_id, category\_id, amount)};
+        \node (categories) [table, right=2.6cm of transactions] {Categories\\(id, user\_id, color)};
+        \node (budgets) [table, above=1.3cm of categories] {Budgets\\(user\_id, category\_id, currency)};
+        \node (allocations) [table, below=1.3cm of categories] {Budget Allocations\\(budget\_id, month, amount)};
+        \node (embeddings) [table, right=2.6cm of categories] {Transaction Embeddings\\(transaction\_id, vector)};
+
+        \draw[->] (users) -- node[left]{1:N} (accounts);
+        \draw[->] (banks) -- node[above]{1:N} (accounts);
+        \draw[->] (accounts) -- node[left]{1:N} (transactions);
+        \draw[->] (transactions) -- node[left]{1:N} (splits);
+        \draw[->] (users) -- node[above]{1:N} (budgets);
+        \draw[->] (categories) -- node[right]{1:N} (budgets);
+        \draw[->] (budgets) -- node[right]{1:N} (allocations);
+        \draw[->] (categories) -- node[below]{1:N} (splits);
+        \draw[->] (categories) -- node[above]{1:N} (transactions);
+        \draw[->] (transactions) -- node[above]{1:N} (embeddings);
+    \end{tikzpicture}}
+    \caption{Modelo lógico central derivado do esquema relacional do ValorizeAI.}
+    \label{fig:modelo-dados}
+\end{figure}
+
 \subsection{Ferramentas e Processo de Preparação}
 
 Do ponto de vista de engenharia, três pilares garantiram a reprodutibilidade:
