@@ -1,2 +1,51 @@
-\section{Resultados}
+\section{Resultados e Discussão}
+\label{sec:resultados}
 
+Esta seção consolida as métricas obtidas nos testes de carga (k6) e no ensaio assíncrono com Cloud Tasks. As medições seguem os SLIs definidos na metodologia: latência P95, taxa de erro e tempo de drenagem do pipeline assíncrono.
+
+\begin{table}[ht]
+    \centering
+    \caption{Resumo dos cenários de carga e conformidade com os SLOs}
+    \label{tab:resultados_k6}
+    \begin{tabular}{lccc}
+        \toprule
+        Cenário & Latência P95 & Throughput médio & Taxa de erro \\
+        \midrule
+        Leitura intensiva & 158~ms & 470 req/s & 0{,}00\% \\
+        Mistura leitura/escrita & 4{,}03~s & 101 req/s & 0{,}00\% \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Cenário de Leitura Intensiva}
+
+Os 1.000 usuários virtuais do cenário de leitura mantiveram o backend em 470 requisições por segundo durante 17 minutos. A latência P95 permaneceu em 158~ms (Tabela \ref{tab:resultados_k6}), confortavelmente dentro do SLO de 250~ms, e nenhuma requisição falhou. Isso confirma que o caminho otimizado para consultas --- balanceador/CDN, API em Cloud Run, cache Redis e leituras do PostgreSQL --- absorve picos de leitura sem degradação perceptível. As séries de observabilidade mostraram CPU abaixo do limite de 10~vCPU imposto pela cota do Cloud Run, indicando que o gargalo potencial ainda estava distante.
+
+\begin{figure}[ht]
+    \centering
+    \fbox{\parbox{0.85\linewidth}{\centering Placeholder para gráfico de latência/throughput do cenário de leitura.}}
+    \caption{Latência e throughput observados no cenário de leitura intensiva.}
+    \label{fig:latencia-leitura}
+\end{figure}
+
+\subsection{Cenário Misto (Leitura/Escrita)}
+
+O cenário com 650 usuários alternando leituras e escritas expôs o comportamento do sistema na região de saturação: a latência P95 subiu para 4{,}03~s e excedeu o SLO, embora a taxa de erro tenha permanecido em 0{,}00\%. O throughput caiu para 101 req/s porque cada iteração acionava pipeline completo de escrita (validações, persistência em Cloud SQL, invalidação de cache e notificações em tempo real). As métricas dos bancos indicaram aumento no tempo de commit e mais contendas de bloqueio quando as transações tentavam atualizar simultaneamente os mesmos agregados, o que explica o crescimento das filas de requisições mesmo antes de atingir a cota máxima de vCPU. O teste confirma a necessidade de revisar o particionamento de dados (ex.: sharding lógico por usuário) ou aumentar o limite de instâncias da API para diluir o custo das operações de escrita.
+
+\begin{figure}[ht]
+    \centering
+    \fbox{\parbox{0.85\linewidth}{\centering Placeholder para gráfico de latência e backlog do cenário misto.}}
+    \caption{Evolução da latência e backlog no cenário leitura/escrita.}
+    \label{fig:latencia-mix}
+\end{figure}
+
+\subsection{Processamento Assíncrono com Cloud Tasks}
+
+O ensaio de filas injetou 51{,}58~mil tarefas em um único lote e monitorou a drenagem entre 01:08 e 01:18, totalizando aproximadamente 10~min. Isso corresponde a um ritmo médio de 86 tarefas/segundo por worker HTTP em Cloud Run, comprovando que a combinação Cloud Tasks + workers escala horizontalmente sem perder entregas. A latência ponta-a-ponta permaneceu estável porque o Redis operou apenas como backplane para eventos e não como fila, reduzindo a chance de contenção. Esse resultado valida que o pipeline assíncrono consegue absorver rajadas equivalentes ao dobro do tráfego diário da aplicação sem intervenção manual.
+
+\begin{figure}[ht]
+    \centering
+    \fbox{\parbox{0.85\linewidth}{\centering Placeholder para gráfico de backlog e throughput das filas.}}
+    \caption{Backlog do Cloud Tasks e taxa de consumo durante o ensaio de filas.}
+    \label{fig:filas}
+\end{figure}
