@@ -1,6 +1,6 @@
 # ValorizeAI v2
 
-ValorizeAI v2 é a base de código do meu Trabalho de Conclusão de Curso (TCC), combinando Laravel 12, Inertia.js v2 e React 19 para entregar uma plataforma full-stack moderna com PostgreSQL, Redis, MinIO e Typesense. Toda a fundamentação teórica, resultados e contexto acadêmico do projeto estão descritos em `docs/article/article.tex`.
+ValorizeAI v2 é a base de código do meu Trabalho de Conclusão de Curso (TCC), combinando Laravel 12, Inertia.js v2 e React 19 para entregar uma plataforma full-stack moderna com PostgreSQL, Redis, Cloud Run e Cloud Tasks. Toda a fundamentação teórica, resultados e contexto acadêmico do projeto estão descritos em `docs/article/article.tex`.
 
 ## Conteúdo acadêmico
 - **Artigo do TCC**: compile o material em `docs/article/article.tex` (por exemplo, com `latexmk -pdf article.tex`) para acessar o texto completo, metodologia e referências utilizadas na monografia.
