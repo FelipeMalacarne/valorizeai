@@ -6,7 +6,7 @@ Each script is standalone and can run against staging or production just by chan
 ## Requirements
 
 - [k6](https://k6.io/docs/get-started/installation/)
-- A valid bearer token generated via `/api/tokens` (Sanctum) for the test user
+- A valid bearer token generated via `/api/tokens` (Sanctum) for the test user *(still required for scripts other than `mix.js`, which now self-provisions users via `/api/testing/load-test-user`)*
 - Node-style `.env` file (see below) or inline `BASE_URL`/`TOKEN` exports
 
 ## Preparing Environment Variables
@@ -23,6 +23,7 @@ export $(xargs < .env)
 | --- | --- |
 | `BASE_URL` | Public URL of the API (e.g., `https://api.valorizeai.com`) |
 | `TOKEN` | Sanctum personal access token used in `Authorization: Bearer ...` |
+| `TEST_USER_ENDPOINT` | Optional override for the provisioning endpoint used by `mix.js` (`/api/testing/load-test-user` by default) |
 | `TRANSACTION_ACCOUNT_ID` | Account ID (UUID) for POST tests *(optional – auto-detected if omitted)* |
 | `TRANSACTION_CATEGORY_ID` | Category ID (UUID) *(optional – auto-detected if omitted)* |
 | `TRANSACTION_CURRENCY` | Currency code override for transaction payloads |
@@ -58,6 +59,8 @@ k6 run scenarios/mix.js
 ```
 
 Each iteration chooses between `GET /api/transactions` (50%), `POST /api/transactions` (30%), and `GET /api/accounts` (20%), matching the mix defined in `docs/planning.md`. The final plateau now peaks near 3.5k RPS; ensure Cloud Run, Cloud SQL, and Memorystore are scaled appropriately before running the stress window.
+
+> `mix.js` provisions a fresh throwaway user/token per VU via `POST /api/testing/load-test-user` to avoid rate limits tied to a single account. Override the endpoint with `TEST_USER_ENDPOINT` if the API is mounted elsewhere.
 
 ## Adjusting Load Profiles
 
