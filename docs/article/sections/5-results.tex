@@ -7,12 +7,12 @@ Esta seção consolida as métricas obtidas nos testes de carga (k6) e no ensaio
     \centering
     \caption{Resumo dos cenários de carga e conformidade com os SLOs}
     \label{tab:resultados_k6}
-    \begin{tabular}{lccc}
+    \begin{tabular}{lcccc}
         \toprule
-        Cenário & Latência P95 & Throughput médio & Taxa de erro \\
+        Cenário & Latência P95 & Throughput médio & Throughput pico & Taxa de erro \\
         \midrule
-        Leitura intensiva & 158~ms & 470 req/s & 0{,}00\% \\
-        Mistura leitura/escrita & 658~ms & 226 req/s & 0{,}00\% \\
+        Leitura intensiva & 158~ms & 470 req/s & 970 req/s & 0{,}00\% \\
+        Mistura leitura/escrita & 658~ms & 226 req/s & 450 req/s & 0{,}00\% \\
         \bottomrule
     \end{tabular}
 \end{table}
