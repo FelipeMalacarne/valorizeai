@@ -15,7 +15,7 @@ A Figura \ref{fig:arquitetura} sintetiza os componentes usados nos experimentos.
     \item \textbf{Laravel Reverb}: mantém conexões WebSocket persistentes para eventos em tempo real; é tratado como serviço independente para permitir escalonamento específico.
 \end{itemize}
 
-Ambos os serviços acessam o \textbf{Memorystore for Redis}, usado simultaneamente como cache de leitura (padrão \textit{cache-aside}) e como \textit{backplane} Pub/Sub do Reverb. O armazenamento transacional permanece no \textbf{Cloud SQL for PostgreSQL}, que atende às operações de leitura e escrita executadas durante os testes. Para workloads assíncronos, a API publica tarefas em \textbf{Cloud Tasks}, que aciona workers HTTP também hospedados no Cloud Run. Diferentemente de filas baseadas em \textit{polling}, o Cloud Tasks opera no modo \textit{push}: quando novas tarefas são registradas, o serviço dispara requisições para os endpoints configurados e o Cloud Run instancia containers apenas enquanto houver demanda. Isso elimina processos \textit{long living} dedicados a escutar filas e garante elasticidade automática durante rajadas. Artefatos grandes (extratos e relatórios) são persistidos no \textbf{Cloud Storage}, mas não fizeram parte dos testes de carga.
+Ambos os serviços acessam o \textbf{Memorystore for Redis}, usado simultaneamente como cache de leitura (padrão \textit{cache-aside}) e como \textit{backplane} Pub/Sub do Reverb. O armazenamento transacional permanece no \textbf{Cloud SQL for PostgreSQL}, que atende às operações de leitura e escrita executadas durante os testes. Para workloads assíncronos, a API publica tarefas em \textbf{Cloud Tasks}, que aciona workers HTTP também hospedados no Cloud Run. Diferentemente de filas baseadas em \textit{polling}, o Cloud Tasks opera no modo \textit{push}: quando novas tarefas são registradas, o serviço dispara requisições para os endpoints configurados e o Cloud Run instancia containers apenas enquanto houver demanda. Isso elimina processos \textit{long living} dedicados a escutar filas e garante elasticidade automática durante rajadas. O \textbf{Cloud Storage}, embora componha o ambiente produtivo (armazenamento de extratos e relatórios), não foi exercitado nos testes de carga — a instrumentação concentrou-se nos caminhos transacionais da API e no pipeline assíncrono.
 
 Para refletir o ambiente em produção, o Cloud SQL foi configurado como instância personalizada \emph{db-perf-optimized-N-2} (2~vCPU e 16~GiB de RAM), garantindo buffers suficientes para os planos complexos das consultas analíticas sem alterar o perfil de custos do sistema.
 
@@ -95,7 +95,7 @@ A camada de infraestrutura como código segue um arranjo modular: cada elemento 
 
 \subsection{Planejamento dos SLOs e Desenho dos Cenários}
 
-Com base nas premissas de negócio e na literatura de SRE \cite{mccoy_slo_2020,google_sre_book_main}, o sistema foi avaliado contra três metas: latência P95 $\leq 300$~ms, taxa de erro $<$ 0{,}5\% e disponibilidade mensal $\geq 99{,}5\%$. A cota vigente do Cloud Run (10 instâncias de 1~vCPU/1~GiB) limita o total de CPU disponível; no nosso cenário isso significou que os testes deveriam aumentar a carga até consumir essas 10 vCPU — ambos os cenários chegaram ao teto de 10 instâncias ativas, permitindo documentar o comportamento imediatamente antes do esgotamento.
+Com base nas premissas de negócio e na literatura de SRE \cite{mccoy_slo_2020,google_sre_book_main}, o sistema foi avaliado contra três metas: latência P95 $\leq 300$~ms, taxa de erro $<$ 0{,}5\% e disponibilidade mensal $\geq 99{,}5\%$. Essa abordagem segue a disciplina de SLOs/SLIs/Orçamentos de Erro descrita por Beyer et al. e McCoy \& Forsgren, na qual o desempenho é continuamente confrontado com metas explícitas e o “espaço” para experimentação deriva do orçamento de erro restante. A cota vigente do Cloud Run (10 instâncias de 1~vCPU/1~GiB) limita o total de CPU disponível; no nosso cenário isso significou que os testes deveriam aumentar a carga até consumir essas 10 vCPU — ambos os cenários chegaram ao teto de 10 instâncias ativas, permitindo documentar o comportamento imediatamente antes do esgotamento.
 
 Dois cenários foram modelados:
 \begin{enumerate}
@@ -126,7 +126,7 @@ As evidências produzidas sustentam as análises de arquitetura, implementação
 \begin{itemize}
     \item \textbf{Planilhas de latência e throughput}: derivadas dos CSVs exportados pelo k6, utilizadas posteriormente para comparar as métricas observadas com os SLOs.
     \item \textbf{Series temporais de infraestrutura}: capturas dos dashboards do Cloud Monitoring registram uso de CPU das instâncias Cloud Run, saturação do Redis e backlog do Cloud Tasks durante cada rodada.
-    \item \textbf{Relatos de execução}: cada rodada é registrada em um diário experimental com horários, parâmetros e observações qualitativas sobre o comportamento do sistema.
+\item \textbf{Relatos de execução}: cada rodada é registrada em um diário experimental (mantido no repositório, quando permitido pela instituição) com horários, parâmetros e observações qualitativas sobre o comportamento do sistema.
 \end{itemize}
 
 Essa metodologia garante rastreabilidade completa entre arquitetura, implementação e resultados, pois cada passo experimental está ancorado em artefatos versionados do projeto.
