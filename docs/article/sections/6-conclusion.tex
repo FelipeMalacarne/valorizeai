@@ -1,10 +1,6 @@
 \section{Conclusão}
 
-\subsection{Principais Contribuições}
-
 O ValorizeAI demonstrou que é possível documentar e validar, de ponta a ponta, uma arquitetura orientada a eventos construída exclusivamente com serviços gerenciados. O trabalho conecta decisões de design (Cloud Run, Redis, Cloud SQL, Cloud Tasks, Reverb) ao domínio transacional modelado no banco relacional, oferecendo um roteiro explícito para equipes que precisam de elasticidade sem perder consistência forte. A metodologia experimental, baseada em SRE, complementa essa documentação ao detalhar como planejar SLOs, materializar infraestrutura como código e acionar testes repetíveis, fortalecendo a reprodutibilidade típica de uma pesquisa aplicada.
-
-\subsection{Resultados Alcançados}
 
 Os cenários de carga comprovaram a eficácia das otimizações de leitura: com 1.000 usuários virtuais ($\approx$470 req/s em média e pico de $\approx$970 req/s no platô final), o sistema manteve latência P95 em 158~ms e zero erros, satisfazendo os SLOs estabelecidos. O cenário misto, por sua vez, revelou o limiar atual da solução; o patamar de 650 VUs ($\approx$226 req/s) levou o P95 a 658~ms e o p99 a 2,67~s porque o Cloud Run estacionou no limite de 10 instâncias e cada requisição de escrita consome mais CPU devido aos passos adicionais (validações, persistência, invalidação de cache). O Cloud SQL manteve tempos estáveis, indicando que o gargalo imediato ainda é computacional na camada HTTP. No plano assíncrono, a drenagem de 51{,}58~mil tarefas em 10~min confirmou que Cloud Tasks e workers em Cloud Run sustentam bursts significativos sem intervenção humana, atendendo aos requisitos de elasticidade e rastreabilidade.
 
