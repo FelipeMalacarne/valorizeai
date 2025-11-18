@@ -44,7 +44,7 @@ Demonstrar, por meio de documentação técnica e experimentos de desempenho, qu
 
 ### Resumo (Abstract)
 - **Objetivo da seção:** Apresentar uma visão geral concisa do artigo.
-- **Conteúdo obrigatório:** contextualização do problema, objetivo da pesquisa, metodologia empregada (infra como código + k6 + testes assíncronos), principais resultados (p95=158 ms na leitura, p95=4,03 s no mix, 51,58 mil tarefas drenadas em ~10 min) e conclusões sobre a escalabilidade da arquitetura ValorizeAI.
+- **Conteúdo obrigatório:** contextualização do problema, objetivo da pesquisa, metodologia empregada (infra como código + k6 + testes assíncronos), principais resultados () e conclusões sobre a escalabilidade da arquitetura ValorizeAI.
 - **Fontes no repositório:** `docs/planning.md`, `docs/test-results.md`, `docs/tests/3-test-queue/README.md`.
 - **Dicas:** escreva o resumo por último, quando todas as seções já estiverem revisadas; garanta que as conclusões mencionadas aqui sejam retomadas na Seção 7.
 - **Gancho para a Introdução:** encerre com a pergunta central que orienta o artigo (“até onde essa arquitetura mantém os SLOs?”), preparando o leitor para o aprofundamento seguinte.
