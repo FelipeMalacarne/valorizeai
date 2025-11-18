@@ -33,7 +33,7 @@ Os 1.000 usuários virtuais do cenário de leitura mantiveram o backend em médi
 \subsection{Cenário Misto (Leitura/Escrita)}
 
 O cenário misto foi executado com provisionamento automático de usuários/token por VU, eliminando o gargalo artificial observado quando todos competiam pela mesma conta de teste.
-Com 650 usuários alternando entre 65\% de leituras e 35\% de escritas durante 21 minutos, o sistema sustentou 226 requisições por segundo (283~mil iterações) sem erros e preservou o SLO de 300~ms até aproximadamente 450 RPS.
+Com 650 usuários alternando entre 65\% de leituras e 35\% de escritas durante 21 minutos, o sistema sustentou 226 requisições por segundo (283~mil iterações) sem erros e preservou o SLO de 300~ms até aproximadamente 450 RPS (a violação é observada ao redor de 539 VUs).
 Assim que a carga ultrapassou 550 VUs, o Cloud Run atingiu novamente o teto de 10 instâncias e o P95 consolidado do ensaio ficou em 658~ms (p99 = 2,67~s). A pressão veio do aumento de CPU e latência nas operações de escrita, já que cada instância precisou executar validações, persistência e invalidação de cache antes de responder; não houve evidência de saturação no Cloud SQL, cujos tempos de consulta permaneceram estáveis durante todo o gradiente.
 Esse comportamento indica que, antes de pensar em particionamento de dados, é necessário permitir que mais instâncias HTTP sejam acionadas ou otimizar o custo das rotas de escrita para consumir menos CPU por requisição. Também ficou evidente o benefício do endpoint de provisionamento: cada VU pôde criar contas próprias e evitar competição por saldo, aproximando o teste de um uso real.
 
