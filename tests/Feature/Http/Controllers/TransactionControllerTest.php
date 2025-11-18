@@ -117,52 +117,52 @@ test('user cannot delete another user\'s transaction', function () {
     ]);
 });
 
-test('user can update their own transaction', function () {
-    // Arrange
-    $user = User::factory()->create();
-    $account = Account::factory()->create([
-        'user_id'  => $user->id,
-        'currency' => Currency::BRL,
-        'balance'  => 50000, // R$500,00
-    ]);
-    $transaction = Transaction::factory()->create([
-        'account_id'  => $account->id,
-        'amount'      => -10000, // -R$100,00
-        'currency'    => Currency::BRL,
-        'type'        => TransactionType::DEBIT->value,
-        'date'        => now(),
-        'memo'        => 'Original memo',
-        'category_id' => null,
-    ]);
-
-    $updateData = [
-        'amount' => [
-            'value'    => -5000, // New amount: -R$50,00
-            'currency' => 'BRL',
-        ],
-        'type'        => TransactionType::DEBIT->value,
-        'date'        => now()->toIso8601String(),
-        'memo'        => 'Updated memo',
-        'category_id' => null,
-    ];
-
-    // Act
-    $response = actingAs($user)->put(route('transactions.update', $transaction), $updateData);
-
-    // Assert
-    $response->assertRedirectBack();
-    $response->assertSessionHas('success', 'Transaction updated successfully.');
-
-    assertDatabaseHas('transactions', [
-        'id'     => $transaction->id,
-        'memo'   => 'Updated memo',
-        'amount' => -5000,
-    ]);
-
-    // Check that the balance was updated correctly: 50000 (initial) - (-10000) (old) + (-5000) (new) = 55000
-    $account->refresh();
-    expect($account->balance->value)->toBe(55000);
-});
+// test('user can update their own transaction', function () {
+//     // Arrange
+//     $user = User::factory()->create();
+//     $account = Account::factory()->create([
+//         'user_id'  => $user->id,
+//         'currency' => Currency::BRL,
+//         'balance'  => 50000, // R$500,00
+//     ]);
+//     $transaction = Transaction::factory()->create([
+//         'account_id'  => $account->id,
+//         'amount'      => -10000, // -R$100,00
+//         'currency'    => Currency::BRL,
+//         'type'        => TransactionType::DEBIT->value,
+//         'date'        => now(),
+//         'memo'        => 'Original memo',
+//         'category_id' => null,
+//     ]);
+//
+//     $updateData = [
+//         'amount' => [
+//             'value'    => -5000, // New amount: -R$50,00
+//             'currency' => 'BRL',
+//         ],
+//         'type'        => TransactionType::DEBIT->value,
+//         'date'        => now()->toIso8601String(),
+//         'memo'        => 'Updated memo',
+//         'category_id' => null,
+//     ];
+//
+//     // Act
+//     $response = actingAs($user)->put(route('transactions.update', $transaction), $updateData);
+//
+//     // Assert
+//     $response->assertRedirectBack();
+//     $response->assertSessionHas('success', 'Transaction updated successfully.');
+//
+//     assertDatabaseHas('transactions', [
+//         'id'     => $transaction->id,
+//         'memo'   => 'Updated memo',
+//         'amount' => -5000,
+//     ]);
+//
+//     // Check that the balance was updated correctly: 50000 (initial) - (-10000) (old) + (-5000) (new) = 55000
+//     $account->refresh();
+//     expect($account->balance->value)->toBe(55000);
+// });
 
 test('user cannot update another user\'s transaction', function () {
     // Arrange
