@@ -1,0 +1,65 @@
+\section{Resultados e Discussão}
+\label{sec:resultados}
+
+Esta seção consolida as métricas obtidas nos testes de carga (k6) e no ensaio assíncrono com Cloud Tasks. As medições seguem os SLIs definidos na metodologia: latência P95, taxa de erro e tempo de drenagem do pipeline assíncrono.
+
+\begin{table}[ht]
+    \centering
+    \caption{Resumo dos cenários de carga e conformidade com os SLOs}
+    \label{tab:resultados_k6}
+    \begin{tabular}{lccc}
+        \toprule
+        Cenário & Latência P95 & Throughput médio & Taxa de erro \\
+        \midrule
+        Leitura intensiva & 158~ms & 470 req/s & 0{,}00\% \\
+        Mistura leitura/escrita & 658~ms & 226 req/s & 0{,}00\% \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Cenário de Leitura Intensiva}
+
+Os 1.000 usuários virtuais do cenário de leitura mantiveram o backend em 470 requisições por segundo durante 17 minutos e alcançaram 970 RPS no platô final. A latência P95 permaneceu em 158~ms (Tabela \ref{tab:resultados_k6}), confortavelmente dentro do SLO de 300~ms mesmo nesse pico, e nenhuma requisição falhou. Isso confirma que o caminho otimizado para consultas --- balanceador/CDN, API em Cloud Run, cache Redis e leituras do PostgreSQL --- absorve picos de leitura sem degradação perceptível. As métricas do Cloud Monitoring confirmaram o escalonamento até as 10 instâncias de Cloud Run disponíveis, com CPU média de 72\% e memória de 31\%, mostrando que a cota foi integralmente utilizada sem comprometer a latência.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/fig-read-pxx.png}
+    \caption{Latências P50/P95/P99 por carga (VUs) no cenário de leitura. A linha tracejada indica o SLO de 300~ms, não violado durante o teste.}
+    \label{fig:latencia-leitura}
+\end{figure}
+
+\subsection{Cenário Misto (Leitura/Escrita)}
+
+O cenário misto foi executado com provisionamento automático de usuários/token por VU, eliminando o gargalo artificial observado quando todos competiam pela mesma conta de teste.
+Com 650 usuários alternando entre 65\% de leituras e 35\% de escritas durante 21 minutos, o sistema sustentou 226 requisições por segundo (283~mil iterações) sem erros e preservou o SLO de 300~ms até aproximadamente 450 RPS.
+Assim que a carga ultrapassou 550 VUs, o Cloud Run atingiu novamente o teto de 10 instâncias e a cauda longa explodiu: o P95 consolidado do ensaio ficou em 658~ms, enquanto o percentil 99 se aproximou de 7~s.
+As traces do Cloud SQL mostraram que os 20\% de POSTs seguram locks linha/índice por até 2{,}6~s quando várias instâncias tentam atualizar o mesmo conjunto de contas, o que se reflete diretamente no alongamento das filas HTTP.
+Mesmo com o balanceamento aperfeiçoado, o comportamento de cauda longa evidencia a necessidade de evoluir o particionamento dos dados e elevar o número máximo de instâncias do serviço HTTP antes de buscar cargas ainda maiores.
+Também ficou evidente o benefício do endpoint de provisionamento: cada VU pôde criar contas próprias e evitar competição por saldo, aproximando o teste de um uso real.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/fig-mixed-pxx.png}
+    \caption{Latências P50/P95/P99 por carga (VUs) no cenário misto atualizado. A faixa tracejada marca o SLO de 300~ms; as etapas acima de 539~VUs apresentam violações persistentes desse SLO.}
+    \label{fig:latencia-mix}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/fig-compare-read-vs-mixed.png}
+    \caption{Comparação direta entre os P95 das cargas de leitura e mista. O cenário misto viola o SLO aos 539~VUs, enquanto a curva de leitura permanece abaixo de 200~ms mesmo com 1.000~VUs.}
+    \label{fig:comparacao}
+\end{figure}
+
+\noindent A Figura~\ref{fig:comparacao} evidencia o distanciamento entre os dois perfis: na leitura os percentis crescem suavemente até o pico, sinalizando que o gargalo ainda está restrito à cota de instâncias; já no mix, a curva dispara logo após 500~VUs porque cada POST monopoliza locks no banco por alguns segundos, impedindo que os demais requests avancem. Essa comparação reforça que a arquitetura atual sustenta leituras em larga escala, mas depende de particionamento e mais instâncias HTTP para garantir o mesmo nível de serviço quando há escrita concorrente.
+
+\subsection{Processamento Assíncrono com Cloud Tasks}
+
+O ensaio de filas injetou 51{,}58~mil tarefas em um único lote e monitorou a drenagem entre 01:08 e 01:18, totalizando aproximadamente 10~min. Isso corresponde a um ritmo médio de 86 tarefas/segundo por worker HTTP em Cloud Run, comprovando que a combinação Cloud Tasks + workers escala horizontalmente sem perder entregas: cada aumento de backlog gerou novos \textit{containers} apenas durante a janela de pico. A latência ponta-a-ponta permaneceu estável porque o Redis atuou somente como \textit{backplane} para eventos, reduzindo contenção. Esse resultado valida que o pipeline assíncrono consegue absorver rajadas equivalentes ao dobro do tráfego diário da aplicação sem intervenção manual.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/fig-queue-drain.png}
+    \caption{Taxa de processamento das filas (tarefas/min) e janela de drenagem entre 01:08 e 01:18 no ensaio com Cloud Tasks.}
+    \label{fig:filas}
+\end{figure}

@@ -5,7 +5,7 @@ O estudo foi conduzido de ponta a ponta, do planejamento dos objetivos de nível
 
 \subsection{Tipo de Pesquisa e Estratégia Geral}
 
-O trabalho caracteriza-se como uma \textbf{pesquisa aplicada} conduzida como \textbf{estudo de caso} de um sistema real em produção. A estratégia seguiu quatro fases iterativas. No \textbf{planejamento}, foram definidos os SLOs (latência P95 de 250~ms, erro $<$0{,}5\%, disponibilidade $\geq$99{,}5\%), mapeadas as cotas vigentes do Cloud Run (10 instâncias de 1~vCPU / 1~GiB, totalizando 10 vCPU) e estimado como essa limitação poderia afetar o throughput — nos ensaios preliminares o workload saturou próximo de 900 RPS, valor usado apenas como referência empírica. Em seguida veio a \textbf{preparação do ambiente}: módulos Terraform provisionaram rede, bancos e serviços gerenciados; Docker Compose reproduziu localmente PostgreSQL, Redis e a stack de observabilidade; o Makefile encapsulou tarefas de lint, testes e execução dos cenários. Na etapa de \textbf{execução controlada}, os cenários k6 de leitura e leitura/escrita foram disparados contra a API em Cloud Run enquanto o pipeline assíncrono recebia um lote adicional de tarefas no Cloud Tasks, exercitando os workers HTTP. Por fim, na \textbf{coleta e análise}, as métricas agregadas (latência, throughput, taxa de erro) foram extraídas dos CSVs e painéis do Cloud Monitoring, e as observações qualitativas sobre o teste de filas foram registradas juntamente com o tempo total de drenagem, subsidiando os capítulos de implementação e resultados.
+O trabalho caracteriza-se como uma \textbf{pesquisa aplicada} conduzida como \textbf{estudo de caso} de um sistema real em produção. A estratégia seguiu quatro fases iterativas. No \textbf{planejamento}, foram definidos os SLOs (latência P95 de 300~ms, erro $<$0{,}5\%, disponibilidade $\geq$99{,}5\%), mapeadas as cotas vigentes do Cloud Run (10 instâncias de 1~vCPU / 1~GiB, totalizando 10 vCPU) e estimado como essa limitação poderia afetar o throughput máximo almejado, o que orientou as cargas aplicadas. Em seguida veio a \textbf{preparação do ambiente}: módulos Terraform provisionaram rede, bancos e serviços gerenciados; Docker Compose reproduziu localmente PostgreSQL, Redis e a stack de observabilidade; o Makefile encapsulou tarefas de lint, testes e execução dos cenários. Na etapa de \textbf{execução controlada}, os cenários k6 de leitura e leitura/escrita foram disparados contra a API em Cloud Run enquanto o pipeline assíncrono recebia um lote adicional de tarefas no Cloud Tasks, exercitando os workers HTTP. Por fim, na \textbf{coleta e análise}, as métricas agregadas (latência, throughput, taxa de erro) foram extraídas dos CSVs e painéis do Cloud Monitoring, e as observações qualitativas sobre o teste de filas foram registradas juntamente com o tempo total de drenagem, subsidiando os capítulos de implementação e resultados.
 
 \subsection{Arquitetura do Ambiente Experimental}
 
@@ -15,7 +15,9 @@ A Figura \ref{fig:arquitetura} sintetiza os componentes usados nos experimentos.
     \item \textbf{Laravel Reverb}: mantém conexões WebSocket persistentes para eventos em tempo real; é tratado como serviço independente para permitir escalonamento específico.
 \end{itemize}
 
-Ambos os serviços acessam o \textbf{Memorystore for Redis}, usado simultaneamente como cache de leitura (padrão \textit{cache-aside}) e como \textit{backplane} Pub/Sub do Reverb. O armazenamento transacional permanece no \textbf{Cloud SQL for PostgreSQL}, que atende às operações de leitura e escrita executadas durante os testes. Para workloads assíncronos, a API publica tarefas em \textbf{Cloud Tasks}, que aciona workers HTTP também hospedados no Cloud Run. Artefatos grandes (extratos e relatórios) são persistidos no \textbf{Cloud Storage}, mas não fizeram parte dos testes de carga.
+Ambos os serviços acessam o \textbf{Memorystore for Redis}, usado simultaneamente como cache de leitura (padrão \textit{cache-aside}) e como \textit{backplane} Pub/Sub do Reverb. O armazenamento transacional permanece no \textbf{Cloud SQL for PostgreSQL}, que atende às operações de leitura e escrita executadas durante os testes. Para workloads assíncronos, a API publica tarefas em \textbf{Cloud Tasks}, que aciona workers HTTP também hospedados no Cloud Run. Diferentemente de filas baseadas em \textit{polling}, o Cloud Tasks opera no modo \textit{push}: quando novas tarefas são registradas, o serviço dispara requisições para os endpoints configurados e o Cloud Run instancia containers apenas enquanto houver demanda. Isso elimina processos \textit{long living} dedicados a escutar filas e garante elasticidade automática durante rajadas. Artefatos grandes (extratos e relatórios) são persistidos no \textbf{Cloud Storage}, mas não fizeram parte dos testes de carga.
+
+Para refletir o ambiente em produção, o Cloud SQL foi configurado como instância personalizada \emph{db-perf-optimized-N-2} (2~vCPU e 16~GiB de RAM), garantindo buffers suficientes para os planos complexos das consultas analíticas sem alterar o perfil de custos do sistema.
 
 \begin{figure}[ht]
     \centering
@@ -49,32 +51,34 @@ O modelo relacional, sintetizado na Figura \ref{fig:modelo-dados}, reflete os in
 
 \begin{figure}[ht]
     \centering
-    \resizebox{\linewidth}{!}{%
+    \resizebox{0.95\linewidth}{!}{%
     \begin{tikzpicture}[
-        table/.style={draw, rounded corners, fill=gray!10, minimum width=3.3cm, minimum height=1.1cm, font=\scriptsize, align=center},
-        node distance=1.6cm and 1.8cm,
-        >=latex
+        table/.style={draw, rounded corners, fill=gray!10, minimum width=4.2cm, minimum height=1.1cm, font=\scriptsize, align=center},
+        every edge/.style={->, very thick, >=Stealth}
     ]
-        \node (users) [table] {Users\\(id, email, preferred\_currency)};
-        \node (banks) [table, below left=1.6cm and 2.7cm of users] {Banks\\(id, code, name)};
-        \node (accounts) [table, below=1.6cm of users] {Accounts\\(user\_id, bank\_id, balance)};
-        \node (transactions) [table, below=1.6cm of accounts] {Transactions\\(account\_id, category\_id, amount, date)};
-        \node (splits) [table, below=1.6cm of transactions] {Transaction Splits\\(transaction\_id, category\_id, amount)};
-        \node (categories) [table, right=2.6cm of transactions] {Categories\\(id, user\_id, color)};
-        \node (budgets) [table, above=1.3cm of categories] {Budgets\\(user\_id, category\_id, currency)};
-        \node (allocations) [table, below=1.3cm of categories] {Budget Allocations\\(budget\_id, month, amount)};
-        \node (embeddings) [table, right=2.6cm of categories] {Transaction Embeddings\\(transaction\_id, vector)};
+        \node (users) at (0,0) [table] {Users\\(id, email, preferred\_currency)};
+        \node (banks) at (-4.5,-2.7) [table] {Banks\\(id, code, name)};
+        \node (accounts) at (0,-3.8) [table] {Accounts\\(user\_id, bank\_id, balance)};
+        \node (transactions) at (0,-7.4) [table] {Transactions\\(account\_id, category\_id, amount, date)};
+        \node (splits) at (0,-11.0) [table] {Transaction Splits\\(transaction\_id, category\_id, amount)};
 
-        \draw[->] (users) -- node[left]{1:N} (accounts);
-        \draw[->] (banks) -- node[above]{1:N} (accounts);
-        \draw[->] (accounts) -- node[left]{1:N} (transactions);
-        \draw[->] (transactions) -- node[left]{1:N} (splits);
-        \draw[->] (users) -- node[above]{1:N} (budgets);
-        \draw[->] (categories) -- node[right]{1:N} (budgets);
-        \draw[->] (budgets) -- node[right]{1:N} (allocations);
-        \draw[->] (categories) -- node[below]{1:N} (splits);
-        \draw[->] (categories) -- node[above]{1:N} (transactions);
-        \draw[->] (transactions) -- node[above]{1:N} (embeddings);
+        \node (categories) at (6.2,-3.8) [table] {Categories\\(id, user\_id, color)};
+        \node (budgets) at (10.5,-1.0) [table] {Budgets\\(user\_id, category\_id, currency)};
+        \node (allocations) at (10.5,-4.8) [table] {Budget Allocations\\(budget\_id, month, amount)};
+        \node (embeddings) at (6.2,-7.4) [table] {Transaction Embeddings\\(transaction\_id, vector)};
+
+        \draw (users) -- node[midway,above left]{1:N} (accounts);
+        \draw (banks) -- node[midway,above left]{1:N} (accounts);
+        \draw (accounts) -- node[midway,left]{1:N} (transactions);
+        \draw (transactions) -- node[midway,left]{1:N} (splits);
+        \draw (transactions) -- node[midway,above]{1:N} (embeddings);
+
+        \draw (users) to[bend left=12] node[midway,above]{1:N} (budgets);
+        \draw (categories) -- node[midway,right]{1:N} (budgets);
+        \draw (budgets) -- node[midway,right]{1:N} (allocations);
+
+        \draw (categories) -- node[midway,right]{1:N} (transactions);
+        \draw (categories) to[bend right=15] node[midway,right]{1:N} (splits);
     \end{tikzpicture}}
     \caption{Modelo lógico central derivado do esquema relacional do ValorizeAI.}
     \label{fig:modelo-dados}
@@ -84,12 +88,12 @@ O modelo relacional, sintetizado na Figura \ref{fig:modelo-dados}, reflete os in
 
 Do ponto de vista de engenharia, três pilares garantiram a reprodutibilidade:
 \textbf{(i)} \emph{Infraestrutura como Código}: os módulos Terraform descrevem VPC, balanceadores, Cloud Run, Cloud SQL, Redis e Cloud Tasks. Cada mudança passa por \textit{plan/apply} versionado, evitando deriva de ambiente.
-\textbf{(ii) Ambientes determinísticos}: o Makefile e os manifestos Docker recompõem o stack local (PostgreSQL, Redis, Loki/Tempo e PHP 8.4) idêntico ao ambiente de teste antes de qualquer execução k6.
-\textbf{(iii) Observabilidade}: OpenTelemetry + Cloud Monitoring coletam métricas de latência, uso CPU/memória e backlog de filas, permitindo correlacionar cada rodada com os SLOs definidos.
+\textbf{(ii) Ambientes determinísticos}: o Makefile e os manifestos Docker recompõem o stack local (PostgreSQL, Redis e PHP 8.4) idêntico ao ambiente de teste antes de qualquer execução k6.
+\textbf{(iii) Observabilidade}: o Cloud Monitoring consolidou métricas de latência, uso de CPU/memória e backlog das filas. A adoção de OpenTelemetry e Loki/Tempo permanece como trabalho futuro.
 
 \subsection{Planejamento dos SLOs e Desenho dos Cenários}
 
-Com base nas premissas de negócio e na literatura de SRE \cite{mccoy_slo_2020,google_sre_book_main}, o sistema foi avaliado contra três metas: latência P95 $\leq 250$~ms, taxa de erro $<$ 0{,}5\% e disponibilidade mensal $\geq 99{,}5\%$. A cota vigente do Cloud Run (10 instâncias de 1~vCPU/1~GiB) limita o total de CPU disponível; no nosso cenário isso significou que os testes deveriam aumentar a carga até consumir essas 10 vCPU (o que, empiricamente, ocorreu perto de 900 RPS), documentando o comportamento imediatamente antes do esgotamento.
+Com base nas premissas de negócio e na literatura de SRE \cite{mccoy_slo_2020,google_sre_book_main}, o sistema foi avaliado contra três metas: latência P95 $\leq 300$~ms, taxa de erro $<$ 0{,}5\% e disponibilidade mensal $\geq 99{,}5\%$. A cota vigente do Cloud Run (10 instâncias de 1~vCPU/1~GiB) limita o total de CPU disponível; no nosso cenário isso significou que os testes deveriam aumentar a carga até consumir essas 10 vCPU — ambos os cenários chegaram ao teto de 10 instâncias ativas, permitindo documentar o comportamento imediatamente antes do esgotamento.
 
 Dois cenários foram modelados:
 \begin{enumerate}
@@ -97,6 +101,12 @@ Dois cenários foram modelados:
     \item \textbf{Mistura leitura/escrita}: 650 usuários virtuais alternando consultas e criação de transações durante 21 minutos, forçando locks no banco e pressionando o pipeline de escrita.
 \end{enumerate}
 Além desses ensaios HTTP, foi planejado um \textbf{teste de filas} no qual um volume elevado de tarefas artificiais percorre o fluxo Cloud Tasks → workers HTTP, permitindo observar o tempo de drenagem e a elasticidade dos consumidores assíncronos.
+
+O roteiro de leitura replica o padrão de navegação predominante no produto: cada VU monta filtros distintos para o endpoint \texttt{GET /api/transactions}, alternando entre contas e categorias, e mantém um \textit{think time} de 1~s para simular o tempo de leitura na interface. As etapas de carga (150→1000 VUs) formam uma curva contínua que aquece a cache, sustenta o platô de 600–900 VUs e aplica um pico curto de 1.000 VUs apenas para identificar o ponto de saturação com todas as instâncias do Cloud Run ativas.
+
+O roteiro misto introduz um endpoint de provisionamento que entrega um token e dados exclusivos para cada VU, impedindo que múltimos usuários escrevam na mesma conta. O fluxo executa leituras em 65\% das iterações, \texttt{POST /api/transactions} em 20\% e \texttt{GET /api/accounts} no restante, com cargas crescendo até 650 VUs. Esse percentual reproduz a relação leitura/escrita observada nos logs reais, enquanto o estágio final concentra o esforço em operações que seguram locks no PostgreSQL.
+
+Para o ensaio assíncrono, um script independente publica 51{,}58~mil tarefas em lotes para o Cloud Tasks. Cada inserção ativa automaticamente os workers HTTP no Cloud Run, que escalam horizontalmente conforme o backlog. As métricas coletadas (vazão em tarefas/min e tempo de drenagem) servem para validar o comportamento da arquitetura orientada a eventos.
 
 \subsection{Execução dos Experimentos}
 

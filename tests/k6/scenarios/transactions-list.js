@@ -1,3 +1,10 @@
+/**
+ * Cenário de leitura intensiva: cada VU navega pelas listas de transações
+ * com filtros variados, reproduzindo o comportamento real do dashboard.
+ * O ramp-up em cinco estágios aquece cache, sustenta 900 VUs (10 instâncias
+ * do Cloud Run) e aplica um pico rápido de 1.000 VUs para identificar a saturação.
+ */
+
 import { check, fail, sleep } from 'k6';
 import http from 'k6/http';
 import { QueryBuilder } from '../helpers/query.js';
@@ -7,22 +14,23 @@ const BASE_URL = __ENV.BASE_URL;
 const TOKEN = __ENV.TOKEN;
 
 if (!BASE_URL || !TOKEN) {
-    fail('BASE_URL and TOKEN environment variables must be defined.');
+  fail('BASE_URL and TOKEN environment variables must be defined.');
 }
 
 export const options = {
   stages: [
-        { duration: '2m', target: 150 }, // aquecimento
-        { duration: '3m', target: 300 }, // carga nominal
-        { duration: '4m', target: 600 },
-        { duration: '4m', target: 900 }, // limite observado (1 vCPU/1 GiB x10 instâncias)
-        { duration: '2m', target: 1000 }, // pico curto para medir saturação
-        { duration: '2m', target: 0 },
+    { duration: '2m', target: 150 }, // aquecimento gradual
+    { duration: '3m', target: 300 }, // carga nominal (cache aquecido)
+    { duration: '4m', target: 600 }, // platô intermediário
+    { duration: '4m', target: 900 }, // 10 instâncias ativas no Cloud Run
+    { duration: '2m', target: 1000 }, // pico curto para medir saturação
+    { duration: '2m', target: 0 }, // rampa de desaquecimento
   ],
   thresholds: {
     http_req_duration: ['p(95)<300'],
     http_req_failed: ['rate<0.005'],
   },
+  summaryTrendStats: ['avg', 'min', 'med', 'p(90)', 'p(95)', 'p(99)', 'max'],
 };
 
 function buildQuery({ accounts, categories }) {

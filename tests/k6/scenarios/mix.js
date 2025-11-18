@@ -1,3 +1,10 @@
+/**
+ * Cenário misto leitura/escrita: cada VU recebe um usuário exclusivo e
+ * alterna entre 65% de leituras, 20% de POST /api/transactions e 15%
+ * de GET /api/accounts. O ramp-up evidencia o comportamento ao atingir
+ * o teto de 10 instâncias do Cloud Run por volta de 550–650 VUs.
+ */
+
 import http from 'k6/http';
 import { check, fail, sleep } from 'k6';
 import {
@@ -40,6 +47,7 @@ export const options = {
     http_req_duration: ['p(95)<300'],
     http_req_failed: ['rate<0.005'],
   },
+  summaryTrendStats: ['avg', 'min', 'med', 'p(90)', 'p(95)', 'p(99)', 'max'],
 };
 
 function provisionLoadTestUser() {
