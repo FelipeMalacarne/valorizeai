@@ -8,6 +8,12 @@ IMAGE_NAME := valorizeai
 SERVICE_NAME := valorizeai
 JOB_NAME := valorizeai-artisan
 TERRAFORM_DIR := terraform
+VENV_DIR := $(CURDIR)/.venv
+PYTHON := $(VENV_DIR)/bin/python
+PIP := $(VENV_DIR)/bin/pip
+PYTHON_DEPS := pandas matplotlib numpy
+PYTHON_ENV_READY := $(VENV_DIR)/.deps-installed
+MPLCONFIGDIR := /tmp/mpl
 
 # Image URLs
 IMAGE_URL := $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPOSITORY)/$(IMAGE_NAME)
@@ -40,6 +46,7 @@ help:
 	@echo "  $(GREEN)logs$(NC)              - Show Cloud Run service logs"
 	@echo "  $(GREEN)run_migration$(NC)     - Run database migrations using Cloud Run job"
 	@echo "  $(GREEN)setup_buildx$(NC)      - Setup Docker buildx for multi-platform builds"
+	@echo "  $(GREEN)charts$(NC)            - Generate docs/tests charts (including queue drain)"
 	@echo "  $(GREEN)help$(NC)              - Show this help message"
 
 .PHONY: submit
@@ -177,6 +184,24 @@ setup_buildx:
 	@docker buildx create --name multiarch-builder --use 2>/dev/null || echo "$(YELLOW)Builder already exists$(NC)"
 	@docker buildx inspect --bootstrap
 	@echo "$(GREEN)✓ Docker buildx configured$(NC)"
+
+.PHONY: setup_python_env
+setup_python_env: $(PYTHON_ENV_READY)
+	@echo "$(GREEN)✓ Python environment ready$(NC)"
+
+$(PYTHON_ENV_READY):
+	@echo "$(YELLOW)Ensuring local Python environment for charts...$(NC)"
+	@test -d $(VENV_DIR) || python -m venv $(VENV_DIR)
+	@$(PIP) install --upgrade pip >/dev/null
+	@$(PIP) install $(PYTHON_DEPS) >/dev/null
+	@touch $(PYTHON_ENV_READY)
+
+.PHONY: charts
+charts: setup_python_env
+	@echo "$(YELLOW)Generating docs/tests charts...$(NC)"
+	@mkdir -p $(MPLCONFIGDIR)
+	@cd docs/tests && MPLCONFIGDIR=$(MPLCONFIGDIR) $(PYTHON) generate-curves.py
+	@echo "$(GREEN)✓ Charts generated (fig-read-pxx.png, fig-mixed-pxx.png, fig-compare-read-vs-mixed.png, fig-queue-drain.png)$(NC)"
 
 .PHONY: clean
 clean:
