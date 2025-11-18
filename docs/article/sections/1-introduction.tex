@@ -55,8 +55,7 @@ A literatura existente tende a ser fragmentada, focando em comparações de ferr
 A contribuição deste TCC é, portanto, metodológica e empírica.
 Ao construir o ValorizeAI e registrar rigorosamente os experimentos de carga e processamento assíncrono,
 este trabalho evidencia como as decisões arquiteturais se traduzem em métricas quantificáveis (ex: latência P95, \textit{throughput} de tarefas, taxa de erro).
-O problema de pesquisa é: \textit{Como uma arquitetura híbrida e elástica, composta por contêineres gerenciados,
-servidor de WebSockets dedicado e filas assíncronas, se comporta sob estresse de carga e qual a metodologia para validar seu desempenho de forma reprodutível contra SLOs pré-definidos?}
+Este trabalho busca responder à seguinte questão: \textit{Como uma arquitetura híbrida e elástica, composta por Cloud Run, Redis, Cloud SQL, Cloud Tasks e WebSockets dedicados, se comporta sob estresse de carga frente a SLOs definidos e como validar esse comportamento de modo reprodutível?}
 
 Documentar esse caminho, apoiado por Infraestrutura como Código (IaC) para reprodutibilidade e monitoramento de custo,
 fornece uma referência concreta para equipes técnicas que precisam justificar e implementar arquiteturas orientadas a eventos com elasticidade horizontal automática.
@@ -79,7 +78,14 @@ Demonstrar, por meio de documentação técnica e experimentos de desempenho, qu
 \subsection{Contribuições Tangíveis}
 \label{sec:contribuicoes}
 
-O estudo entrega quatro contribuições principais. Primeiro, descreve a arquitetura completa do ValorizeAI — desde o balanceamento global, passando pelos serviços Cloud Run, até o uso combinado de Redis, Cloud SQL e Cloud Tasks — de modo que outros pesquisadores possam replicar o raciocínio arquitetural para aplicações transacionais. Segundo, disponibiliza um conjunto de scripts de infraestrutura como código e automações (Terraform, Docker, Makefile) que permitem reconstruir com fidelidade o ambiente avaliado, garantindo reprodutibilidade. Terceiro, documenta integralmente os experimentos de desempenho: os cenários k6, seus parâmetros de ramp-up e as métricas coletadas (latências, throughput, erros), assegurando transparência na validação dos SLOs. Por fim, registra o teste do pipeline assíncrono (Cloud Tasks e workers HTTP), detalhando como o sistema responde ao acúmulo de tarefas e como o time acompanhou a drenagem. Essas evidências funcionam como um “pacote de replicação” que acompanha o texto e reforçam o caráter aplicado do trabalho.
+\begin{enumerate}
+    \item \textbf{Arquitetura documentada}: descreve-se o desenho completo do ValorizeAI — balanceador/CDN, Cloud Run, Redis, Cloud SQL, Cloud Tasks e Reverb — para que outros pesquisadores possam replicar o raciocínio arquitetural em aplicações transacionais.
+    \item \textbf{Infraestrutura reprodutível}: disponibiliza-se o conjunto de automações (Terraform, Docker, Makefile) que reconstrói fielmente o ambiente avaliado, mantendo a linha do tempo de mudanças de infraestrutura junto ao código-fonte.
+    \item \textbf{Experimentos de desempenho}: registra-se integralmente os cenários k6 (leituras e mix), com ramp-ups, parâmetros e métricas coletadas (latências, throughput, erros), assegurando transparência na validação dos SLOs.
+    \item \textbf{Teste assíncrono}: documenta-se o ensaio do pipeline baseado em Cloud Tasks e workers HTTP, explicitando como o sistema responde ao acúmulo e drenagem de tarefas.
+\end{enumerate}
+
+Em conjunto, essas contribuições formam um pacote de replicação completo — código, infraestrutura e experimentos — para avaliações futuras de workloads transacionais em plataformas CaaS.
 
 \subsection{Estrutura do Trabalho}
 \label{sec:estrutura}
