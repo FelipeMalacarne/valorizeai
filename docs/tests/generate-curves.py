@@ -1,7 +1,9 @@
-import pandas as pd
+import os
+
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
-import os
+import pandas as pd
 
 # -------------------------------------------------------------------
 # CONFIGURAÇÃO
@@ -37,6 +39,11 @@ TESTS = {
     },
 }
 
+QUEUE_TEST = {
+    "csv": "3-test-queue/Tarefas/Tarefas_1.csv",
+    "output": "fig-queue-drain.png",
+}
+
 BINS = 50          # número de faixas de VU na curva
 SMOOTH = 3         # smoothing (rolling) nas curvas resultantes
 SLO_P95 = 450
@@ -50,6 +57,11 @@ def find_slo_break(vu_centers, curve95, SLO):
         if y > SLO:
             return x, y
     return None, None
+
+
+def format_pt_number(value):
+    """Formata números inteiros no padrão 12.345."""
+    return f"{int(round(value)):,}".replace(",", ".")
 
 def parse_duration(d):
     """Converte '2m' -> 120, '30s' -> 30."""
@@ -205,6 +217,104 @@ def process_test(name, cfg):
     return vu_centers, curve95
 
 
+def generate_queue_drain_chart(cfg):
+    """Gera gráfico para o teste 3 (Cloud Tasks)."""
+    csv_path = os.path.join(BASE, cfg["csv"])
+    output = cfg.get("output", "fig-queue-drain.png")
+
+    if not os.path.exists(csv_path):
+        print(f"✘ CSV não encontrado: {csv_path}")
+        return
+
+    df = pd.read_csv(csv_path, skiprows=2, names=["timestamp", "count"])
+    df.dropna(subset=["timestamp"], inplace=True)
+    df["timestamp"] = (
+        df["timestamp"]
+        .astype(str)
+        .str.strip()
+        .str.replace(r"\s*\(.*\)$", "", regex=True)
+    )
+    df["count"] = pd.to_numeric(df["count"], errors="coerce").fillna(0)
+    df["timestamp"] = (
+        pd.to_datetime(df["timestamp"], format="%a %b %d %Y %H:%M:%S GMT%z")
+        .dt.tz_localize(None)
+    )
+    df = df.sort_values("timestamp")
+
+    active = df[df["count"] > 0].copy()
+    if active.empty:
+        print("✘ Nenhum dado diferente de zero para o gráfico de fila.")
+        return
+
+    total_tasks = int(active["count"].sum())
+    avg_rate = active["count"].mean()
+    peak_rate = active["count"].max()
+
+    start_time = active["timestamp"].min()
+    last_active = active["timestamp"].max()
+
+    # tenta usar o timestamp imediatamente após o término para destacar a janela
+    next_after = df.loc[df["timestamp"] > last_active, "timestamp"].min()
+    end_span = next_after if pd.notna(next_after) else last_active
+    duration_minutes = (end_span - start_time).total_seconds() / 60.0
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.plot(
+        df["timestamp"],
+        df["count"],
+        marker="o",
+        linewidth=2,
+        color="#1565C0",
+        label="Tentativas por minuto",
+    )
+    ax.fill_between(df["timestamp"], df["count"], alpha=0.15, color="#90CAF9")
+
+    ax.axhline(
+        avg_rate,
+        color="#EF6C00",
+        linestyle="--",
+        linewidth=1.8,
+        label=f"Média ativa ≈ {format_pt_number(avg_rate)} tarefas/min",
+    )
+
+    ax.axvspan(
+        start_time,
+        end_span,
+        color="#FFE0B2",
+        alpha=0.35,
+        label="Período de processamento",
+    )
+
+    annotation = (
+        f"Total drenado ≈ {format_pt_number(total_tasks)} tarefas\n"
+        f"Janela: {start_time:%H:%M} – {end_span:%H:%M} BRT (≈ {duration_minutes:.1f} min)\n"
+        f"Pico ≈ {format_pt_number(peak_rate)} tarefas/min"
+    )
+    ax.text(
+        0.02,
+        0.95,
+        annotation,
+        transform=ax.transAxes,
+        va="top",
+        ha="left",
+        fontsize=10,
+        bbox=dict(boxstyle="round,pad=0.4", fc="white", ec="#EF6C00"),
+    )
+
+    ax.set_title("Taxa de dreno da fila de tarefas – teste 3")
+    ax.set_xlabel("Horário (BRT)")
+    ax.set_ylabel("Tarefas processadas por minuto")
+    ax.grid(True, linestyle="--", alpha=0.3)
+    ax.legend(loc="upper right")
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+    fig.autofmt_xdate()
+    plt.tight_layout()
+    plt.savefig(output, dpi=200)
+    plt.close(fig)
+
+    print(f"\n✔ Gráfico de fila gerado: {output}")
+
+
 # -------------------------------------------------------------------
 # EXECUÇÃO: dois testes + comparativo
 # -------------------------------------------------------------------
@@ -246,3 +356,5 @@ plt.close()
 
 print("\n✔ Gráfico comparativo gerado: fig-compare-read-vs-mixed.png")
 
+# gráfico de taxa de dreno das filas (teste 3)
+generate_queue_drain_chart(QUEUE_TEST)
