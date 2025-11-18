@@ -17,9 +17,11 @@ Esta seção consolida as métricas obtidas nos testes de carga (k6) e no ensaio
     \end{tabular}
 \end{table}
 
+Os valores de \textit{throughput} foram obtidos diretamente dos dashboards do Cloud Run para cada estágio de VUs; por exemplo, o platô de 650 VUs no cenário misto correspondeu a aproximadamente 226 requisições por segundo, enquanto o patamar final de 900→1000 VUs no cenário de leitura atingiu pico de cerca de 970 req/s (a média global do teste ficou em 470 req/s). Assim, VUs e req/s descrevem o mesmo nível de pressão gerada nos serviços.
+
 \subsection{Cenário de Leitura Intensiva}
 
-Os 1.000 usuários virtuais do cenário de leitura mantiveram o backend em 470 requisições por segundo durante 17 minutos e alcançaram 970 RPS no platô final. A latência P95 permaneceu em 158~ms (Tabela \ref{tab:resultados_k6}), confortavelmente dentro do SLO de 300~ms mesmo nesse pico, e nenhuma requisição falhou. Isso confirma que o caminho otimizado para consultas --- balanceador/CDN, API em Cloud Run, cache Redis e leituras do PostgreSQL --- absorve picos de leitura sem degradação perceptível. As métricas do Cloud Monitoring confirmaram o escalonamento até as 10 instâncias de Cloud Run disponíveis, com CPU média de 72\% e memória de 31\%, mostrando que a cota foi integralmente utilizada sem comprometer a latência.
+Os 1.000 usuários virtuais do cenário de leitura mantiveram o backend em média de 470 requisições por segundo durante 17 minutos, com pico aproximado de 970 req/s no platô final (900→1000 VUs). A latência P95 permaneceu em 158~ms (Tabela \ref{tab:resultados_k6}), confortavelmente dentro do SLO de 300~ms mesmo nesse pico, e nenhuma requisição falhou. Isso confirma que o caminho otimizado para consultas --- balanceador/CDN, API em Cloud Run, cache Redis e leituras do PostgreSQL --- absorve picos de leitura sem degradação perceptível. As métricas do Cloud Monitoring confirmaram o escalonamento até as 10 instâncias de Cloud Run disponíveis, com CPU média de 72\% e memória de 31\%, mostrando que a cota foi integralmente utilizada sem comprometer a latência.
 
 \begin{figure}[ht]
     \centering
@@ -32,10 +34,8 @@ Os 1.000 usuários virtuais do cenário de leitura mantiveram o backend em 470 r
 
 O cenário misto foi executado com provisionamento automático de usuários/token por VU, eliminando o gargalo artificial observado quando todos competiam pela mesma conta de teste.
 Com 650 usuários alternando entre 65\% de leituras e 35\% de escritas durante 21 minutos, o sistema sustentou 226 requisições por segundo (283~mil iterações) sem erros e preservou o SLO de 300~ms até aproximadamente 450 RPS.
-Assim que a carga ultrapassou 550 VUs, o Cloud Run atingiu novamente o teto de 10 instâncias e a cauda longa explodiu: o P95 consolidado do ensaio ficou em 658~ms, enquanto o percentil 99 se aproximou de 7~s.
-As traces do Cloud SQL mostraram que os 20\% de POSTs seguram locks linha/índice por até 2{,}6~s quando várias instâncias tentam atualizar o mesmo conjunto de contas, o que se reflete diretamente no alongamento das filas HTTP.
-Mesmo com o balanceamento aperfeiçoado, o comportamento de cauda longa evidencia a necessidade de evoluir o particionamento dos dados e elevar o número máximo de instâncias do serviço HTTP antes de buscar cargas ainda maiores.
-Também ficou evidente o benefício do endpoint de provisionamento: cada VU pôde criar contas próprias e evitar competição por saldo, aproximando o teste de um uso real.
+Assim que a carga ultrapassou 550 VUs, o Cloud Run atingiu novamente o teto de 10 instâncias e o P95 consolidado do ensaio ficou em 658~ms, com p99 em 2,67~s e máximo de 2,67~s (sem saltos superiores). A pressão veio do aumento de CPU e latência nas operações de escrita, já que cada instância precisou executar validações, persistência e invalidação de cache antes de responder; não houve evidência de saturação no Cloud SQL, cujos tempos de consulta permaneceram estáveis durante todo o gradiente.
+Esse comportamento indica que, antes de pensar em particionamento de dados, é necessário permitir que mais instâncias HTTP sejam acionadas ou otimizar o custo das rotas de escrita para consumir menos CPU por requisição. Também ficou evidente o benefício do endpoint de provisionamento: cada VU pôde criar contas próprias e evitar competição por saldo, aproximando o teste de um uso real.
 
 \begin{figure}[ht]
     \centering
@@ -51,7 +51,7 @@ Também ficou evidente o benefício do endpoint de provisionamento: cada VU pôd
     \label{fig:comparacao}
 \end{figure}
 
-\noindent A Figura~\ref{fig:comparacao} evidencia o distanciamento entre os dois perfis: na leitura os percentis crescem suavemente até o pico, sinalizando que o gargalo ainda está restrito à cota de instâncias; já no mix, a curva dispara logo após 500~VUs porque cada POST monopoliza locks no banco por alguns segundos, impedindo que os demais requests avancem. Essa comparação reforça que a arquitetura atual sustenta leituras em larga escala, mas depende de particionamento e mais instâncias HTTP para garantir o mesmo nível de serviço quando há escrita concorrente.
+\noindent A Figura~\ref{fig:comparacao} evidencia o distanciamento entre os dois perfis: na leitura os percentis crescem suavemente até o pico, sinalizando que o gargalo ainda está restrito à cota de instâncias; já no misto, a curva dispara logo após 500~VUs porque cada POST exige mais trabalho por instância (validações, escrita e invalidação de cache), reduzindo o número de requisições atendidas por contêiner quando o limite de 10 instâncias é atingido. Essa comparação reforça que a arquitetura atual sustenta leituras em larga escala, mas depende de mais instâncias HTTP (ou otimizações nas rotas de escrita) para garantir o mesmo nível de serviço quando há escrita concorrente.
 
 \subsection{Processamento Assíncrono com Cloud Tasks}
 
