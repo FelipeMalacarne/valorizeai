@@ -23,8 +23,8 @@ Os 1.000 usuários virtuais do cenário de leitura mantiveram o backend em 470 r
 
 \begin{figure}[ht]
     \centering
-    \fbox{\parbox{0.85\linewidth}{\centering Placeholder para gráfico de latência/throughput do cenário de leitura.}}
-    \caption{Latência e throughput observados no cenário de leitura intensiva.}
+    \includegraphics[width=0.95\linewidth]{figures/fig-read-pxx.png}
+    \caption{Latências P50/P95/P99 por carga (VUs) no cenário de leitura. A linha tracejada indica o SLO de 450~ms, não violado durante o teste.}
     \label{fig:latencia-leitura}
 \end{figure}
 
@@ -34,8 +34,8 @@ O cenário com 650 usuários alternando leituras e escritas expôs o comportamen
 
 \begin{figure}[ht]
     \centering
-    \fbox{\parbox{0.85\linewidth}{\centering Placeholder para gráfico de latência e backlog do cenário misto.}}
-    \caption{Evolução da latência e backlog no cenário leitura/escrita.}
+    \includegraphics[width=0.95\linewidth]{figures/fig-mixed-pxx.png}
+    \caption{Latências P50/P95/P99 por carga (VUs) no cenário misto. A faixa tracejada marca o SLO e o ponto vertical sinaliza a violação aos 149~VUs.}
     \label{fig:latencia-mix}
 \end{figure}
 
@@ -45,7 +45,7 @@ O ensaio de filas injetou 51{,}58~mil tarefas em um único lote e monitorou a dr
 
 \begin{figure}[ht]
     \centering
-    \fbox{\parbox{0.85\linewidth}{\centering Placeholder para gráfico de backlog e throughput das filas.}}
-    \caption{Backlog do Cloud Tasks e taxa de consumo durante o ensaio de filas.}
+    \includegraphics[width=0.95\linewidth]{figures/fig-queue-drain.png}
+    \caption{Taxa de processamento das filas (tarefas/min) e janela de drenagem entre 01:08 e 01:18 no ensaio com Cloud Tasks.}
     \label{fig:filas}
 \end{figure}

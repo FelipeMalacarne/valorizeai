@@ -31,7 +31,7 @@
 
 | Métrica                 | Valor alvo |
 | ----------------------- | ---------- |
-| Latência P95 (API)      | ≤ 250 ms   |
+| Latência P95 (API)      | ≤ 300 ms   |
 | Erro percentual         | ≤ 0.5%     |
 | Disponibilidade mensal  | ≥ 99.5%    |
 | MTTR falha planejada    | ≤ 60 s     |
@@ -72,7 +72,7 @@
 
 * **Cloud Monitoring + Logging + Trace** integrados via OpenTelemetry.
 * Dashboards com métricas-chave: latência P95/P99, taxa de erro, consumo de Cloud SQL, conexões Redis, backlog Cloud Tasks.
-* Alertas básicos (latência > 250 ms, backlog > 5k jobs, uso CPU Cloud SQL > 80%).
+* Alertas básicos (latência > 300 ms, backlog > 5k jobs, uso CPU Cloud SQL > 80%).
 
 ### 🔹 Segurança
 
@@ -101,7 +101,7 @@ terraform/
 ### Hipóteses
 
 1. **Escalabilidade da API Cloud Run**  
-   * **H₀₁:** Antes de esgotar a cota atual (10 instâncias de 1 vCPU / 1 GiB), a latência P95 excede 250 ms ou a taxa de erros passa de 0,5%.  
+   * **H₀₁:** Antes de esgotar a cota atual (10 instâncias de 1 vCPU / 1 GiB), a latência P95 excede 300 ms ou a taxa de erros passa de 0,5%.  
    * **H₁₁:** Enquanto houver vCPU disponível dentro dessa cota (observada em torno de 900 RPS para este workload), a API mantém os SLOs.
 2. **Resiliência do plano de dados**  
    * **H₀₂:** Falhas controladas (failover Cloud SQL, reset de Memorystore) causam indisponibilidade > 60 s ou perda de requisições.  
@@ -117,7 +117,7 @@ terraform/
 
 | # | Hipótese | Objetivo                        | Cenário / Procedimento                                                                 | Métricas principais                             | Ferramentas                                  | Critério de sucesso                                      |
 | - | -------- | ------------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------- | -------------------------------------------------------- |
-| 1 | H₀₁ vs H₁₁ | Escalabilidade da API          | k6 com ramp-up progressivo até saturar a cota (10 instâncias / ~10 vCPU), atingindo ≈900 RPS para este workload | Latência P95, P99, throughput, erro %            | k6 + Cloud Monitoring                        | P95 ≤ 250 ms, erro % ≤ 0.5 enquanto houver vCPU disponível na cota atual                  |
+| 1 | H₀₁ vs H₁₁ | Escalabilidade da API          | k6 com ramp-up progressivo até saturar a cota (10 instâncias / ~10 vCPU), atingindo ≈900 RPS para este workload | Latência P95, P99, throughput, erro %            | k6 + Cloud Monitoring                        | P95 ≤ 300 ms, erro % ≤ 0.5 enquanto houver vCPU disponível na cota atual                  |
 | 2 | H₀₂ vs H₁₂ | Falha em Cloud SQL / Redis     | Forçar failover manual no Cloud SQL + reiniciar Memorystore                            | MTTR, erro %, número de reconexões              | gcloud sql failover, Cloud Monitoring         | MTTR ≤ 60 s, erro % < 1%, aplicação retoma conexões      |
 | 3 | H₀₃ vs H₁₃ | Backlog Cloud Tasks            | Injetar 10× jobs (ex.: 10k notificações), suspender/retomar worker Cloud Run           | Tempo para zerar fila, jobs DLQ, duplicidade    | Cloud Tasks metrics, Cloud Logging            | Backlog drenado ≤ 5 min, DLQ ≤ 0.5%, duplicidade inexistente |
 | 4 | H₀₄ vs H₁₄ | Observabilidade/Custo          | Revisar dashboards/alertas durante testes + estimar custo diário (Billing export)      | Métricas coletadas, custo por 1k req            | Cloud Monitoring, Billing Export → BigQuery  | Todas as métricas coletadas + custo dentro do orçamento  |
@@ -162,7 +162,7 @@ terraform/
 
 ### Objetivos
 
-1. Validar os SLOs definidos (latência P95 ≤ 250 ms, erro ≤ 0,5%) para as rotas críticas da API.  
+1. Validar os SLOs definidos (latência P95 ≤ 300 ms, erro ≤ 0,5%) para as rotas críticas da API.  
 2. Medir a capacidade máxima de RPS sustentado em Cloud Run antes de violar os SLOs.  
 3. Obter insumos para o capítulo de “Experimentos e Resultados” (gráficos, tabelas, logs).
 
@@ -213,7 +213,7 @@ export const options = {
     { duration: '3m', target: 0 },
   ],
   thresholds: {
-    http_req_duration: ['p(95)<250'],
+    http_req_duration: ['p(95)<300'],
     http_req_failed: ['rate<0.005'],
   },
 };

@@ -46,7 +46,7 @@ QUEUE_TEST = {
 
 BINS = 50          # número de faixas de VU na curva
 SMOOTH = 3         # smoothing (rolling) nas curvas resultantes
-SLO_P95 = 450
+SLO_P95 = 300
 
 
 # -------------------------------------------------------------------

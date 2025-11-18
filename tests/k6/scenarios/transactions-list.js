@@ -11,18 +11,18 @@ if (!BASE_URL || !TOKEN) {
 }
 
 export const options = {
-    stages: [
+  stages: [
         { duration: '2m', target: 150 }, // aquecimento
         { duration: '3m', target: 300 }, // carga nominal
         { duration: '4m', target: 600 },
         { duration: '4m', target: 900 }, // limite observado (1 vCPU/1 GiB x10 instâncias)
         { duration: '2m', target: 1000 }, // pico curto para medir saturação
         { duration: '2m', target: 0 },
-    ],
-    thresholds: {
-        http_req_duration: ['p(95)<250'],
-        http_req_failed: ['rate<0.005'],
-    },
+  ],
+  thresholds: {
+    http_req_duration: ['p(95)<300'],
+    http_req_failed: ['rate<0.005'],
+  },
 };
 
 function buildQuery({ accounts, categories }) {

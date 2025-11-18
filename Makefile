@@ -201,7 +201,7 @@ charts: setup_python_env
 	@echo "$(YELLOW)Generating docs/tests charts...$(NC)"
 	@mkdir -p $(MPLCONFIGDIR)
 	@cd docs/tests && MPLCONFIGDIR=$(MPLCONFIGDIR) $(PYTHON) generate-curves.py
-	@echo "$(GREEN)✓ Charts generated (fig-read-pxx.png, fig-mixed-pxx.png, fig-compare-read-vs-mixed.png, fig-queue-drain.png)$(NC)"
+	@echo "$(GREEN)✓ Charts generated $(NC)"
 
 .PHONY: clean
 clean:
