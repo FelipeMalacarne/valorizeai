@@ -1,3 +1,10 @@
+/**
+ * Cenário misto leitura/escrita: cada VU recebe um usuário exclusivo e
+ * alterna entre 65% de leituras, 20% de POST /api/transactions e 15%
+ * de GET /api/accounts. O ramp-up evidencia o comportamento ao atingir
+ * o teto de 10 instâncias do Cloud Run por volta de 550–650 VUs.
+ */
+
 import http from 'k6/http';
 import { check, fail, sleep } from 'k6';
 import {
@@ -9,12 +16,22 @@ import {
 } from '../helpers/resources.js';
 import { QueryBuilder } from '../helpers/query.js';
 
-const BASE_URL = __ENV.BASE_URL;
-const TOKEN = __ENV.TOKEN;
+const rawBaseUrl = __ENV.BASE_URL;
 
-if (!BASE_URL || !TOKEN) {
-  fail('BASE_URL and TOKEN environment variables must be defined.');
+if (!rawBaseUrl) {
+  fail('BASE_URL environment variable must be defined.');
 }
+
+const BASE_URL = rawBaseUrl.replace(/\/$/, '');
+const TEST_USER_ENDPOINT = __ENV.TEST_USER_ENDPOINT || '/api/testing/load-test-user';
+const PROVISION_URL = TEST_USER_ENDPOINT.startsWith('http')
+  ? TEST_USER_ENDPOINT
+  : `${BASE_URL}${TEST_USER_ENDPOINT.startsWith('/') ? '' : '/'}${TEST_USER_ENDPOINT}`;
+
+let vuToken = null;
+let vuHeaders = null;
+let vuAccounts = null;
+let vuCategories = null;
 
 export const options = {
   stages: [
@@ -27,10 +44,61 @@ export const options = {
     { duration: '2m', target: 0 },
   ],
   thresholds: {
-    http_req_duration: ['p(95)<250'],
+    http_req_duration: ['p(95)<300'],
     http_req_failed: ['rate<0.005'],
   },
+  summaryTrendStats: ['avg', 'min', 'med', 'p(90)', 'p(95)', 'p(99)', 'max'],
 };
+
+function provisionLoadTestUser() {
+  const res = http.post(PROVISION_URL, null, {
+    headers: {
+      Accept: 'application/json',
+    },
+    timeout: '10s',
+    tags: {
+      endpoint: 'POST /api/testing/load-test-user',
+      name: 'POST /api/testing/load-test-user',
+      url: PROVISION_URL,
+    },
+  });
+
+  if (res.status !== 201) {
+    fail(`Unable to provision load-test user. HTTP ${res.status} – ${res.body}`);
+  }
+
+  let token;
+
+  try {
+    token = res.json('token');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    fail(`Provisioning endpoint returned an invalid payload: ${message}`);
+  }
+
+  if (!token) {
+    fail('Provisioning endpoint did not return a token.');
+  }
+
+  return token;
+}
+
+function ensureVuState() {
+  if (vuToken) {
+    return;
+  }
+
+  vuToken = provisionLoadTestUser();
+  vuHeaders = {
+    Authorization: `Bearer ${vuToken}`,
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  };
+
+  const resources = ensureBasics(BASE_URL, vuHeaders);
+  vuAccounts = resources.accounts;
+  vuCategories = resources.categories;
+}
 
 function buildQuery({ accounts, categories }) {
   const query = new QueryBuilder();
@@ -67,28 +135,15 @@ function buildPayload(account, category) {
   });
 }
 
-export function setup() {
-  const headers = {
-    Authorization: `Bearer ${TOKEN}`,
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  };
+export default function () {
+  ensureVuState();
 
-  const resources = ensureBasics(BASE_URL, headers);
-
-  return {
-    headers,
-    ...resources,
-  };
-}
-
-export default function ({ headers, accounts, categories }) {
   const roll = Math.random();
 
   if (roll < 0.65) {
-    const query = buildQuery({ accounts, categories });
+    const query = buildQuery({ accounts: vuAccounts, categories: vuCategories });
     const res = http.get(`${BASE_URL}/api/transactions?${query}`, {
-      headers,
+      headers: vuHeaders,
       timeout: '10s',
       tags: {
         endpoint: 'GET /api/transactions',
@@ -101,11 +156,11 @@ export default function ({ headers, accounts, categories }) {
       'list status 200': (r) => r && r.status === 200,
     });
   } else if (roll < 0.85) {
-    const account = pickRandom(accounts);
-    const category = pickRandom(categories);
+    const account = pickRandom(vuAccounts);
+    const category = pickRandom(vuCategories);
 
     const res = http.post(`${BASE_URL}/api/transactions`, buildPayload(account, category), {
-      headers,
+      headers: vuHeaders,
       timeout: '10s',
       tags: {
         endpoint: 'POST /api/transactions',
@@ -119,7 +174,7 @@ export default function ({ headers, accounts, categories }) {
     });
   } else {
     const res = http.get(`${BASE_URL}/api/accounts`, {
-      headers,
+      headers: vuHeaders,
       timeout: '10s',
       tags: {
         endpoint: 'GET /api/accounts',

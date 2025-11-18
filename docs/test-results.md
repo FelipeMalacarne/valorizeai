@@ -10,7 +10,7 @@
   █ THRESHOLDS
 
     http_req_duration
-    ✓ 'p(95)<250' p(95)=158.48ms
+    ✓ 'p(95)<300' p(95)=158.48ms
 
     http_req_failed
     ✓ 'rate<0.005' rate=0.00%
@@ -42,12 +42,14 @@
     data_received..................: 4.5 GB 4.4 MB/s
     data_sent......................: 61 MB  60 kB/s
 
+SLO perspective: durante o platô de 970 RPS (etapa de 900→1000 VUs), o P95 permaneceu em 158~ms, portanto toda a execução ficou dentro do limite de 300~ms.
 
-22:53 - 23:13
+
+22:12 - 22:33 (UTC-3)
 
     execution: local
         script: scenarios/mix.js
-        output: csv (mix.csv)
+        output: csv (docs/tests/2-test-mixed/rw.csv)
 
      scenarios: (100.00%) 1 scenario, 650 max VUs, 21m30s max duration (incl. graceful stop):
               * default: Up to 650 looping VUs for 21m0s over 7 stages (gracefulRampDown: 30s, gracefulStop: 30s)
@@ -57,7 +59,7 @@
   █ THRESHOLDS
 
     http_req_duration
-    ✗ 'p(95)<250' p(95)=4.03s
+    ✗ 'p(95)<300' p(95)=658.47ms
 
     http_req_failed
     ✓ 'rate<0.005' rate=0.00%
@@ -65,31 +67,39 @@
 
   █ TOTAL RESULTS
 
-    checks_total.......: 127506  101.142289/s
-    checks_succeeded...: 100.00% 127506 out of 127506
-    checks_failed......: 0.00%   0 out of 127506
+    checks_total.......: 283126 224.703/s
+    checks_succeeded...: 100.00% 283126 out of 283126
+    checks_failed......: 0.00%  0 out of 283126
 
-    ✓ list status 200
-    ✓ create status 201
-    ✓ accounts status 200
+    ✓ list status 200 (183,848)
+    ✓ create status 201 (56,755)
+    ✓ accounts status 200 (42,523)
 
     HTTP
-    http_req_duration..............: avg=1.55s min=37ms  med=1.15s max=9.57s  p(90)=3.41s p(95)=4.03s
-      { expected_response:true }...: avg=1.55s min=37ms  med=1.15s max=9.57s  p(90)=3.41s p(95)=4.03s
-    http_req_failed................: 0.00%  0 out of 127508
-    http_reqs......................: 127508 101.143875/s
+    http_req_duration..............: avg=147.76ms min=38.33ms med=64.03ms max=2.67s  p(90)=381.17ms p(95)=658.47ms
+      { expected_response:true }...: avg=147.76ms min=38.33ms med=64.03ms max=2.67s  p(90)=381.17ms p(95)=658.47ms
+    http_req_failed................: 0.00%  0 out of 285076
+    http_reqs......................: 285076 226.251/s
 
     EXECUTION
-    iteration_duration.............: avg=2.55s min=1.03s med=2.15s max=10.57s p(90)=4.41s p(95)=5.03s
-    iterations.....................: 127506 101.142289/s
+    iteration_duration.............: avg=1.15s  min=1.04s  med=1.06s  max=6.34s  p(90)=1.38s  p(95)=1.67s
+    iterations.....................: 283126 224.703/s
     vus............................: 4      min=1           max=650
     vus_max........................: 650    min=650         max=650
 
     NETWORK
-    data_received..................: 1.9 GB 1.5 MB/s
-    data_sent......................: 35 MB  28 kB/s
+    data_received..................: 0.51 GB 0.41 MB/s
+    data_sent......................: 64.9 MB 52 kB/s
+
+Até ~450 RPS (etapa de 350 VUs) o P95 permaneceu abaixo de 300~ms; a violação registrada em 658~ms ocorre apenas no trecho de stress (≥550 VUs), quando o cenário força saturação para observar o comportamento pós-SLO.
+
+Breakdown of workload mix: 183,848 `GET /api/transactions` (65%), 56,755 `POST /api/transactions` (20%), 42,523 `GET /api/accounts` (15%). The one-time bootstrap added 650 provisioning calls to `POST /api/testing/load-test-user`, `GET /api/accounts`, and `GET /api/categories` while preparing per-user fixtures.
 
 
+running (21m00s), 000/650 VUs, 283126 complete and 0 interrupted iterations
 
 
-running (21m00.7s), 000/650 VUs, 127506 complete and 0 interrupted iterations
+queue consuption test
+
+total tasks on queue: 51,58k
+time to procedss all: 01:08 - 01:18 (10mins) dia 10

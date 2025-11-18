@@ -1,0 +1,16 @@
+TimeSeries ID,queue/task_attempt_count.cloud_tasks_queue.ALIGN_SUM.REDUCE_SUM.metric.type="cloudtasks.googleapis.com/queue/task_attempt_count" resource.type="cloud_tasks_queue" resource.label."project_id"="valorizeaitcc" resource.label."location"="southamerica-east1" resource.label."queue_id"="default" metric.label."response_code"="ok".project_id:valorizeaitcc
+project_id,valorizeaitcc
+Mon Nov 10 2025 01:06:00 GMT-0300 (Brasilia Standard Time),23
+Mon Nov 10 2025 01:07:00 GMT-0300 (Brasilia Standard Time),387
+Mon Nov 10 2025 01:08:00 GMT-0300 (Brasilia Standard Time),892
+Mon Nov 10 2025 01:09:00 GMT-0300 (Brasilia Standard Time),2011
+Mon Nov 10 2025 01:10:00 GMT-0300 (Brasilia Standard Time),3364
+Mon Nov 10 2025 01:11:00 GMT-0300 (Brasilia Standard Time),4577
+Mon Nov 10 2025 01:12:00 GMT-0300 (Brasilia Standard Time),6708
+Mon Nov 10 2025 01:13:00 GMT-0300 (Brasilia Standard Time),9054
+Mon Nov 10 2025 01:14:00 GMT-0300 (Brasilia Standard Time),9267
+Mon Nov 10 2025 01:15:00 GMT-0300 (Brasilia Standard Time),518
+Mon Nov 10 2025 01:16:00 GMT-0300 (Brasilia Standard Time),8778
+Mon Nov 10 2025 01:17:00 GMT-0300 (Brasilia Standard Time),5917
+Mon Nov 10 2025 01:18:00 GMT-0300 (Brasilia Standard Time),0
+Mon Nov 10 2025 01:19:00 GMT-0300 (Brasilia Standard Time),0

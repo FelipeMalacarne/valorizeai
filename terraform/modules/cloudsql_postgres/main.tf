@@ -26,7 +26,7 @@ resource "google_sql_database_instance" "this" {
       enabled                        = true
       point_in_time_recovery_enabled = true
       backup_retention_settings {
-        retained_backups = 7
+        retained_backups = 14
       }
     }
 

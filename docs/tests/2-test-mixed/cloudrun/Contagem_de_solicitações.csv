@@ -1,0 +1,25 @@
+TimeSeries ID,request_count.cloud_run_revision.ALIGN_RATE.REDUCE_SUM.metric.type="run.googleapis.com/request_count" resource.type="cloud_run_revision" AND resource.labels."location"="southamerica-east1" AND resource.labels."project_id"="valorizeaitcc" AND resource.labels."service_name"="valorizeai".60s.project_id:valorizeaitcc.response_code_class:2xx,request_count.cloud_run_revision.ALIGN_RATE.REDUCE_SUM.metric.type="run.googleapis.com/request_count" resource.type="cloud_run_revision" AND resource.labels."location"="southamerica-east1" AND resource.labels."project_id"="valorizeaitcc" AND resource.labels."service_name"="valorizeai".60s.project_id:valorizeaitcc.response_code_class:4xx,request_count.cloud_run_revision.ALIGN_RATE.REDUCE_SUM.metric.type="run.googleapis.com/request_count" resource.type="cloud_run_revision" AND resource.labels."location"="southamerica-east1" AND resource.labels."project_id"="valorizeaitcc" AND resource.labels."service_name"="valorizeai".60s.project_id:valorizeaitcc.response_code_class:3xx
+response_code_class,2xx,4xx,3xx
+project_id,valorizeaitcc,valorizeaitcc,valorizeaitcc
+Sun Nov 09 2025 22:53:00 GMT-0300 (Brasilia Standard Time),5.683333333333334,0,0
+Sun Nov 09 2025 22:54:00 GMT-0300 (Brasilia Standard Time),2.65,0,0
+Sun Nov 09 2025 22:55:00 GMT-0300 (Brasilia Standard Time),14.066666666666666,0,0
+Sun Nov 09 2025 22:56:00 GMT-0300 (Brasilia Standard Time),26.833333333333332,0,0
+Sun Nov 09 2025 22:57:00 GMT-0300 (Brasilia Standard Time),41.08333333333333,0,0
+Sun Nov 09 2025 22:58:00 GMT-0300 (Brasilia Standard Time),55.333333333333336,0,0
+Sun Nov 09 2025 22:59:00 GMT-0300 (Brasilia Standard Time),71.06666666666666,0,0
+Sun Nov 09 2025 23:00:00 GMT-0300 (Brasilia Standard Time),90.6,0,0
+Sun Nov 09 2025 23:01:00 GMT-0300 (Brasilia Standard Time),110.8,0,0
+Sun Nov 09 2025 23:02:00 GMT-0300 (Brasilia Standard Time),125.96666666666667,0,0
+Sun Nov 09 2025 23:03:00 GMT-0300 (Brasilia Standard Time),129.93333333333334,0,0
+Sun Nov 09 2025 23:04:00 GMT-0300 (Brasilia Standard Time),130.48333333333335,0,0
+Sun Nov 09 2025 23:05:00 GMT-0300 (Brasilia Standard Time),130.4,0,0
+Sun Nov 09 2025 23:06:00 GMT-0300 (Brasilia Standard Time),128.9,0,0
+Sun Nov 09 2025 23:07:00 GMT-0300 (Brasilia Standard Time),129.61666666666667,0,0
+Sun Nov 09 2025 23:08:00 GMT-0300 (Brasilia Standard Time),129.96666666666667,0,0
+Sun Nov 09 2025 23:09:00 GMT-0300 (Brasilia Standard Time),129.51666666666668,0,0
+Sun Nov 09 2025 23:10:00 GMT-0300 (Brasilia Standard Time),130.11666666666667,0,0
+Sun Nov 09 2025 23:11:00 GMT-0300 (Brasilia Standard Time),128.83333333333334,0,0
+Sun Nov 09 2025 23:12:00 GMT-0300 (Brasilia Standard Time),130.63333333333333,0,0
+Sun Nov 09 2025 23:13:00 GMT-0300 (Brasilia Standard Time),131.78333333333333,0,0
+Sun Nov 09 2025 23:14:00 GMT-0300 (Brasilia Standard Time),127.45,0,0
