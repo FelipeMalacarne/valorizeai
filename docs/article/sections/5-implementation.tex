@@ -1,0 +1,108 @@
+\section{Implementação}
+\label{sec:implementacao}
+
+Esta seção descreve a implementação do ValorizeAI, enfatizando os elementos arquiteturais, os fluxos de execução e os componentes que foram exercitados nos experimentos de carga. O objetivo é apresentar como o sistema opera internamente, de modo a contextualizar os resultados apresentados na próxima seção.
+
+\subsection{Arquitetura Lógica da Aplicação}
+
+A aplicação segue uma arquitetura modular composta por três subsistemas principais:
+
+\begin{itemize}
+    \item \textbf{Serviço HTTP (API Laravel):} responsável pelas operações transacionais síncronas (consultas, criação de transações, ingestão de dados e automações).
+    \item \textbf{Servidor WebSocket (Laravel Reverb):} dedicado ao envio de notificações em tempo real e atualização dos dashboards.
+    \item \textbf{Workers HTTP (Cloud Run):} executores de tarefas assíncronas disparadas pelo Cloud Tasks.
+\end{itemize}
+
+Cada subsistema é implantado como serviço independente no Cloud Run, permitindo escalonamento isolado e controle fino de concorrência.
+
+\subsection{Fluxo Síncrono: API HTTP}
+
+O backend Laravel organiza o domínio financeiro em módulos que seguem Clean Architecture e DDD. As rotas públicas acessam controladores que delegam:
+
+\begin{itemize}
+    \item \textbf{consultas} para classes \textit{Query}, otimizadas para leitura e usando Redis como cache;
+    \item \textbf{escritas} para classes \textit{Action}, que encapsulam validações, regras de negócio, transações no PostgreSQL e emissão de eventos.
+\end{itemize}
+
+Os endpoints exercitados nos testes k6 incluem:
+
+\begin{itemize}
+    \item \verb|GET /api/transactions| — leitura intensiva de listas paginadas;
+    \item \verb|POST /api/transactions| — criação de transações, fluxo que ativa lógica de consistência e atualizações derivadas;
+    \item \verb|GET /api/accounts| — consulta leve usada para refletir mudanças de saldo.
+\end{itemize}
+
+O caminho de leitura foi otimizado com cache \textit{cache-aside}: a primeira consulta popula Redis, e subsequentes retornam em baixa latência. O caminho de escrita, por sua vez, não usa cache e realiza operações ACID no PostgreSQL.
+
+\subsection{Fluxo Assíncrono: Cloud Tasks e Workers}
+
+Tarefas que exigem maior tempo de processamento são delegadas ao pipeline assíncrono. O processo ocorre em quatro etapas:
+
+\begin{enumerate}
+    \item a API cria uma tarefa via Cloud Tasks, anexando o payload necessário;
+    \item o serviço envia uma requisição HTTP \textit{push} para o endpoint do worker;
+    \item o Cloud Run instancia dinamicamente quantos workers forem necessários para consumir o backlog;
+    \item cada worker executa o processamento (ex.: importação de extratos, geração de relatórios, triggers de automações).
+\end{enumerate}
+
+O uso de \textit{push queues} elimina a necessidade de processos consumidores contínuos e garante elasticidade automática baseada no ritmo de produção.
+
+\subsection{Comunicação em Tempo Real: WebSockets com Reverb e Redis}
+
+O servidor WebSocket do Reverb mantém conexões persistentes com os clientes do painel em tempo real. Como o ambiente Cloud Run escala horizontalmente e instancia múltiplos contêineres, cada instância possui um conjunto próprio de clientes conectados.
+
+Para distribuir eventos entre elas, utiliza-se Redis como \textit{backplane} Pub/Sub:
+
+\begin{itemize}
+    \item Instâncias publicam eventos em canais Redis.
+    \item Todas as instâncias inscritas recebem as mensagens.
+    \item A instância que possui o cliente conectado retransmite o evento via WebSocket.
+\end{itemize}
+
+Esse mecanismo assegura coerência e funcionamento correto mesmo em ambientes altamente elásticos.
+
+\subsection{Modelo de Dados e Otimizações}
+
+O modelo lógico (Figura~\ref{fig:modelo-dados}) segue um desenho multi-inquilino composto por:
+
+\begin{itemize}
+    \item usuários, contas, categorias e orçamentos;
+    \item transações e divisões (\textit{splits});
+    \item embeddings vetoriais, armazenados via \texttt{pgvector} para auxiliar classificação.
+\end{itemize}
+
+Algumas otimizações relevantes para os testes incluem:
+
+\begin{itemize}
+    \item índices compostos em \verb|transactions(date, account_id)|;
+    \item padronização de paginação para reduzir fan-out;
+    \item projeção de DTOs para minimizar transferência de dados;
+    \item pré-aquecimento da cache com consultas frequentes.
+\end{itemize}
+
+\subsection{Observabilidade e Instrumentação}
+
+A coleta de evidências utilizou:
+
+\begin{itemize}
+    \item \textbf{Cloud Monitoring} para métricas de CPU, memória, instâncias ativas, latência e backlog do Cloud Tasks;
+    \item \textbf{CSV automatizados do k6} para SLIs de latência e taxa de erro;
+    \item \textbf{logs estruturados} para rastrear, por requisição, saturação do banco e falhas de escrita;
+    \item \textbf{dashboards personalizados} para acompanhar as instâncias do Cloud Run durante os experimentos.
+\end{itemize}
+
+Essa infraestrutura permite correlacionar comportamentos de aplicação, banco, Redis, filas e WebSockets com precisão.
+
+\subsection{Síntese da Implementação}
+
+A integração entre:
+
+\begin{itemize}
+    \item API síncrona,
+    \item pipeline assíncrono via Cloud Tasks,
+    \item cache Redis,
+    \item servidor WebSocket escalável
+\end{itemize}
+
+fornece a base operacional necessária para avaliar os SLOs definidos. Os resultados obtidos dependem diretamente dessas decisões arquiteturais, que moldam o comportamento observado sob tráfego elevado.
+

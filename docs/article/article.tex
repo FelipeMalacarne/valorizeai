@@ -24,7 +24,6 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{multicol}
-\usepackage{multirow}
 \usepackage{graphicx,url}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
@@ -46,6 +45,8 @@
 \usepackage{longtable}
 \usepackage{booktabs}
 \usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 \usetikzlibrary{positioning,calc}
 
 
@@ -74,7 +75,6 @@
 \email{101090@uricer.edu.br, mlucas@uricer.edu.br}
 }
 
-
 \begin{document}
 
 \maketitle
@@ -82,24 +82,26 @@
 \thispagestyle{plain}
 \pagestyle{plain2}
 
-\begin{abstract}
-    Digital financial workloads demand elastic architectures that remain observable under sustained stress. This paper documents and validates ValorizeAI, a serverless/containerized platform built on Cloud Run, Cloud SQL, Redis, Cloud Tasks, and WebSockets. Infrastructure-as-code modules provisioned replicable testbeds, while k6 executed two load scenarios (read-only and read/write) against SLOs of P95 $\leq$ 300~ms and error rate $<$ 0.5\%. The read scenario sustained 1{,}000 virtual users (mean 470 req/s, peak $\approx$970 req/s) with P95 = 158~ms and zero failures; the mixed scenario held 226 req/s at 650 VUs (violating the SLO at $\approx$539 VUs) with P95 = 658~ms and p99 = 2.67~s once the 10-instance Cloud Run quota was exhausted. The asynchronous pipeline processed 51.58k Cloud Tasks in 10 minutes (86 tasks/s) without loss or duplication. These results show that the architecture comfortably serves read-heavy traffic and that further horizontal scaling or write-path optimizations are required before supporting higher write concurrency.
-\end{abstract}
-
-\keywords{Serverless Computing, Cloud Run, Financial Platforms, Performance Testing, Observability.}
 
 \begin{resumo}
-    Plataformas financeiras modernas exigem arquiteturas elásticas capazes de lidar com picos de carga transacional sem abrir mão de consistência forte nem observabilidade. Este trabalho documenta e valida o ValorizeAI, aplicação real de categorização automática construída sobre Google Cloud Run, Cloud SQL, Redis (Memorystore), Cloud Tasks e WebSockets. A pesquisa adota abordagem aplicada inspirada em SRE: os SLOs (latência P95 $\leq$ 300~ms, erro $<$ 0,5\%, disponibilidade $\geq$ 99{,}5\%) são definidos antecipadamente, a infraestrutura é provisionada como código e os testes k6 cobrem cenários de leitura intensiva, mix leitura/escrita e o pipeline assíncrono. O cenário de leitura sustentou 1{,}000 VUs (média de 470 req/s, pico de $\approx$970 req/s) com P95 = 158~ms; o cenário misto manteve 226 req/s em 650 VUs e violou o SLO em $\approx$539 VUs, elevando o P95 para 658~ms e o p99 para 2,67~s ao saturar a cota de 10 instâncias do Cloud Run. O pipeline assíncrono processou 51,58 mil tarefas do Cloud Tasks em 10 minutos (86 tarefas/s) sem perda ou duplicação. Conclui-se que a arquitetura atende confortavelmente workloads intensivos em leitura e que novas instâncias HTTP ou otimizações no caminho de escrita são necessárias para acomodar escritas altamente concorrentes.
+Plataformas financeiras modernas exigem arquiteturas elásticas capazes de absorver picos de carga transacional sem comprometer consistência forte ou observabilidade. Este trabalho documenta e valida o ValorizeAI, uma aplicação real de categorização automática construída sobre Google Cloud Run, Cloud SQL, Redis (Memorystore), Cloud Tasks e WebSockets. A pesquisa adota uma abordagem aplicada inspirada em SRE: os SLOs (latência P95 $\leq$ 300~ms, erro $<$ 0,5\%, disponibilidade $\geq$ 99{,}5\%) são definidos previamente, a infraestrutura é provisionada como código e os testes k6 abrangem cenários de leitura intensiva, leitura/escrita e o pipeline assíncrono. O cenário de leitura sustentou 1{,}000 usuários virtuais (média de 470 req/s, pico de $\approx$970 req/s) com P95 de 158~ms; o cenário misto manteve 226 req/s com 650 VUs e violou o SLO a partir de $\approx$539 VUs, elevando o P95 para 658~ms e o p99 para 2,67~s ao saturar a cota de 10 instâncias do Cloud Run. O pipeline assíncrono processou 51,58 mil tarefas em 10 minutos (86 tarefas/s) sem perdas. Conclui-se que a arquitetura atende confortavelmente workloads intensivos em leitura e que o suporte a escritas altamente concorrentes requer aumento de instâncias HTTP ou otimizações específicas no caminho de escrita.
 \end{resumo}
 
 \palavraschave{Computação Serverless, Cloud Run, Plataformas Financeiras, Testes de Carga, Observabilidade.}
+
+\begin{abstract}
+Modern financial workloads demand elastic architectures capable of sustaining variable traffic while preserving strong consistency and system observability. This paper documents and validates ValorizeAI, a real-world automated categorization platform built on Cloud Run, Cloud SQL, Redis, Cloud Tasks, and WebSockets. The study adopts an applied SRE-inspired methodology: SLOs (P95 latency $\leq$ 300~ms, error rate $<$ 0.5\%, availability $\geq$ 99.5\%) are defined beforehand, infrastructure is provisioned as code, and k6 executes read-only, mixed read/write, and asynchronous-pipeline load scenarios. The read scenario supported 1,000 virtual users (mean 470 req/s, peak $\approx$970 req/s) with P95 = 158~ms and zero failures; the mixed scenario sustained 226 req/s at 650 VUs and violated the SLO around $\approx$539 VUs, reaching P95 = 658~ms and p99 = 2.67~s once the 10-instance Cloud Run quota was saturated. The asynchronous pipeline processed 51.58k Cloud Tasks in 10 minutes (86 tasks/s) with no loss or duplication. The results show that the architecture comfortably supports read-heavy traffic, while higher write concurrency requires additional horizontal scaling or optimizations in the write path.
+\end{abstract}
+
+\keywords{Serverless Computing, Cloud Run, Financial Platforms, Performance Testing, Observability.}
 
 \input{sections/1-introduction}
 \input{sections/2-related-works}
 \input{sections/3-theoretical-framework}
 \input{sections/4-metodology}
-\input{sections/5-results}
-\input{sections/6-conclusion}
+\input{sections/5-implementation}
+\input{sections/6-results}
+\input{sections/7-conclusion}
 \newpage
 
 % \nocite{BCB_Economia_Bancaria_2024,Febraban_Tecnologia_2024,Febraban_Transacoes_2025}
