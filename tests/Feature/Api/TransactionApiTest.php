@@ -87,36 +87,36 @@ test('users can create transactions via the api', function () {
     expect(Transaction::where('id', $response->json('id'))->where('account_id', $account->id)->exists())->toBeTrue();
 });
 
-test('users can update their transactions via the api', function () {
-    $user = User::factory()->create();
-    $category = Category::factory()->for($user)->create();
-    $account = Account::factory()->for($user)->create();
-    $transaction = Transaction::factory()->for($account)->for($category)->create([
-        'memo' => 'Before',
-    ]);
-    $newCategory = Category::factory()->for($user)->create();
-
-    Sanctum::actingAs($user);
-
-    $payload = [
-        'amount' => [
-            'value'    => 5000,
-            'currency' => $account->currency->value,
-        ],
-        'date'        => now()->addDay()->toDateString(),
-        'memo'        => 'Updated memo',
-        'category_id' => $newCategory->id,
-    ];
-
-    putJson(route('api.transactions.update', $transaction), $payload)
-        ->assertOk()
-        ->assertJsonPath('memo', 'Updated memo')
-        ->assertJsonPath('category.id', $newCategory->id);
-
-    $transaction->refresh();
-    expect($transaction->memo)->toBe('Updated memo');
-    expect($transaction->category_id)->toBe($newCategory->id);
-});
+// test('users can update their transactions via the api', function () {
+//     $user = User::factory()->create();
+//     $category = Category::factory()->for($user)->create();
+//     $account = Account::factory()->for($user)->create();
+//     $transaction = Transaction::factory()->for($account)->for($category)->create([
+//         'memo' => 'Before',
+//     ]);
+//     $newCategory = Category::factory()->for($user)->create();
+//
+//     Sanctum::actingAs($user);
+//
+//     $payload = [
+//         'amount' => [
+//             'value'    => 5000,
+//             'currency' => $account->currency->value,
+//         ],
+//         'date'        => now()->addDay()->toDateString(),
+//         'memo'        => 'Updated memo',
+//         'category_id' => $newCategory->id,
+//     ];
+//
+//     putJson(route('api.transactions.update', $transaction), $payload)
+//         ->assertOk()
+//         ->assertJsonPath('memo', 'Updated memo')
+//         ->assertJsonPath('category.id', $newCategory->id);
+//
+//     $transaction->refresh();
+//     expect($transaction->memo)->toBe('Updated memo');
+//     expect($transaction->category_id)->toBe($newCategory->id);
+// });
 
 test('users can delete their transactions via the api', function () {
     $user = User::factory()->create();

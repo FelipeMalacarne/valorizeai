@@ -1,0 +1,85 @@
+\section{Fundamentação Teórica}
+\label{sec:fundamentacao}
+
+Segue uma síntese do vocabulário e das bases conceituais utilizados no design, implementação e validação do ValorizeAI, cobrindo princípios de design de software, arquitetura dos componentes e fundamentos de engenharia de confiabilidade.
+
+\subsection{Princípios de Design de Software}
+\label{sec:principios_design}
+
+O ValorizeAI adota uma abordagem de "arquitetura limpa", segregando responsabilidades com base em princípios estabelecidos de design de software.
+
+\subsubsection{Clean Architecture}
+\label{sec:clean_architecture}
+
+Formalizada por Robert C. Martin, a \textit{Clean Architecture} (Arquitetura Limpa) é um modelo arquitetural que advoga pela separação de interesses \cite{martin_clean_2017}. Seu objetivo é criar sistemas que sejam: (1) Independentes de frameworks; (2) Testáveis; (3) Independentes da interface do usuário (UI); e (4) Independentes do banco de dados \cite{martin_clean_2017}.
+
+O pilar central dessa arquitetura é a \textit{Regra da Dependência} (The Dependency Rule). Esta regra estipula que as dependências do código-fonte devem apontar exclusivamente "para dentro" --- de camadas de baixo nível (detalhes voláteis, como frameworks e bancos de dados) para camadas de alto nível (políticas de negócio estáveis e abstrações) \cite{martin_clean_2017}. No ValorizeAI, isso se manifesta na separação das regras de negócio (localizadas em \textit{Actions} ou \textit{Queries}) da lógica do framework (Controladores Laravel) ou da persistência (Modelos Eloquent).
+
+\subsubsection{Domain-Driven Design (DDD)}
+\label{sec:ddd}
+
+O \textit{Domain-Driven Design} (DDD), introduzido por Eric Evans, é uma abordagem para o desenvolvimento de software que se concentra em modelar o software para corresponder a um domínio de negócio complexo \cite{evans_ddd_2003}. O DDD é essencial para gerenciar a complexidade em sistemas como o ValorizeAI. Os conceitos-chave utilizados neste trabalho incluem:
+
+\begin{itemize}
+    \item \textbf{Linguagem Ubíqua (Ubiquitous Language):} Um vocabulário compartilhado e rigoroso, desenvolvido em colaboração entre os desenvolvedores e os especialistas do domínio (usuários). Essa linguagem é usada em todas as comunicações e reflete-se diretamente no código (nomes de classes, métodos e variáveis) \cite{evans_ddd_2003}.
+    \item \textbf{Contexto Delimitado (Bounded Context):} A fronteira explícita dentro da qual um modelo de domínio e sua Linguagem Ubíqua são aplicáveis e consistentes \cite{evans_ddd_2003}.
+    \item \textbf{Agregado (Aggregate):} Um cluster de objetos de domínio (Entidades e Objetos de Valor) que é tratado como uma única unidade para fins de consistência de dados. Um Agregado possui uma raiz (a \textit{Aggregate Root}), que é o único ponto de entrada para modificações dentro do Agregado, garantindo que todas as regras de negócio (invariantes) sejam aplicadas \cite{evans_ddd_2003}.
+\end{itemize}
+
+\subsubsection{Padrões de Comunicação e Segregação}
+\label{sec:cqrs_dto}
+
+Para implementar a Regra da Dependência e gerenciar o fluxo de dados, o ValorizeAI utiliza padrões de segregação e transferência de dados.
+
+\begin{itemize}
+    \item \textbf{DTO (Data Transfer Object):} Conforme popularizado por Martin Fowler, um DTO é um objeto simples, sem comportamento, cujo único propósito é transferir dados entre subsistemas ou camadas \cite{fowler_peaa_2002}. Em arquiteturas distribuídas ou em camadas, os DTOs são usados para agregar múltiplas chamadas em uma única, reduzindo a latência da rede e desacoplando os modelos internos (domínio) dos modelos de visualização (API/UI).
+    \item \textbf{CQRS (Command Query Responsibility Segregation):} Um padrão, descrito por Martin Fowler \cite{fowler_cqrs_2011} e Greg Young, que propõe a segregação dos modelos de dados e da lógica de aplicação em duas categorias: \textit{Commands} (operações que alteram o estado, ou seja, escritas) e \textit{Queries} (operações que leem o estado). O ValorizeAI adota esse princípio através da separação explícita de \textit{Actions} (Commands) e \textit{Queries} (Queries), permitindo otimizações distintas para os caminhos de escrita e leitura.
+\end{itemize}
+Nas rotas de leitura (consultas de transações, contas e categorias), os controladores invocam exclusivamente \textit{Queries} especializadas que exploram o cache Redis e projetam os DTOs esperados pelo front-end. Já as operações de escrita (\texttt{POST /api/transactions}, importações em lote, automações) são canalizadas por \textit{Actions} que encapsulam validações, regras de negócio e persistência, utilizando comandos explícitos que podem ser monitorados ou reprocessados. Essa separação facilita ajustes independentes: otimizações de leitura não afetam o caminho de escrita e vice-versa, e cada fluxo abriga métricas distintas no Cloud Monitoring.
+
+\subsection{Arquitetura e Componentes da Aplicação}
+\label{sec:componentes_app}
+
+A infraestrutura do ValorizeAI é composta por serviços gerenciados na nuvem, escolhidos por suas características de elasticidade e desempenho.
+
+\subsubsection{Google Cloud Run e Cloud Tasks}
+\label{sec:cloud_run}
+
+O Google Cloud Run é uma plataforma de computação CaaS (Container-as-a-Service) totalmente gerenciada. Ele permite a execução de contêineres \textit{stateless} que escalam horizontalmente de forma automática, com a capacidade de escalar até zero instâncias quando não há tráfego, eliminando custos ociosos \cite{google_elasticity_2024}. O serviço foi escolhido por combinar a elasticidade típica de funções serverless com a flexibilidade dos contêineres, executando tanto os serviços web \textit{stateless} do ValorizeAI quanto o servidor \textit{stateful} de WebSockets.
+
+O Google Cloud Tasks é o serviço de enfileiramento de tarefas gerenciado. Ele é usado para implementar o processamento assíncrono (EDA), permitindo que a aplicação principal (síncrona) enfileire tarefas de longa duração (ex: processamento de lotes) para execução em \textit{workers} separados, garantindo resiliência e baixa latência na resposta ao usuário.
+
+\subsubsection{Laravel Reverb (WebSockets)}
+\label{sec:reverb}
+
+O Laravel Reverb é o servidor WebSocket oficial de primeira-parte para aplicações Laravel, projetado para comunicação em tempo real de alto desempenho \cite{laravel_reverb_docs_2025}. Ele utiliza o protocolo Pusher, integrando-se nativamente ao sistema de \textit{broadcasting} do Laravel para facilitar o envio de notificações \textit{push} aos clientes conectados.
+
+A característica arquitetural mais importante do Reverb para este TCC é seu suporte à escalabilidade horizontal. Para operar em um ambiente elástico como o Cloud Run (com múltiplas instâncias de servidor), o Reverb utiliza um \textit{backplane} de mensagens, que no caso do ValorizeAI é implementado com o Redis (detalhado na subseção sobre cache) \cite{laravel_reverb_docs_2025}.
+
+\subsubsection{Redis (Remote Dictionary Server)}
+\label{sec:redis}
+
+O Redis (Remote Dictionary Server) é um armazenamento de estrutura de dados em memória, de código aberto, usado como banco de dados, \textit{cache} e \textit{message broker} \cite{kleppmann_ddia_2017}. No contexto da arquitetura ValorizeAI, o Redis desempenha dois papéis críticos e distintos, ambos fundamentais para o desempenho do sistema:
+
+\begin{enumerate}
+    \item \textbf{Cache de Baixa Latência:} O Redis é usado como um \textit{cache} para dados frequentemente acessados (ex: painéis, dados de sessão). Sua operação em memória permite latências de leitura e escrita na ordem de submilissegundos, reduzindo drasticamente a carga sobre o banco de dados PostgreSQL e melhorando a responsividade das \textit{Queries} \cite{yadav_redis_leaderboard_2019}.
+    \item \textbf{Backplane Pub/Sub:} O Redis fornece um mecanismo de Publicação/Subscrição (Pub/Sub) de alto desempenho. Este mecanismo é utilizado como o \textit{backplane} do Laravel Reverb. Quando uma instância do servidor (Instância A) precisa notificar um usuário que está conectado via WebSocket a outra instância (Instância B), a Instância A publica a mensagem em um canal Redis. Todas as outras instâncias, incluindo a Instância B, estão inscritas nesse canal, recebem a mensagem e a retransmitem aos seus clientes WebSocket conectados localmente.
+\end{enumerate}
+
+\subsection{Engenharia de Confiabilidade de Sites (SRE)}
+\label{sec:sre}
+
+A metodologia de validação deste trabalho é baseada nos princípios de Engenharia de Confiabilidade de Sites (SRE), popularizados pelo Google \cite{google_sre_book_main}. O SRE trata as operações de infraestrutura como um problema de engenharia de software, utilizando métricas rigorosas para equilibrar a inovação (velocidade de desenvolvimento) com a confiabilidade do serviço.
+
+\subsubsection{SLIs, SLOs e Orçamentos de Erro}
+\label{sec:slo_sli}
+
+Os conceitos centrais do SRE utilizados para a validação do ValorizeAI são:
+
+\begin{itemize}
+    \item \textbf{SLI (Service Level Indicator):} Um indicador de nível de serviço é uma medida quantitativa de um aspecto da qualidade do serviço fornecido \cite{mccoy_slo_2020}. Os SLIs são métricas diretas do desempenho do sistema, como latência de requisição, taxa de erro ou \textit{throughput} do sistema \cite{google_sre_book_main}.
+    \item \textbf{SLO (Service Level Objective):} Um objetivo de nível de serviço é um valor-alvo ou um intervalo de valores para um SLI, medido ao longo de um período \cite{mccoy_slo_2020}. Um SLO é a definição formal de "quão bom" o serviço precisa ser. Por exemplo, "95\% das requisições de leitura (SLI: latência de leitura) devem ser concluídas em menos de 250ms (SLO) nos últimos 28 dias".
+    \item \textbf{Orçamento de Erro (Error Budget):} O orçamento de erro é o complemento do SLO (ou seja, $100\% - SLO\%$) \cite{google_sre_book_main}. Ele representa a quantidade de falhas "permitidas" (ex: requisições lentas ou com erro) durante o período. O orçamento de erro é uma ferramenta de gerenciamento: enquanto houver orçamento, a equipe de desenvolvimento tem "permissão" para lançar novas funcionalidades (que inerentemente trazem risco); se o orçamento se esgotar, o foco da equipe deve mudar para a melhoria da confiabilidade \cite{google_sre_book_main}.
+\end{itemize}
+
+Esses fundamentos orientam a abordagem metodológica detalhada na Seção \ref{sec:metodologia}, que explica como o planejamento dos SLOs, a infraestrutura como código e os experimentos com k6 e Cloud Tasks foram conduzidos para gerar as evidências analisadas posteriormente.

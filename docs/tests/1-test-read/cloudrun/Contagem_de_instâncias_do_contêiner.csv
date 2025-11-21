@@ -1,0 +1,24 @@
+TimeSeries ID,container/instance_count.cloud_run_revision.ALIGN_MAX.REDUCE_SUM.metric.type="run.googleapis.com/container/instance_count" resource.type="cloud_run_revision" AND resource.labels."location"="southamerica-east1" AND resource.labels."project_id"="valorizeaitcc" AND resource.labels."service_name"="valorizeai".+60s.project_id:valorizeaitcc.service_name:valorizeai.state:active,container/instance_count.cloud_run_revision.ALIGN_MAX.REDUCE_SUM.metric.type="run.googleapis.com/container/instance_count" resource.type="cloud_run_revision" AND resource.labels."location"="southamerica-east1" AND resource.labels."project_id"="valorizeaitcc" AND resource.labels."service_name"="valorizeai".+60s.project_id:valorizeaitcc.service_name:valorizeai.state:idle
+state,active,idle
+service_name,valorizeai,valorizeai
+project_id,valorizeaitcc,valorizeaitcc
+Sun Nov 09 2025 19:07:00 GMT-0300 (Brasilia Standard Time),7,3
+Sun Nov 09 2025 19:08:00 GMT-0300 (Brasilia Standard Time),1,9
+Sun Nov 09 2025 19:09:00 GMT-0300 (Brasilia Standard Time),2,8
+Sun Nov 09 2025 19:10:00 GMT-0300 (Brasilia Standard Time),5,5
+Sun Nov 09 2025 19:11:00 GMT-0300 (Brasilia Standard Time),5,5
+Sun Nov 09 2025 19:12:00 GMT-0300 (Brasilia Standard Time),6,4
+Sun Nov 09 2025 19:13:00 GMT-0300 (Brasilia Standard Time),6,4
+Sun Nov 09 2025 19:14:00 GMT-0300 (Brasilia Standard Time),7,3
+Sun Nov 09 2025 19:15:00 GMT-0300 (Brasilia Standard Time),7,3
+Sun Nov 09 2025 19:16:00 GMT-0300 (Brasilia Standard Time),8,2
+Sun Nov 09 2025 19:17:00 GMT-0300 (Brasilia Standard Time),7,3
+Sun Nov 09 2025 19:18:00 GMT-0300 (Brasilia Standard Time),9,1
+Sun Nov 09 2025 19:19:00 GMT-0300 (Brasilia Standard Time),10,0
+Sun Nov 09 2025 19:20:00 GMT-0300 (Brasilia Standard Time),10,0
+Sun Nov 09 2025 19:21:00 GMT-0300 (Brasilia Standard Time),10,0
+Sun Nov 09 2025 19:22:00 GMT-0300 (Brasilia Standard Time),10,0
+Sun Nov 09 2025 19:23:00 GMT-0300 (Brasilia Standard Time),10,0
+Sun Nov 09 2025 19:24:00 GMT-0300 (Brasilia Standard Time),10,0
+Sun Nov 09 2025 19:25:00 GMT-0300 (Brasilia Standard Time),10,0
+Sun Nov 09 2025 19:26:00 GMT-0300 (Brasilia Standard Time),1,9
