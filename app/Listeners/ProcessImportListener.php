@@ -6,9 +6,8 @@ namespace App\Listeners;
 
 use App\Actions\Import\ProcessImport;
 use App\Events\Import\ImportCreated;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-final class ProcessImportListener implements ShouldQueue
+final class ProcessImportListener
 {
     public function __construct(
         private readonly ProcessImport $action,
