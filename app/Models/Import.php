@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Enums\ImportExtension;
 use App\Enums\ImportStatus;
+use App\Models\Account;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,9 +23,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $new_count
  * @property int $matched_count
  * @property int $conflicted_count
+ * @property string|null $account_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read User $user
+ * @property-read Account|null $account
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ImportTransaction> $importTransactions
  * @property-read int|null $import_transactions_count
  * @property-read mixed $file_path
@@ -59,6 +62,7 @@ final class Import extends Model
         'new_count',
         'matched_count',
         'conflicted_count',
+        'account_id',
     ];
 
     /**
@@ -67,6 +71,14 @@ final class Import extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * @return BelongsTo<Account, Import>
+     */
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(Account::class);
     }
 
     /**

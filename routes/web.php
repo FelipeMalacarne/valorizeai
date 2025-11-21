@@ -8,6 +8,7 @@ use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\ImportTransactionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TokenController;
@@ -33,7 +34,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('notifications/read', [NotificationController::class, 'markAllRead'])->name('notifications.read');
 
-    Route::resource('imports', ImportController::class)->only(['store']);
+    Route::resource('imports', ImportController::class)->only(['index', 'show', 'store']);
+
+    Route::prefix('imports/{import}')->group(function () {
+        Route::patch('account', [ImportController::class, 'updateAccount'])->name('imports.account.update');
+        Route::post('transactions/{importTransaction}/approve', [ImportTransactionController::class, 'approve'])->name('imports.transactions.approve');
+        Route::post('transactions/{importTransaction}/reject', [ImportTransactionController::class, 'reject'])->name('imports.transactions.reject');
+        Route::post('transactions/bulk-approve', [ImportTransactionController::class, 'bulkApprove'])->name('imports.transactions.bulk-approve');
+    });
 });
 
 require __DIR__.'/settings.php';

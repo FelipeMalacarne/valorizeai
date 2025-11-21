@@ -6,14 +6,11 @@ namespace App\Actions\Import;
 
 use App\Enums\ImportStatus;
 use App\Enums\ImportTransactionStatus;
-use App\Events\Account\BulkTransactionsAdded;
 use App\Models\Account;
 use App\Models\Bank;
 use App\Models\Import;
-use App\Models\Transaction;
 use App\Notifications\ImportCompletedNotification;
 use App\Services\Statement\Parsers\OfxParser;
-use App\ValueObjects\Money;
 use Illuminate\Broadcasting\BroadcastException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -101,51 +98,37 @@ final class ProcessImport
 
             $import->importTransactions()->createMany($pendingTransactions);
 
+            $pendingCount = $statusCounters[ImportTransactionStatus::NEW->value]
+                + $statusCounters[ImportTransactionStatus::CONFLICTED->value];
+
+            $importStatus = $pendingCount > 0
+                ? ImportStatus::PENDING_REVIEW
+                : ImportStatus::COMPLETED;
+
             $import->forceFill([
-                'status'           => ImportStatus::COMPLETED,
+                'status'           => $importStatus,
                 'new_count'        => $statusCounters[ImportTransactionStatus::NEW->value],
                 'matched_count'    => $statusCounters[ImportTransactionStatus::MATCHED->value],
                 'conflicted_count' => $statusCounters[ImportTransactionStatus::CONFLICTED->value],
+                'account_id'       => $account->id,
             ])->save();
 
-            Log::info('Import processing completed', [
+            Log::info('Import processing completed and pending review', [
                 'new_count'        => $import->new_count,
                 'matched_count'    => $import->matched_count,
                 'conflicted_count' => $import->conflicted_count,
+                'account_id'       => $account->id,
             ]);
 
-            $transactionsToCreate = collect($pendingTransactions)->where('status', ImportTransactionStatus::NEW)->map(function ($item) use ($account) {
-                return [
-                    'fitid'      => $item['fitid'],
-                    'date'       => $item['date'],
-                    'amount'     => $item['amount'],
-                    'currency'   => $item['currency'],
-                    'memo'       => $item['memo'],
-                    'type'       => $item['type'],
-                    'account_id' => $account->id,
-                ];
-            })->values();
-
-            $transactions = $account->transactions()->createMany($transactionsToCreate);
-
-            $balanceToAdd = $transactions->reduce(function (Money $carry, Transaction $transaction) {
-                return $carry->add($transaction->amount);
-            }, Money::from(0, $account->currency));
-
-            BulkTransactionsAdded::dispatch((string) $account->id, $balanceToAdd);
-
-            Log::info('New transactions created', [
-                'count'         => $transactionsToCreate->count(),
-                'balance_added' => $balanceToAdd->format(),
-            ]);
-
-            try {
-                $import->user?->notify(new ImportCompletedNotification($import, $account));
-            } catch (BroadcastException $exception) {
-                Log::warning('Failed to broadcast import notification', [
-                    'import_id' => $import->id,
-                    'exception' => $exception->getMessage(),
-                ]);
+            if ($importStatus === ImportStatus::PENDING_REVIEW) {
+                try {
+                    $import->user?->notify(new ImportCompletedNotification($import, $account));
+                } catch (BroadcastException $exception) {
+                    Log::warning('Failed to broadcast import notification', [
+                        'import_id' => $import->id,
+                        'exception' => $exception->getMessage(),
+                    ]);
+                }
             }
 
             return $import;

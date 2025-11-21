@@ -2,6 +2,8 @@
 
 import { useMemo } from 'react';
 import { Bar, CartesianGrid, ComposedChart, Line, XAxis, YAxis } from 'recharts';
+import { format, parse } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 import {
     ChartContainer,
@@ -18,16 +20,20 @@ type MonthlyTrendChartProps = {
 };
 
 export const MonthlyTrendChart = ({ data, currency }: MonthlyTrendChartProps) => {
-    const chartData = useMemo(() => data.map((item) => {
-        const date = new Date(item.month);
-        const label = new Intl.DateTimeFormat('pt-BR', { month: 'short' }).format(date);
-        return {
-            month: label.charAt(0).toUpperCase() + label.slice(1),
-            income: item.income.value / 100,
-            expense: item.expense.value / 100,
-            profit: item.profit.value / 100,
-        };
-    }), [data]);
+    const chartData = useMemo(
+        () =>
+            data.map((item) => {
+                const date = parse(item.month, 'yyyy-MM-dd', new Date());
+                const label = format(date, 'MMM', { locale: ptBR });
+                return {
+                    month: label.charAt(0).toUpperCase() + label.slice(1),
+                    income: item.income.value / 100,
+                    expense: item.expense.value / 100,
+                    profit: item.profit.value / 100,
+                };
+            }),
+        [data],
+    );
 
     const hasData = chartData.some((point) => point.income > 0 || point.expense > 0 || point.profit !== 0);
 

@@ -3,7 +3,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, DollarSign, Folder, Home, Key, Landmark, PiggyBank, Tags, Webhook } from 'lucide-react';
+import { BookOpen, DollarSign, Folder, Home, Inbox, Key, Landmark, PiggyBank, Tags, Webhook } from 'lucide-react';
 import AppLogo from './app-logo';
 import { NavList } from './nav-list';
 
@@ -35,6 +35,11 @@ const platformNavItems: NavItem[] = [
         title: 'Transações',
         href: route('transactions.index', undefined, false),
         icon: DollarSign,
+    },
+    {
+        title: 'Importações',
+        href: route('imports.index', undefined, false),
+        icon: Inbox,
     },
     {
         title: 'Orçamentos',

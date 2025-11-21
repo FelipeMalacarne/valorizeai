@@ -8,6 +8,7 @@ use App\Casts\MoneyCast;
 use App\Enums\Currency;
 use App\Enums\ImportTransactionStatus;
 use App\Enums\TransactionType;
+use App\Models\Transaction;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $id
  * @property string $import_id
  * @property string|null $matched_transaction_id
+ * @property string|null $transaction_id
  * @property string|null $category_id
  * @property ImportTransactionStatus $status
  * @property string|null $fitid
@@ -28,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Import $import
  * @property-read Transaction|null $matchedTransaction
+ * @property-read Transaction|null $transaction
  * @property-read Category|null $category
  *
  * @method static \Database\Factories\ImportTransactionFactory factory($count = null, $state = [])
@@ -61,6 +64,7 @@ final class ImportTransaction extends Model
     protected $fillable = [
         'import_id',
         'matched_transaction_id',
+        'transaction_id',
         'category_id',
         'status',
         'fitid',
@@ -85,6 +89,14 @@ final class ImportTransaction extends Model
     public function matchedTransaction(): BelongsTo
     {
         return $this->belongsTo(Transaction::class, 'matched_transaction_id');
+    }
+
+    /**
+     * @return BelongsTo<Transaction, ImportTransaction>
+     */
+    public function transaction(): BelongsTo
+    {
+        return $this->belongsTo(Transaction::class);
     }
 
     /**

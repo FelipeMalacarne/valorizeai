@@ -6,6 +6,7 @@ namespace Database\Factories;
 
 use App\Enums\ImportExtension;
 use App\Enums\ImportStatus;
+use App\Models\Account;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -23,6 +24,7 @@ final class ImportFactory extends Factory
     {
         return [
             'user_id'          => User::factory(),
+            'account_id'       => Account::factory(),
             'file_name'        => $this->faker->word.'.ofx',
             'extension'        => $this->faker->randomElement(ImportExtension::cases()),
             'status'           => $this->faker->randomElement(ImportStatus::cases()),

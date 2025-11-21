@@ -38,20 +38,20 @@ class ImportCompletedNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject(__('Importação concluída'))
+            ->subject(__('Importação pronta para revisão'))
             ->greeting(__('Olá :name', ['name' => $notifiable->name]))
             ->line(
-                __('Sua importação para a conta :account foi concluída.', [
+                __('Sua importação para a conta :account já está disponível para revisão.', [
                     'account' => $this->account->name,
                 ])
             )
             ->line(
-                __('Novos lançamentos: :count', [
+                __('Novos lançamentos pendentes: :count', [
                     'count' => $this->import->new_count,
                 ])
             )
             ->line(
-                __('Transações conciliadas: :count', [
+                __('Transações conciliadas automaticamente: :count', [
                     'count' => $this->import->matched_count,
                 ])
             )
@@ -60,7 +60,7 @@ class ImportCompletedNotification extends Notification implements ShouldQueue
                     'count' => $this->import->conflicted_count,
                 ])
             )
-            ->action(__('Ver detalhes'), url('/imports'))
+            ->action(__('Revisar importação'), route('imports.show', $this->import))
             ->line(__('Obrigado por usar o Valorize!'));
     }
 
@@ -83,8 +83,8 @@ class ImportCompletedNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'title' => __('Importação concluída'),
-            'body'  => __('Conta :account • Novos: :new • Conciliados: :matched • Conflitos: :conflicted', [
+            'title' => __('Importação pronta para revisão'),
+            'body'  => __('Conta :account • Pendentes: :new • Conciliadas: :matched • Conflitos: :conflicted', [
                 'account'    => $this->account->name,
                 'new'        => $this->import->new_count,
                 'matched'    => $this->import->matched_count,
