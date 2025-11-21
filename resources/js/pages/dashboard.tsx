@@ -7,8 +7,11 @@ import { CategoryDistributionChart } from './dashboard/components/category-distr
 import { AccountsOverview } from './dashboard/components/accounts-overview';
 import { RecentActivity } from './dashboard/components/recent-activity';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { addMonths, format, parse } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { useMemo } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -28,8 +31,20 @@ type DashboardProps = SharedData<{
 }>;
 
 export default function Dashboard(props: DashboardProps) {
-    const handleMonthChange = (value: string) => {
-        router.get(route('dashboard'), { month: value }, { preserveState: true, preserveScroll: true });
+    const monthDate = useMemo(() => parse(`${props.selected_month}-01`, 'yyyy-MM-dd', new Date()), [props.selected_month]);
+
+    const formattedMonth = useMemo(() => {
+        const label = format(monthDate, 'MMMM yyyy', { locale: ptBR });
+        return label.charAt(0).toUpperCase() + label.slice(1);
+    }, [monthDate]);
+
+    const changeMonth = (offset: number) => {
+        const target = addMonths(monthDate, offset);
+        router.get(
+            route('dashboard'),
+            { month: format(target, 'yyyy-MM') },
+            { preserveState: true, preserveScroll: true, replace: true },
+        );
     };
 
     return (
@@ -41,22 +56,16 @@ export default function Dashboard(props: DashboardProps) {
                         <h1 className="text-2xl font-semibold">Visão geral</h1>
                         <p className="text-sm text-muted-foreground">Acompanhe seus gastos e entradas de forma consolidada.</p>
                     </div>
-                    <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-3">
-                        <Label htmlFor="dashboard-month" className="text-xs uppercase text-muted-foreground md:text-right">
-                            Mês de referência
-                        </Label>
-                        <Select value={props.selected_month} onValueChange={handleMonthChange}>
-                            <SelectTrigger id="dashboard-month" className="w-[200px]">
-                                <SelectValue placeholder="Selecione um mês" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {props.month_options.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                        {option.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" size="icon" onClick={() => changeMonth(-1)} aria-label="Mês anterior">
+                            <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <div className="min-w-[150px] rounded-full border px-4 py-1 text-center text-sm font-medium">
+                            {formattedMonth}
+                        </div>
+                        <Button variant="outline" size="icon" onClick={() => changeMonth(1)} aria-label="Próximo mês">
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
                     </div>
                 </div>
 
