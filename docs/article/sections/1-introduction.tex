@@ -1,97 +1,56 @@
-% --- CAPÍTULO 1: INTRODUÇÃO ---
 \section{Introdução}
 \label{sec:introducao}
 
-% \subsection{Contextualização e Motivação}
-% \label{sec:contextualizacao}
+Aplicações digitais modernas — incluindo plataformas de e-commerce, serviços financeiros, mídias sociais e sistemas colaborativos em tempo real — enfrentam um desafio operacional comum: a gestão de cargas de trabalho voláteis e imprevisíveis \cite{google_elasticity_2024}. Picos de tráfego, ingestão contínua de dados e múltiplas integrações com sistemas externos exigem uma infraestrutura capaz de reagir dinamicamente, superando as limitações de provisionamento manual ou pipelines monolíticos e rigidamente acoplados.
 
-Aplicações digitais modernas, que abrangem desde plataformas de e-commerce e serviços financeiros até mídias sociais e sistemas de colaboração em tempo real,
-enfrentam um desafio operacional comum: a gestão de cargas de trabalho (workloads) voláteis e imprevisíveis \cite{google_elasticity_2024}.
-Picos de tráfego, eventos contínuos de ingestão de dados e a necessidade de múltiplas integrações com sistemas externos demandam uma infraestrutura que reaja dinamicamente,
-muito além da capacidade de provisionamento manual ou pipelines de integração monolíticos e rigidamente acoplados.
+A resposta predominante da indústria é a \textit{elasticidade na nuvem} (\textit{cloud elasticity}), definida como a capacidade de alocar e desalocar recursos de forma automática e autônoma conforme a demanda varia em tempo real \cite{google_elasticity_2024}. Diferentemente da escalabilidade tradicional, que geralmente requer intervenção humana para expandir a infraestrutura, a elasticidade é projetada para lidar com picos abruptos e quedas de tráfego, garantindo simultaneamente desempenho e eficiência de custos. Seus benefícios vão além da alocação dinâmica: evitam-se desperdícios por superprovisionamento e assegura-se a responsividade da aplicação sob condições extremas.
 
-A resposta da indústria a esse desafio é a \textit{elasticidade na nuvem} (cloud elasticity),
-definida como a capacidade de uma infraestrutura de computação em nuvem alocar e desalocar recursos computacionais de forma automática e autônoma,
-com base na flutuação da demanda em tempo real \cite{google_elasticity_2024}.
-Diferente da escalabilidade tradicional, que muitas vezes envolve intervenção humana para provisionar novas instâncias,
-a elasticidade é projetada para lidar com picos abruptos e vales de tráfego, garantindo tanto o desempenho quanto a eficiência de custos \cite{google_elasticity_2024}.
-Os benefícios de negócios são diretos: (1) \textit{Eficiência de Custo}, ao adotar um modelo \textit{pay-as-you-go} que evita o superprovisionamento dispendioso de recursos ociosos;
-e (2) \textit{Alta Disponibilidade e Desempenho}, ao assegurar que a aplicação permaneça responsiva e confiável, preservando a experiência do usuário mesmo sob demanda extrema \cite{google_elasticity_2024}.
+Entretanto, arquiteturas que habilitam essa elasticidade — como microsserviços, contêineres e paradigmas \textit{serverless} \cite{newrelic_observability_2023} — introduzem complexidade operacional significativa. Sistemas distribuídos são naturalmente mais difíceis de depurar, monitorar e validar. Nesse contexto, a \textit{observabilidade} tornou-se um pilar estratégico \cite{newrelic_observability_2023}. Diferente do monitoramento tradicional, que rastreia falhas previamente conhecidas, a observabilidade fornece meios para inferir o estado interno do sistema a partir de logs, métricas e \textit{traces}, permitindo detectar e diagnosticar comportamentos inesperados.
 
-Contudo, a adoção de arquiteturas que possibilitam essa elasticidade --- notadamente microsserviços, contêineres e paradigmas \textit{serverless} \cite{newrelic_observability_2023} --- introduz um nível exponencial de complexidade.
-Sistemas distribuídos são intrinsecamente mais difíceis de depurar e monitorar do que monólitos.
-Em resposta, a \textit{observabilidade} (observability) emergiu como uma prioridade estratégica \cite{newrelic_observability_2023}.
-A observabilidade transcende o monitoramento tradicional (que rastreia falhas \textit{conhecidas}) ao fornecer \textit{insights} sobre o estado interno do sistema a partir de seus outputs (logs, métricas e traces),
-permitindo a depuração de falhas \textit{desconhecidas} \cite{newrelic_observability_2023}.
+Elasticidade e observabilidade formam um ciclo de \textit{feedback} essencial: arquiteturas elásticas geram comportamentos dinâmicos que só podem ser compreendidos por meio de dados observáveis; ao mesmo tempo, SLIs provenientes desses dados são utilizados para validar ou acionar mecanismos automáticos de escalonamento, garantindo que os SLOs sejam atendidos sem custos excessivos. Esse ciclo opera em escalas de tempo muito menores do que processos manuais conseguem acompanhar.
 
-Elasticidade e observabilidade não são, portanto, características independentes, mas um ciclo de \textit{feedback} simbiótico.
-A elasticidade automática gera uma complexidade que só pode ser gerenciada pela observabilidade.
-Por sua vez, a observabilidade fornece os dados (na forma de Indicadores de Nível de Serviço, ou SLIs) que alimentam e validam o próprio mecanismo de elasticidade,
-garantindo que o escalonamento automático atenda aos objetivos de negócio (SLOs) sem incorrer em custos desnecessários \cite{newrelic_observability_2023}.
-A falha de processos manuais é uma consequência direta da alta velocidade desse ciclo, que opera em milissegundos.
-
-O ValorizeAI, objeto deste trabalho, nasce como um estudo de caso completo para investigar essa simbiose.
-Trata-se de uma aplicação web modular que centraliza fluxos complexos de ingestão de dados,
-processamento síncrono e assíncrono, e entrega de notificações e painéis em tempo real, utilizando uma \textit{stack} de tecnologias modernas.
+O ValorizeAI, objeto deste estudo, surge como um caso completo para investigar essa relação. Trata-se de uma aplicação web modular que integra ingestão de dados, processamento síncrono e assíncrono e comunicação em tempo real, utilizando uma \textit{stack} moderna baseada em Cloud Run, Cloud SQL, Redis (Memorystore), Cloud Tasks, WebSockets e serviços auxiliares.
 
 \subsection{Justificativa e Problema de Pesquisa}
 \label{sec:justificativa}
 
-Workloads transacionais que concentram ingestão massiva de dados, gerenciamento de estados compartilhados e interfaces colaborativas --- como os simulados pelo ValorizeAI --- impõem requisitos rigorosos de arquitetura.
-Tais sistemas exigem consistência forte nos dados, rastreabilidade completa para fins de auditoria e, fundamentalmente, respostas de baixa latência (respostas instantâneas), mesmo quando o tráfego varia abruptamente.
+Workloads transacionais que envolvem ingestão intensa de dados, estados compartilhados e interfaces colaborativas — como os simulados pelo ValorizeAI — impõem requisitos rigorosos: consistência forte, rastreabilidade para auditoria e respostas de baixa latência mesmo sob variações abruptas de tráfego. Para atender a esses requisitos, arquiteturas modernas combinam componentes especializados, como CDNs e balanceadores globais, filas assíncronas orientadas a eventos, cache distribuído e comunicação persistente via WebSockets \cite{barri_scalability_2025, confluent_eda_2024, yadav_redis_leaderboard_2019, fernando_websocket_2025}.
 
-Para atender a esses requisitos, arquiteturas modernas combinam múltiplos padrões especializados:
-\begin{itemize}
-    \item \textbf{CDNs e Balanceamento Global:} Para reduzir a latência de entrega de \textit{assets} estáticos, distribuindo o conteúdo para pontos de presença (PoPs) próximos ao usuário \cite{barri_scalability_2025}.
-    \item \textbf{Filas Assíncronas (EDA):} Para desacoplar tarefas pesadas (ex: processamento de relatórios, envio de e-mails) da resposta síncrona, garantindo resiliência e escalabilidade através de uma arquitetura orientada a eventos \cite{confluent_eda_2024}.
-    \item \textbf{Cache Distribuído (Redis):} Para armazenar dados frequentemente acessados em memória, reduzindo drasticamente a latência de leitura e a carga sobre o banco de dados principal \cite{yadav_redis_leaderboard_2019}.
-    \item \textbf{WebSockets (Tempo Real):} Para comunicação bidirecional persistente, essencial para painéis e notificações em tempo real sem a sobrecarga do HTTP \textit{polling} \cite{fernando_websocket_2025}.
-\end{itemize}
+Embora existam estudos pontuais sobre esses componentes, a literatura apresenta lacunas quanto à validação integrada de arquiteturas híbridas (CaaS + filas + WebSockets) em cenários reprodutíveis de carga \cite{wjaets_serverless_ml_2022, abad_serverless_gap_2021}. Trabalhos existentes tendem a focar em comparações de ferramentas de IaC \cite{pessa_iac_2023} ou no desempenho de microsserviços isolados \cite{hebbar_reactive_2025}, raramente considerando o comportamento do sistema completo.
 
-Embora existam tutoriais e artigos pontuais sobre cada uma dessas tecnologias, a justificativa deste trabalho reside na lacuna da literatura acadêmica e técnica \cite{wjaets_serverless_ml_2022, abad_serverless_gap_2021}.
-É raro encontrar material que conecte, de ponta a ponta (end-to-end), a implementação de uma arquitetura híbrida (CaaS + Filas + WebSockets) aos resultados práticos e reprodutíveis de testes de desempenho.
-A literatura existente tende a ser fragmentada, focando em comparações de ferramentas de IaC \cite{pessa_iac_2023} ou na validação de microsserviços específicos \cite{hebbar_reactive_2025}, mas raramente no sistema holístico.
-
-A contribuição deste TCC é, portanto, metodológica e empírica.
-Ao construir o ValorizeAI e registrar rigorosamente os experimentos de carga e processamento assíncrono,
-este trabalho evidencia como as decisões arquiteturais se traduzem em métricas quantificáveis (ex: latência P95, \textit{throughput} de tarefas, taxa de erro).
-Este trabalho busca responder à seguinte questão: \textit{Como uma arquitetura híbrida e elástica, composta por Cloud Run, Redis, Cloud SQL, Cloud Tasks e WebSockets dedicados, se comporta sob estresse de carga frente a SLOs definidos e como validar esse comportamento de modo reprodutível?}
-
-Documentar esse caminho, apoiado por Infraestrutura como Código (IaC) para reprodutibilidade e monitoramento de custo,
-fornece uma referência concreta para equipes técnicas que precisam justificar e implementar arquiteturas orientadas a eventos com elasticidade horizontal automática.
+Este trabalho busca preencher essa lacuna ao documentar a arquitetura do ValorizeAI e validar seu comportamento sob estresse de carga frente a SLOs definidos. A questão central investigada é: \textit{Como uma arquitetura híbrida e elástica — composta por Cloud Run, Redis, Cloud SQL, Cloud Tasks e WebSockets dedicados — se comporta sob condições intensas de carga, e como esse comportamento pode ser validado de forma reprodutível?}
 
 \subsection{Objetivo Geral}
 \label{sec:objetivo_geral}
 
-Demonstrar, por meio de documentação técnica e experimentos de desempenho, que a arquitetura do ValorizeAI --- composta por balanceador com CDN, contêineres escalados horizontalmente, processamento assíncrono em filas, servidor de WebSockets, \textit{buckets} para artefatos e cache em Redis --- sustenta os SLOs definidos para um produto transacional completo, mantendo todo o ciclo (modelagem, desenvolvimento, infraestrutura, observabilidade e testes) versionado no repositório.
+Demonstrar, por meio de documentação técnica e experimentos de desempenho, que a arquitetura do ValorizeAI — composta por CDN, contêineres escalados horizontalmente, processamento assíncrono em filas, servidor de WebSockets, armazenamento de artefatos em \textit{buckets} e cache distribuído em Redis — sustenta os SLOs definidos para um produto transacional completo, mantendo código, infraestrutura e observabilidade versionados em repositório.
 
 \subsection{Objetivos Específicos}
 \label{sec:objetivos_especificos}
 
 \begin{enumerate}
-    \item \textbf{Mapear a arquitetura end-to-end}, destacando o papel do balanceador/CDN, das instâncias de contêineres, do servidor de WebSockets, das filas assíncronas, dos \textit{buckets} de armazenamento e do Redis para garantir consistência e baixa latência.
-    \item \textbf{Documentar o desenvolvimento} do \textit{backend} Laravel, do \textit{frontend} React e dos fluxos síncronos/assíncronos, com foco nos módulos críticos (ingestão de dados, automações, notificações e painéis em tempo real).
-    \item \textbf{Planejar e executar os testes de carga} (k6, cenários de leitura e de leitura/escrita) e o teste de processamento assíncrono para validar horizontalmente a arquitetura frente aos SLOs e identificar gargalos.
-    \item \textbf{Interpretar os resultados e propor otimizações}, relacionando desempenho, elasticidade e custo (ex.: ajustes de limites de instância, estratégias de cache) e apontando como essas evidências fundamentam decisões para \textit{workloads} transacionais de alta criticidade.
+    \item Mapear a arquitetura \textit{end-to-end}, destacando o papel do balanceador/CDN, instâncias de contêineres, servidor WebSockets, filas assíncronas, \textit{buckets} e Redis.
+    \item Documentar o desenvolvimento dos módulos críticos do sistema, incluindo ingestão de dados, automações, notificações e painéis em tempo real.
+    \item Planejar e executar testes de carga (k6, cenários de leitura e leitura/escrita) e testes assíncronos, validando a arquitetura frente aos SLOs definidos.
+    \item Interpretar os resultados e propor otimizações relacionadas a desempenho, elasticidade e custo.
 \end{enumerate}
 
 \subsection{Contribuições Tangíveis}
 \label{sec:contribuicoes}
 
 \begin{enumerate}
-    \item \textbf{Arquitetura documentada}: descreve-se o desenho completo do ValorizeAI — balanceador/CDN, Cloud Run, Redis, Cloud SQL, Cloud Tasks e Reverb — para que outros pesquisadores possam replicar o raciocínio arquitetural em aplicações transacionais.
-    \item \textbf{Infraestrutura reprodutível}: disponibiliza-se o conjunto de automações (Terraform, Docker, Makefile) que reconstrói fielmente o ambiente avaliado, mantendo a linha do tempo de mudanças de infraestrutura junto ao código-fonte.
-    \item \textbf{Experimentos de desempenho}: registra-se integralmente os cenários k6 (leituras e mix), com ramp-ups, parâmetros e métricas coletadas (latências, throughput, erros), assegurando transparência na validação dos SLOs.
-    \item \textbf{Teste assíncrono}: documenta-se o ensaio do pipeline baseado em Cloud Tasks e workers HTTP, explicitando como o sistema responde ao acúmulo e drenagem de tarefas.
+    \item Arquitetura documentada e replicável.
+    \item Infraestrutura reprodutível (Terraform, Docker, Makefile).
+    \item Cenários de desempenho registrados e transparentes (k6).
+    \item Validação do pipeline assíncrono baseado em Cloud Tasks.
 \end{enumerate}
 
-Em conjunto, essas contribuições formam um pacote de replicação completo — código, infraestrutura e experimentos — para avaliações futuras de workloads transacionais em plataformas CaaS.
+Em conjunto, essas contribuições formam um pacote completo de replicação — código, automações e experimentos — para avaliações futuras de workloads transacionais em ambientes CaaS.
 
-\subsection{Estrutura do Trabalho}
-\label{sec:estrutura}
-
-A organização segue esta lógica: a \textbf{Seção \ref{sec:relacionados}} revisa a literatura sobre paradigmas de execução em nuvem,
-padrões arquiteturais e metodologias de validação, situando a lacuna investigada.
-A \textbf{Seção \ref{sec:fundamentacao}} consolida os conceitos teóricos e técnicos que sustentam o design do sistema e os experimentos.
-A \textbf{Seção \ref{sec:metodologia}} descreve a abordagem experimental, do planejamento dos SLOs ao uso de k6 e Cloud Monitoring para coleta de evidências.
-As seções seguintes detalham a implementação da arquitetura ValorizeAI, discutem os resultados obtidos e encerram com conclusões e direções futuras.
+\vspace{0.5em}
+O restante deste artigo está organizado da seguinte forma:
+a Seção~\ref{sec:relacionados} apresenta os trabalhos relacionados;
+a Seção~\ref{sec:fundamentacao} discute a fundamentação teórica;
+a Seção~\ref{sec:metodologia} detalha a metodologia experimental;
+a Seção~5 descreve a implementação e os resultados obtidos;
+e a Seção~6 traz as conclusões e trabalhos futuros.
