@@ -1,11 +1,11 @@
 \section{Introdução}
 \label{sec:introducao}
 
-Aplicações digitais modernas — incluindo plataformas de e-commerce, serviços financeiros, mídias sociais e sistemas colaborativos em tempo real — enfrentam um desafio operacional comum: a gestão de cargas de trabalho voláteis e imprevisíveis \cite{google_elasticity_2024}. Picos de tráfego, ingestão contínua de dados e múltiplas integrações com sistemas externos exigem uma infraestrutura capaz de reagir dinamicamente, superando as limitações de provisionamento manual ou pipelines monolíticos e rigidamente acoplados.
+Aplicações digitais modernas, incluindo plataformas de e-commerce, serviços financeiros, mídias sociais e sistemas colaborativos em tempo real, enfrentam um desafio operacional comum: a gestão de cargas de trabalho voláteis e imprevisíveis \cite{google_elasticity_2024}. Picos de tráfego, ingestão contínua de dados e múltiplas integrações com sistemas externos exigem uma infraestrutura capaz de reagir dinamicamente, superando as limitações de provisionamento manual ou pipelines monolíticos e rigidamente acoplados.
 
 A resposta predominante da indústria é a \textit{elasticidade na nuvem} (\textit{cloud elasticity}), definida como a capacidade de alocar e desalocar recursos de forma automática e autônoma conforme a demanda varia em tempo real \cite{google_elasticity_2024}. Diferentemente da escalabilidade tradicional, que geralmente requer intervenção humana para expandir a infraestrutura, a elasticidade é projetada para lidar com picos abruptos e quedas de tráfego, garantindo simultaneamente desempenho e eficiência de custos. Seus benefícios vão além da alocação dinâmica: evitam-se desperdícios por superprovisionamento e assegura-se a responsividade da aplicação sob condições extremas.
 
-Entretanto, arquiteturas que habilitam essa elasticidade — como microsserviços, contêineres e paradigmas \textit{serverless} \cite{newrelic_observability_2023} — introduzem complexidade operacional significativa. Sistemas distribuídos são naturalmente mais difíceis de depurar, monitorar e validar. Nesse contexto, a \textit{observabilidade} tornou-se um pilar estratégico \cite{newrelic_observability_2023}. Diferente do monitoramento tradicional, que rastreia falhas previamente conhecidas, a observabilidade fornece meios para inferir o estado interno do sistema a partir de logs, métricas e \textit{traces}, permitindo detectar e diagnosticar comportamentos inesperados.
+Entretanto, arquiteturas que habilitam essa elasticidade, como microsserviços, contêineres e paradigmas \textit{serverless} \cite{newrelic_observability_2023}, introduzem complexidade operacional significativa. Sistemas distribuídos são naturalmente mais difíceis de depurar, monitorar e validar. Nesse contexto, a \textit{observabilidade} tornou-se um pilar estratégico \cite{newrelic_observability_2023}. Diferente do monitoramento tradicional, que rastreia falhas previamente conhecidas, a observabilidade fornece meios para inferir o estado interno do sistema a partir de logs, métricas e \textit{traces}, permitindo detectar e diagnosticar comportamentos inesperados.
 
 Elasticidade e observabilidade formam um ciclo de \textit{feedback} essencial: arquiteturas elásticas geram comportamentos dinâmicos que só podem ser compreendidos por meio de dados observáveis; ao mesmo tempo, SLIs provenientes desses dados são utilizados para validar ou acionar mecanismos automáticos de escalonamento, garantindo que os SLOs sejam atendidos sem custos excessivos. Esse ciclo opera em escalas de tempo muito menores do que processos manuais conseguem acompanhar.
 
@@ -14,16 +14,16 @@ O ValorizeAI, objeto deste estudo, surge como um caso completo para investigar e
 \subsection{Justificativa e Problema de Pesquisa}
 \label{sec:justificativa}
 
-Workloads transacionais que envolvem ingestão intensa de dados, estados compartilhados e interfaces colaborativas — como os simulados pelo ValorizeAI — impõem requisitos rigorosos: consistência forte, rastreabilidade para auditoria e respostas de baixa latência mesmo sob variações abruptas de tráfego. Para atender a esses requisitos, arquiteturas modernas combinam componentes especializados, como CDNs e balanceadores globais, filas assíncronas orientadas a eventos, cache distribuído e comunicação persistente via WebSockets \cite{barri_scalability_2025, confluent_eda_2024, yadav_redis_leaderboard_2019, fernando_websocket_2025}.
+Workloads transacionais que envolvem ingestão intensa de dados, estados compartilhados e interfaces colaborativas, como os simulados pelo ValorizeAI, impõem requisitos rigorosos: consistência forte, rastreabilidade para auditoria e respostas de baixa latência mesmo sob variações abruptas de tráfego. Para atender a esses requisitos, arquiteturas modernas combinam componentes especializados, como CDNs e balanceadores globais, filas assíncronas orientadas a eventos, cache distribuído e comunicação persistente via WebSockets \cite{barri_scalability_2025, confluent_eda_2024, yadav_redis_leaderboard_2019, fernando_websocket_2025}.
 
 Embora existam estudos pontuais sobre esses componentes, a literatura apresenta lacunas quanto à validação integrada de arquiteturas híbridas (CaaS + filas + WebSockets) em cenários reprodutíveis de carga \cite{wjaets_serverless_ml_2022, abad_serverless_gap_2021}. Trabalhos existentes tendem a focar em comparações de ferramentas de IaC \cite{pessa_iac_2023} ou no desempenho de microsserviços isolados \cite{hebbar_reactive_2025}, raramente considerando o comportamento do sistema completo.
 
-Este trabalho busca preencher essa lacuna ao documentar a arquitetura do ValorizeAI e validar seu comportamento sob estresse de carga frente a SLOs definidos. A questão central investigada é: \textit{Como uma arquitetura híbrida e elástica — composta por Cloud Run, Redis, Cloud SQL, Cloud Tasks e WebSockets dedicados — se comporta sob condições intensas de carga, e como esse comportamento pode ser validado de forma reprodutível?}
+Este trabalho busca preencher essa lacuna ao documentar a arquitetura do ValorizeAI e validar seu comportamento sob estresse de carga frente a SLOs definidos. A questão central investigada é: \textit{Como uma arquitetura híbrida e elástica, composta por Cloud Run, Redis, Cloud SQL, Cloud Tasks e WebSockets dedicados, se comporta sob condições intensas de carga, e como esse comportamento pode ser validado de forma reprodutível?}
 
 \subsection{Objetivo Geral}
 \label{sec:objetivo_geral}
 
-Demonstrar, por meio de documentação técnica e experimentos de desempenho, que a arquitetura do ValorizeAI — composta por CDN, contêineres escalados horizontalmente, processamento assíncrono em filas, servidor de WebSockets, armazenamento de artefatos em \textit{buckets} e cache distribuído em Redis — sustenta os SLOs definidos para um produto transacional completo, mantendo código, infraestrutura e observabilidade versionados em repositório.
+Demonstrar, por meio de documentação técnica e experimentos de desempenho, que a arquitetura do ValorizeAI, composta por CDN, contêineres escalados horizontalmente, processamento assíncrono em filas, servidor de WebSockets, armazenamento de artefatos em \textit{buckets} e cache distribuído em Redis, sustenta os SLOs definidos para um produto transacional completo, mantendo código, infraestrutura e observabilidade versionados em repositório.
 
 \subsection{Objetivos Específicos}
 \label{sec:objetivos_especificos}
@@ -45,7 +45,13 @@ Demonstrar, por meio de documentação técnica e experimentos de desempenho, qu
     \item Validação do pipeline assíncrono baseado em Cloud Tasks.
 \end{enumerate}
 
-Em conjunto, essas contribuições formam um pacote completo de replicação — código, automações e experimentos — para avaliações futuras de workloads transacionais em ambientes CaaS.
+Em conjunto, essas contribuições formam um pacote completo de replicação, código, automações e experimentos, para avaliações futuras de workloads transacionais em ambientes CaaS.
 
 \vspace{0.5em}
-O restante deste artigo está organizado da seguinte forma: a Seção~\ref{sec:relacionados} apresenta os trabalhos relacionados; a Seção~\ref{sec:fundamentacao} discute a fundamentação teórica; a Seção~\ref{sec:metodologia} descreve a metodologia experimental; a Seção~\ref{sec:implementacao} detalha a implementação do ValorizeAI; a Seção~\ref{sec:resultados} consolida os resultados e análises; e, por fim, a Seção~\ref{sec:conclusao} apresenta as conclusões e trabalhos futuros.
+O restante deste artigo está organizado da seguinte forma:
+a Seção~\ref{sec:relacionados} apresenta os trabalhos relacionados;
+a Seção~\ref{sec:fundamentacao} discute a fundamentação teórica;
+a Seção~\ref{sec:metodologia} descreve a metodologia experimental;
+a Seção~\ref{sec:implementacao} detalha a implementação do ValorizeAI;
+a Seção~\ref{sec:resultados} consolida os resultados e análises;
+e, por fim, a Seção~\ref{sec:conclusao} apresenta as conclusões e trabalhos futuros.

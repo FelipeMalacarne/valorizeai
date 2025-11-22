@@ -21,7 +21,7 @@ Os valores de \textit{throughput} foram extraídos diretamente dos dashboards do
 
 \subsection{Cenário de Leitura Intensiva}
 
-O cenário de leitura mobilizou 1.000 usuários virtuais por 17 minutos, sustentando em média 470 requisições por segundo e alcançando um pico próximo a 970 req/s no trecho final ($900\rightarrow 1.000$ VUs). A latência P95 permaneceu em 158~ms (Tabela~\ref{tab:resultados_k6}), substancialmente abaixo do SLO de 300~ms, e nenhuma requisição apresentou erro. Esses resultados confirmam que o caminho otimizado de leitura — CDN, API em Cloud Run, Redis como cache e consultas eficientes no PostgreSQL — suporta picos significativos de tráfego sem degradação perceptível.
+O cenário de leitura mobilizou 1.000 usuários virtuais por 17 minutos, sustentando em média 470 requisições por segundo e alcançando um pico próximo a 970 req/s no trecho final ($900\rightarrow 1.000$ VUs). A latência P95 permaneceu em 158~ms (Tabela~\ref{tab:resultados_k6}), substancialmente abaixo do SLO de 300~ms, e nenhuma requisição apresentou erro. Esses resultados confirmam que o caminho otimizado de leitura , CDN, API em Cloud Run, Redis como cache e consultas eficientes no PostgreSQL , suporta picos significativos de tráfego sem degradação perceptível.
 
 O Cloud Monitoring registrou o escalonamento completo das 10 instâncias de Cloud Run, atingindo CPU média de 72\% e uso de memória em torno de 31\%. Ou seja, a cota máxima de CPU foi totalmente utilizada, mas sem sinais de exaustão ou sobrecarga que pudessem comprometer as latências observadas.
 
@@ -127,7 +127,7 @@ Assim, o Cloud Run apresenta custo unitário aproximadamente \textbf{1,9× (inst
 
 O Compute Engine incorre em custo constante: ao provisionar uma VM, os vCPUs permanecem alocados e cobrados 24 horas por dia, independentemente da demanda. Dessa forma, workloads irregulares inevitavelmente produzem longos períodos de ociosidade, que se convertem diretamente em custo desperdiçado.
 
-Por outro lado, o Cloud Run realiza \textit{scale-to-zero} e cobra CPU e memória apenas durante o uso efetivo. Em sistemas como o ValorizeAI — cujo tráfego é altamente variável e sensível a picos — essa característica elimina integralmente o custo ocioso. Na prática, o custo total mensal tende a ser menor, apesar do preço unitário mais alto por vCPU-second.
+Por outro lado, o Cloud Run realiza \textit{scale-to-zero} e cobra CPU e memória apenas durante o uso efetivo. Em sistemas como o ValorizeAI , cujo tráfego é altamente variável e sensível a picos , essa característica elimina integralmente o custo ocioso. Na prática, o custo total mensal tende a ser menor, apesar do preço unitário mais alto por vCPU-second.
 
 \subsubsection{GKE como solução intermediária}
 
@@ -159,7 +159,7 @@ GKE (nós C2) & 0.00000944 & Moderada & Moderada \\
 \end{tabular}
 \end{table}
 
-Em síntese, mesmo possuindo custo unitário superior, o Cloud Run tende a apresentar custo operacional real menor para cargas irregulares ou sujeitas a picos abruptos — cenário típico de aplicações transacionais modernas. Já Compute Engine e GKE oferecem menor custo por vCPU-second, porém à custa de maior ociosidade ou maior complexidade operacional.
+Em síntese, mesmo possuindo custo unitário superior, o Cloud Run tende a apresentar custo operacional real menor para cargas irregulares ou sujeitas a picos abruptos , cenário típico de aplicações transacionais modernas. Já Compute Engine e GKE oferecem menor custo por vCPU-second, porém à custa de maior ociosidade ou maior complexidade operacional.
 
 \begin{figure}[ht]
 \centering
