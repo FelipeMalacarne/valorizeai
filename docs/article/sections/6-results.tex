@@ -97,7 +97,7 @@ Esses achados orientam recomendações para escalabilidade futura, incluindo aum
 
 Para complementar a avaliação de desempenho, esta seção compara o custo computacional dos serviços serverless utilizados (Cloud Run) com alternativas tradicionais baseadas em máquinas virtuais (Compute Engine). Todas as referências de preço utilizam os valores \textbf{Default} da região \textbf{us-central1}, garantindo consistência nas comparações.
 
-\subsubsection*{Custo por vCPU-second: Cloud Run vs. Compute Engine}
+\subsubsection{Custo por vCPU-second: Cloud Run vs. Compute Engine}
 
 O Cloud Run adota um modelo de cobrança proporcional ao tempo efetivo de uso da CPU, enquanto o Compute Engine mantém cobrança contínua durante toda a execução da máquina virtual. Os valores são:
 
@@ -123,13 +123,13 @@ Com os valores normalizados, é possível calcular o fator de diferença entre o
 
 Assim, o Cloud Run apresenta custo unitário aproximadamente \textbf{1,9× (instance-based)} a \textbf{2,5× (request-based)} superior ao de uma vCPU otimizada do tipo C2 no Compute Engine. Essa discrepância, no entanto, não implica necessariamente maior custo operacional total, como discutido a seguir.
 
-\subsubsection*{Por que o Cloud Run pode custar menos mesmo tendo custo unitário mais alto?}
+\subsubsection{Por que o Cloud Run pode custar menos mesmo tendo custo unitário mais alto?}
 
 O Compute Engine incorre em custo constante: ao provisionar uma VM, os vCPUs permanecem alocados e cobrados 24 horas por dia, independentemente da demanda. Dessa forma, workloads irregulares inevitavelmente produzem longos períodos de ociosidade, que se convertem diretamente em custo desperdiçado.
 
 Por outro lado, o Cloud Run realiza \textit{scale-to-zero} e cobra CPU e memória apenas durante o uso efetivo. Em sistemas como o ValorizeAI — cujo tráfego é altamente variável e sensível a picos — essa característica elimina integralmente o custo ocioso. Na prática, o custo total mensal tende a ser menor, apesar do preço unitário mais alto por vCPU-second.
 
-\subsubsection*{GKE como solução intermediária}
+\subsubsection{GKE como solução intermediária}
 
 O Google Kubernetes Engine (GKE) permite reduzir o custo unitário por utilizar nós Compute Engine, mas introduz novos desafios:
 
@@ -141,7 +141,7 @@ O Google Kubernetes Engine (GKE) permite reduzir o custo unitário por utilizar 
 
 Como resultado, GKE costuma apresentar um custo total \textit{intermediário} entre Compute Engine e Cloud Run, porém ao custo de maior responsabilidade operacional e menor granularidade de escalonamento.
 
-\subsubsection*{Síntese comparativa}
+\subsubsection{Síntese comparativa}
 
 \begin{table}[ht]
 \centering
