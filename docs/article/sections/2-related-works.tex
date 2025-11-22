@@ -17,7 +17,11 @@ Por outro lado, o CaaS — como Google Cloud Run ou AWS Fargate — mantém a el
 \subsection{Padrões Arquiteturais para Desempenho e Resiliência}
 \label{sec:padroes}
 
-Sistemas transacionais modernos combinam padrões síncronos e assíncronos para garantir responsividade, disponibilidade e escalabilidade.
+Para que a arquitetura do ValorizeAI atenda aos SLOs definidos,
+ela precisa combinar padrões síncronos e assíncronos capazes de manter responsividade,
+disponibilidade e escalabilidade diante de variações de carga.
+A literatura descreve esses padrões como peças complementares, filas assíncronas absorvem rajadas,
+enquanto canais em tempo real sustentam interações colaborativas, e fornece referências diretas para as escolhas arquiteturais adotadas neste trabalho.
 
 \subsubsection{Arquiteturas Orientadas a Eventos (EDA) e Filas Assíncronas}
 \label{sec:eda}
