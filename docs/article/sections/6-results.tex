@@ -97,9 +97,7 @@ Esses achados orientam recomendações para escalabilidade futura, incluindo aum
 
 Para complementar a avaliação de desempenho, esta seção compara o custo computacional dos serviços serverless utilizados (Cloud Run) com alternativas tradicionais baseadas em máquinas virtuais (Compute Engine). Todas as referências de preço utilizam os valores \textbf{Default} da região \textbf{us-central1}, garantindo consistência nas comparações.
 
-\subsubsection{Custo por vCPU-second: Cloud Run vs. Compute Engine}
-
-O Cloud Run adota um modelo de cobrança proporcional ao tempo efetivo de uso da CPU, enquanto o Compute Engine mantém cobrança contínua durante toda a execução da máquina virtual. Os valores são:
+O ponto de partida é o custo por vCPU-second. O Cloud Run adota um modelo de cobrança proporcional ao tempo efetivo de uso da CPU, enquanto o Compute Engine mantém cobrança contínua durante toda a execução da máquina virtual. Os valores considerados são:
 
 \begin{itemize}
     \item \textbf{Cloud Run (instance-based)}: \$0.000018 por vCPU-second.
@@ -107,7 +105,7 @@ O Cloud Run adota um modelo de cobrança proporcional ao tempo efetivo de uso da
     \item \textbf{Compute Engine C2}: \$0.033982 por vCPU-hora.
 \end{itemize}
 
-Convertendo o custo do Compute Engine para a mesma unidade utilizada pelo Cloud Run:
+Convertendo o custo do Compute Engine para a mesma unidade utilizada pelo Cloud Run, tem-se:
 
 \[
 \frac{0.033982~\text{USD}}{3600~\text{s}} = 0.000009439~\text{USD/vCPU-second}.
@@ -121,17 +119,13 @@ Com os valores normalizados, é possível calcular o fator de diferença entre o
 \frac{0.000024}{0.000009439} \approx 2.54.
 \]
 
-Assim, o Cloud Run apresenta custo unitário aproximadamente \textbf{1,9× (instance-based)} a \textbf{2,5× (request-based)} superior ao de uma vCPU otimizada do tipo C2 no Compute Engine. Essa discrepância, no entanto, não implica necessariamente maior custo operacional total, como discutido a seguir.
-
-\subsubsection{Por que o Cloud Run pode custar menos mesmo tendo custo unitário mais alto?}
+Assim, o Cloud Run apresenta custo unitário aproximadamente \textbf{1{,}9× (instance-based)} a \textbf{2{,}5× (request-based)} superior ao de uma vCPU otimizada do tipo C2 no Compute Engine. Essa discrepância, no entanto, não implica necessariamente maior custo operacional total.
 
 O Compute Engine incorre em custo constante: ao provisionar uma VM, os vCPUs permanecem alocados e cobrados 24 horas por dia, independentemente da demanda. Dessa forma, workloads irregulares inevitavelmente produzem longos períodos de ociosidade, que se convertem diretamente em custo desperdiçado.
 
-Por outro lado, o Cloud Run realiza \textit{scale-to-zero} e cobra CPU e memória apenas durante o uso efetivo. Em sistemas como o ValorizeAI , cujo tráfego é altamente variável e sensível a picos , essa característica elimina integralmente o custo ocioso. Na prática, o custo total mensal tende a ser menor, apesar do preço unitário mais alto por vCPU-second.
+Por outro lado, o Cloud Run realiza \textit{scale-to-zero} e cobra CPU e memória apenas durante o uso efetivo. Em sistemas como o ValorizeAI, cujo tráfego é altamente variável e sensível a picos, essa característica elimina integralmente o custo ocioso. Na prática, o custo total mensal tende a ser menor, apesar do preço unitário mais alto por vCPU-second.
 
-\subsubsection{GKE como solução intermediária}
-
-O Google Kubernetes Engine (GKE) permite reduzir o custo unitário por utilizar nós Compute Engine, mas introduz novos desafios:
+Uma alternativa intermediária é o Google Kubernetes Engine (GKE), que permite reduzir o custo unitário por utilizar nós Compute Engine, mas introduz novos desafios operacionais:
 
 \begin{itemize}
     \item maior complexidade operacional (HPA, VPA, node pools, autoscaling);
@@ -139,9 +133,11 @@ O Google Kubernetes Engine (GKE) permite reduzir o custo unitário por utilizar 
     \item probabilidade maior de manter vCPUs ociosas em períodos irregulares.
 \end{itemize}
 
-Como resultado, GKE costuma apresentar um custo total \textit{intermediário} entre Compute Engine e Cloud Run, porém ao custo de maior responsabilidade operacional e menor granularidade de escalonamento.
+Como resultado, o GKE costuma apresentar um custo total \textit{intermediário} entre Compute Engine e Cloud Run, porém ao custo de maior responsabilidade operacional e menor granularidade de escalonamento.
 
-\subsubsection{Síntese comparativa}
+A Tabela~\ref{tab:custos_final} resume a comparação econômica entre Cloud Run, GKE e Compute Engine, enquanto a Figura~\ref{fig:custo-relativo} ilustra o comportamento relativo de custo ao longo do tempo, normalizado para Compute Engine = 1{,}0.
+
+Em síntese, mesmo possuindo custo unitário superior, o Cloud Run tende a apresentar custo operacional real menor para cargas irregulares ou sujeitas a picos abruptos, cenário típico de aplicações transacionais modernas. Já Compute Engine e GKE oferecem menor custo por vCPU-second, porém à custa de maior ociosidade ou maior complexidade operacional.
 
 \begin{table}[ht]
 \centering
@@ -158,8 +154,6 @@ GKE (nós C2) & 0.00000944 & Moderada & Moderada \\
 \bottomrule
 \end{tabular}
 \end{table}
-
-Em síntese, mesmo possuindo custo unitário superior, o Cloud Run tende a apresentar custo operacional real menor para cargas irregulares ou sujeitas a picos abruptos , cenário típico de aplicações transacionais modernas. Já Compute Engine e GKE oferecem menor custo por vCPU-second, porém à custa de maior ociosidade ou maior complexidade operacional.
 
 \begin{figure}[ht]
 \centering
