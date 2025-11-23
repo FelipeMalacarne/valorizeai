@@ -21,7 +21,7 @@ Os valores de \textit{throughput} foram extraídos diretamente dos dashboards do
 
 \subsection{Cenário de Leitura Intensiva}
 
-O cenário de leitura mobilizou 1.000 usuários virtuais por 17 minutos, sustentando em média 470 requisições por segundo e alcançando um pico próximo a 970 req/s no trecho final ($900\rightarrow 1.000$ VUs). A latência P95 permaneceu em 158~ms (Tabela~\ref{tab:resultados_k6}), substancialmente abaixo do SLO de 300~ms, e nenhuma requisição apresentou erro. Esses resultados confirmam que o caminho otimizado de leitura , CDN, API em Cloud Run, Redis como cache e consultas eficientes no PostgreSQL , suporta picos significativos de tráfego sem degradação perceptível.
+O cenário de leitura mobilizou 1.000 usuários virtuais por 17 minutos, sustentando em média 470 requisições por segundo e alcançando um pico próximo a 970 req/s no trecho final ($900\rightarrow 1.000$ VUs). A latência P95 permaneceu em 158~ms (Tabela~\ref{tab:resultados_k6}), substancialmente abaixo do SLO de 300~ms, e nenhuma requisição apresentou erro. Esses resultados confirmam que o caminho otimizado de leitura, CDN, API em Cloud Run, Redis como cache e consultas eficientes no PostgreSQL, suporta picos significativos de tráfego sem degradação perceptível.
 
 O Cloud Monitoring registrou o escalonamento completo das 10 instâncias de Cloud Run, atingindo CPU média de 72\% e uso de memória em torno de 31\%. Ou seja, a cota máxima de CPU foi totalmente utilizada, mas sem sinais de exaustão ou sobrecarga que pudessem comprometer as latências observadas.
 

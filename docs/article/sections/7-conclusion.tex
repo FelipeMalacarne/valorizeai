@@ -21,5 +21,7 @@ Duas limitações principais moldaram os resultados. Primeiro, a infraestrutura 
 
 \subsection{Trabalhos Futuros}
 
-Como continuidade, pretende-se ampliar progressivamente a cota de Cloud Run, repetindo os testes sob 20 ou 40~vCPU para identificar novos gargalos. Também se planeja avaliar alternativas para aliviar operações analíticas, como réplicas de leitura e ajustes verticais das instâncias primárias para absorver picos de escrita. Outro eixo de evolução envolve mecanismos de \tex:w
-tit{failover} multi-região para banco e Redis, aumentando a resiliência global da plataforma. No plano funcional, o pipeline assíncrono poderá ser estendido com orquestração baseada em eventos (por exemplo, Workflows), além da expansão do uso de embeddings e automações de categorização para casos como detecção de anomalias e recomendações transacionais.
+Como continuidade, pretende-se ampliar progressivamente a cota de Cloud Run, repetindo os testes sob 20 ou 40~vCPU para identificar novos gargalos.
+Também se planeja avaliar alternativas para aliviar operações analíticas, como réplicas de leitura e ajustes verticais das instâncias primárias para absorver picos de escrita.
+Outro eixo de evolução envolve mecanismos de \textit{failover} multi-região para banco e Redis, aumentando a resiliência global da plataforma.
+No plano funcional, o pipeline assíncrono poderá ser estendido com orquestração baseada em eventos (por exemplo, Workflows), além da expansão do uso de embeddings e automações de categorização para casos como detecção de anomalias e recomendações transacionais.
