@@ -135,7 +135,7 @@ Uma alternativa intermediária é o Google Kubernetes Engine (GKE), que permite 
 
 Como resultado, o GKE costuma apresentar um custo total \textit{intermediário} entre Compute Engine e Cloud Run, porém ao custo de maior responsabilidade operacional e menor granularidade de escalonamento.
 
-A Tabela~\ref{tab:custos_final} resume a comparação econômica entre Cloud Run, GKE e Compute Engine, enquanto a Figura~\ref{fig:custo-relativo} ilustra o comportamento relativo de custo ao longo do tempo, normalizado para Compute Engine = 1{,}0.
+A Tabela~\ref{tab:custos_final} resume a comparação econômica, e a Figura~\ref{fig:custo-relativo} ilustra esse comportamento ao longo de um dia. Nela, o custo do Compute Engine é a linha de base (1,0); o GKE é intermediário ($\approx$1,2x); e o Cloud Run, embora atinja picos mais altos ($\approx$1,9x a $\approx$2,5x), zera o custo na ociosidade, tornando-se mais econômico para workloads variáveis.
 
 Em síntese, mesmo possuindo custo unitário superior, o Cloud Run tende a apresentar custo operacional real menor para cargas irregulares ou sujeitas a picos abruptos, cenário típico de aplicações transacionais modernas. Já Compute Engine e GKE oferecem menor custo por vCPU-second, porém à custa de maior ociosidade ou maior complexidade operacional.
 
