@@ -63,46 +63,14 @@ Esse mecanismo assegura coerência e funcionamento correto mesmo em ambientes al
 
 \subsection{Modelo de Dados e Otimizações}
 
-O modelo lógico (Figura~\ref{fig:modelo-dados}) segue um desenho multi-inquilino composto por:
+O modelo lógico (Figura~\ref{fig:modelo-dados}) segue um desenho multi-inquilino composto por usuários, contas, categorias e orçamentos que representam a estrutura organizacional do sistema, além de transações e divisões (\textit{splits}) responsáveis por manter a granularidade das movimentações financeiras. Embeddings vetoriais, armazenados via \texttt{pgvector}, complementam o modelo ao fornecer suporte para classificação automática e comparação semântica de registros, justificando sua presença mesmo em um ambiente relacional tradicional.
 
-\begin{itemize}
-    \item usuários, contas, categorias e orçamentos;
-    \item transações e divisões (\textit{splits});
-    \item embeddings vetoriais, armazenados via \texttt{pgvector} para auxiliar classificação.
-\end{itemize}
-
-Algumas otimizações relevantes para os testes incluem:
-
-\begin{itemize}
-    \item índices compostos em \verb|transactions(date, account_id)|;
-    \item padronização de paginação para reduzir fan-out;
-    \item projeção de DTOs para minimizar transferência de dados;
-    \item pré-aquecimento da cache com consultas frequentes.
-\end{itemize}
+Para sustentar o volume de leituras e escritas observado, foram aplicadas otimizações específicas. Índices compostos em \verb|transactions(date, account_id)| aceleram filtros combinados por data e conta, enquanto a padronização da paginação reduz o fan-out em cenários com alto paralelismo. A projeção de DTOs limita a transferência de dados apenas ao necessário para o front-end, preservando largura de banda e diminuindo o trabalho de serialização. Por fim, o pré-aquecimento da cache com consultas frequentes garante que o Redis já contenha os conjuntos de dados mais requisitados antes dos testes, minimizando latência inicial e variações entre execuções.
 
 \subsection{Observabilidade e Instrumentação}
 
-A coleta de evidências utilizou:
-
-\begin{itemize}
-    \item \textbf{Cloud Monitoring} para métricas de CPU, memória, instâncias ativas, latência e backlog do Cloud Tasks;
-    \item \textbf{CSV automatizados do k6} para SLIs de latência e taxa de erro;
-    \item \textbf{logs estruturados} para rastrear, por requisição, saturação do banco e falhas de escrita;
-    \item \textbf{dashboards personalizados} para acompanhar as instâncias do Cloud Run durante os experimentos.
-\end{itemize}
-
-Essa infraestrutura permite correlacionar comportamentos de aplicação, banco, Redis, filas e WebSockets com precisão.
+A coleta de evidências envolveu um conjunto integrado de ferramentas. O \textbf{Cloud Monitoring} forneceu métricas de CPU, memória, instâncias ativas, latência e backlog do Cloud Tasks, permitindo enxergar a reação da infraestrutura conforme as cargas variavam. Os \textbf{CSVs automatizados do k6} serviram como fonte canônica para SLIs de latência e taxa de erro, garantindo comparabilidade entre execuções. \textbf{Logs estruturados} foram emitidos para cada requisição crítica a fim de rastrear saturação do banco e falhas de escrita, enquanto \textbf{dashboards personalizados} consolidaram esses dados para acompanhar em tempo real o comportamento dos serviços do Cloud Run durante os experimentos. Essa infraestrutura correlaciona aplicação, banco, Redis, filas e WebSockets com precisão suficiente para justificar as conclusões da Seção~\ref{sec:resultados}.
 
 \subsection{Síntese da Implementação}
 
-A integração entre:
-
-\begin{itemize}
-    \item API síncrona,
-    \item pipeline assíncrono via Cloud Tasks,
-    \item cache Redis,
-    \item servidor WebSocket escalável
-\end{itemize}
-
-fornece a base operacional necessária para avaliar os SLOs definidos. Os resultados obtidos dependem diretamente dessas decisões arquiteturais, que moldam o comportamento observado sob tráfego elevado.
-
+A integração entre API síncrona, pipeline assíncrono via Cloud Tasks, cache Redis e servidor WebSocket escalável fornece a base operacional necessária para avaliar os SLOs definidos. O comportamento observado sob tráfego elevado é consequência direta dessas decisões: a API concentra o domínio e delega trabalho pesado aos workers, o Redis mantém leituras rápidas e sincroniza eventos em tempo real, e o Reverb garante que notificações persistam mesmo com escalonamento horizontal. Juntos, esses componentes amarram as otimizações descritas ao longo da seção e sustentam os experimentos discutidos posteriormente.
