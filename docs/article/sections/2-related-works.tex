@@ -1,124 +1,36 @@
 \section{Trabalhos Relacionados}
 \label{sec:relacionados}
 
-A arquitetura proposta pelo ValorizeAI situa-se na interseção de três domínios de pesquisa em engenharia de software e sistemas distribuídos:
-(1) os paradigmas de execução em nuvem,
-(2) os padrões de design para resiliência e desempenho,
-e (3) as metodologias de validação empírica.
-Revisa-se o estado da arte em cada um desses eixos para posicionar a contribuição deste trabalho e fundamentar a lacuna de pesquisa identificada na Introdução.
+A arquitetura investigada neste trabalho situa-se na interseção de três eixos centrais da literatura em sistemas distribuídos:
+(i) paradigmas de execução em nuvem,
+(ii) padrões arquiteturais para desempenho e resiliência e
+(iii) metodologias de validação empírica.
+Esta seção revisa o estado da arte nesses eixos para posicionar a contribuição do ValorizeAI e evidenciar a lacuna identificada na seção de Introdução.
 
-\subsection{Paradigmas de Execução: Serverless (FaaS) vs. Contêineres Gerenciados (CaaS)}
+\subsection{Paradigmas de Execução: Serverless (FaaS) e Contêineres Gerenciados (CaaS)}
 \label{sec:paradigmas}
 
-A primeira decisão de design em arquiteturas elásticas modernas é a escolha do paradigma de computação.
-A literatura recente concentra-se no debate entre \textit{Functions-as-a-Service} (FaaS) e \textit{Containers-as-a-Service} (CaaS).
+A escolha do paradigma de execução é um dos fatores determinantes para sistemas elásticos modernos. A literatura recente compara amplamente \textit{Functions-as-a-Service} (FaaS) e \textit{Containers-as-a-Service} (CaaS). O FaaS, amplamente representado por AWS Lambda e Google Cloud Functions, oferece escalonamento automático e faturamento por execução, mas apresenta limitações para aplicações \textit{stateful} ou de longa duração devido ao \textit{cold start}, ao isolamento elevado e à efemeridade das instâncias \cite{sonawane_serverless_review_2024, datadog_serverless_containers_2024}. Esses aspectos o tornam inadequado para componentes persistentes como servidores WebSocket.
 
-O paradigma FaaS, popularizado por serviços como AWS Lambda e Google Cloud Functions,
-abstrai completamente o gerenciamento de servidores, oferecendo um modelo de faturamento por execução e escalabilidade instantânea (incluindo \textit{scale-to-zero}) \cite{sonawane_serverless_review_2024}. Esse modelo é ideal para \textit{workloads} reativos, \textit{stateless} e de curta duração. No entanto, a literatura aponta desafios significativos: (1) a latência de inicialização (cold start), que pode impactar o desempenho de aplicações sensíveis à latência \cite{sonawane_serverless_review_2024}; (2) a complexidade de monitoramento e observabilidade em um ambiente altamente efêmero \cite{sonawane_serverless_review_2024}; e (3) a inadequação para processos \textit{stateful} ou de longa duração, como conexões de banco de dados persistentes ou servidores WebSocket \cite{datadog_serverless_containers_2024}.
-
-Em contrapartida, o CaaS, exemplificado por plataformas como Google Cloud Run e AWS Fargate, emerge como um meio-termo estratégico \cite{lloyd_serverless_investigation_2018}. O CaaS combina a elasticidade e o modelo de \textit{scale-to-zero} do FaaS com a portabilidade, consistência e controle de ambiente fornecidos pelos contêineres (ex: Docker) \cite{datadog_serverless_containers_2024}.
-
-A arquitetura do ValorizeAI requer explicitamente um servidor de WebSockets dedicado (Reverb) para comunicação em tempo real --- um processo \textit{stateful} e de longa duração. A revisão da literatura \cite{datadog_serverless_containers_2024, sonawane_serverless_review_2024} demonstra que o FaaS é um paradigma inadequado para esse requisito. O CaaS (especificamente o Cloud Run) foi, portanto, escolhido por ser o paradigma que permite a execução de processos persistentes (o contêiner do Reverb) enquanto ainda fornece a elasticidade horizontal automática e a abstração de infraestrutura desejadas para os serviços web \textit{stateless}.
+Por outro lado, o CaaS, como Google Cloud Run ou AWS Fargate, mantém a elasticidade do FaaS, mas preserva o controle sobre o ambiente do contêiner e comporta processos contínuos \cite{lloyd_serverless_investigation_2018}. Essa característica é essencial para o servidor de WebSockets do ValorizeAI (Laravel Reverb), que requer conexões persistentes e compartilhamento de estado via Redis. Assim, a literatura sustenta a escolha do CaaS como paradigma mais adequado para arquiteturas híbridas que combinam serviços \textit{stateless} e componentes de longa duração.
 
 \subsection{Padrões Arquiteturais para Desempenho e Resiliência}
 \label{sec:padroes}
 
-Para atender aos requisitos de um sistema transacional em tempo real, o ValorizeAI combina padrões de comunicação síncronos e assíncronos.
+Para que a arquitetura do ValorizeAI atenda aos SLOs definidos ela precisa combinar padrões síncronos e assíncronos capazes de manter responsividade, disponibilidade e escalabilidade diante de variações de carga. A literatura descreve esses padrões como peças complementares: filas assíncronas absorvem rajadas enquanto canais em tempo real sustentam interações colaborativas, e ambos convergem para as escolhas arquiteturais adotadas neste trabalho. Arquiteturas orientadas a eventos promovem desacoplamento, resiliência e absorção de picos de carga ao delegar tarefas para filas assíncronas \cite{confluent_eda_2024}. Estudos comparativos analisam o comportamento de diferentes \textit{brokers}, como RabbitMQ, Apache Kafka e Pulsar, frente a cenários com variação de tamanho de mensagens e taxas de publicação \cite{thepphakan_pulsar_rabbitmq_2025}. Esses trabalhos demonstram que a escolha da fila depende do perfil do \textit{workload}: baixa latência para eventos pequenos ou alto \textit{throughput} contínuo para fluxos intensivos. A arquitetura do ValorizeAI segue essa abordagem ao integrar Cloud Tasks para desacoplar operações pesadas do ciclo de requisição HTTP, garantindo responsividade mesmo sob carga e abrindo espaço para os canais síncronos.
 
-\subsubsection{Comunicação Assíncrona e Arquiteturas Orientadas a Eventos (EDA)}
-\label{sec:eda}
-
-O processamento assíncrono por meio de filas, um pilar central do ValorizeAI, é a implementação prática de uma Arquitetura Orientada a Eventos (EDA).
-EDAs são definidas como sistemas que promovem o desacoplamento (loose coupling), a escalabilidade e a resiliência \cite{confluent_eda_2024}.
-Ao utilizar um \textit{message broker} (como RabbitMQ, Kafka ou serviços gerenciados como Google Cloud Tasks),
-os serviços "produtores" podem enfileirar tarefas (eventos) sem esperar que os "consumidores" as processem \cite{confluent_eda_2024}.
-Isso permite que o sistema absorva picos de escrita e mantenha a responsividade da interface do usuário,
-além de garantir a entrega de tarefas mesmo que os serviços consumidores falhem temporariamente.
-
-A pesquisa acadêmica neste domínio frequentemente se concentra em análises de desempenho comparativas dos \textit{brokers} de mensagens.
-Por exemplo, estudos comparam o desempenho de RabbitMQ, Apache Kafka e Apache Pulsar em cenários de IoT,
-medindo \textit{throughput} e latência sob diferentes tamanhos de mensagem \cite{thepphakan_pulsar_rabbitmq_2025}.
-Esses estudos validam que a escolha da tecnologia de fila deve estar alinhada com os requisitos específicos do \textit{workload} (ex: baixa latência para mensagens pequenas vs. alto \textit{throughput} para \textit{streams} de dados).
-
-\subsubsection{Comunicação em Tempo Real (WebSockets) e Cache Distribuído (Redis)}
-\label{sec:realtime}
-
-Para os requisitos de "painéis em tempo real" e "notificações instantâneas", a arquitetura do ValorizeAI utiliza Laravel Reverb e Redis.
-A literatura não trata desses componentes isoladamente, mas sim como um padrão arquitetural combinado para escalar aplicações em tempo real.
-
-O Redis é amplamente citado por seu papel como um \textit{cache} distribuído em memória, fornecendo acesso a dados de baixa latência e alto \textit{throughput},
-o que reduz a carga sobre bancos de dados relacionais \cite{yadav_redis_leaderboard_2019}.
-Servidores WebSocket (como o Reverb \cite{laravel_reverb_docs_2025}) fornecem o canal de comunicação bidirecional persistente necessário para que o servidor envie dados aos clientes sem que eles precisem solicitá-los (push) \cite{twine_websocket_scaling_2022}.
-
-O desafio de escalar WebSockets reside na sua natureza \textit{stateful} (o servidor deve manter o registro de cada conexão ativa). Em um ambiente de CaaS elástico como o Cloud Run, onde múltiplas instâncias \textit{stateless} são criadas e destruídas dinamicamente, uma conexão WebSocket estabelecida com a "Instância A" não pode ser acessada pela "Instância B". A literatura e a documentação técnica \cite{laravel_reverb_docs_2025} resolvem isso usando o mecanismo de Publicação/Subscrição (Pub/Sub) do Redis como um \textit{backplane} de mensagens. Quando a Instância B precisa enviar uma mensagem para um usuário conectado à Instância A, ela publica a mensagem no canal Redis. A Instância A, que está inscrita (subscribed) nesse canal, recebe a mensagem e a retransmite ao cliente correto através de sua conexão WebSocket local.
-
-Estudos de desempenho de bibliotecas WebSocket, como o de Fernando e Engel \cite{fernando_websocket_2025}, validam a importância de escolhas de implementação leves, focando em métricas-chave como \textit{throughput} (mensagens/segundo) e latência de \textit{Round Trip Time} (RTT) para garantir o desempenho em tempo real.
+Do outro lado desse espectro estão os requisitos de tempo real, que motivam a combinação de WebSockets com cache distribuído. Redis é amplamente utilizado como memória compartilhada de baixa latência e como mecanismo Pub/Sub para orquestrar a entrega de eventos entre múltiplas instâncias \cite{yadav_redis_leaderboard_2019}. Em ambientes elásticos, como Cloud Run, o Redis atua como \textit{backplane} que mantém a consistência entre instâncias efêmeras ao distribuir mensagens para clientes conectados. Estudos recentes analisam o impacto desse modelo em métricas de \textit{throughput} e latência RTT, validando suas vantagens para sistemas colaborativos e dashboards em tempo real \cite{fernando_websocket_2025, twine_websocket_scaling_2022}. Esse padrão é consistente com o design do ValorizeAI, cujo servidor WebSocket persistente publica e assina eventos via Redis para garantir consistência e escalabilidade horizontal, fechando o ciclo entre filas assíncronas e comunicação síncrona.
 
 \subsection{Metodologias de Validação Empírica}
 \label{sec:metodologias_validacao}
 
-Provar que uma arquitetura complexa atende aos seus requisitos de desempenho exige uma metodologia de validação rigorosa e, idealmente, reprodutível.
+Validar arquiteturas distribuídas exige metodologias reprodutíveis e alinhadas a objetivos de serviço, o que começa pelo uso disciplinado de Infraestrutura como Código (IaC) e culmina na validação orientada por SLOs. IaC é amplamente adotado para garantir reprodutibilidade e eliminar variações de ambiente em experimentos de desempenho \cite{pessa_iac_2023}. Estudos analisam ferramentas como Terraform e AWS CDK em termos de eficiência, expressividade e redução de deriva de configuração \cite{guerriero_iac_2019}. Entretanto, tais estudos frequentemente focam na ferramenta, e não no sistema provisionado, o que contrasta com este trabalho: aqui o IaC sustenta revalidações sucessivas do ambiente completo (CaaS, filas, Redis e banco de dados), estabelecendo a base para experimentos comparáveis.
 
-\subsubsection{Infraestrutura como Código (IaC) para Reprodutibilidade}
-\label{sec:iac}
+Sobre essa fundação, a Engenharia de Confiabilidade de Sites (SRE) recomenda validação orientada a SLOs para medir sucesso operacional \cite{mccoy_slo_2020}. A literatura recente adota ferramentas modernas como o k6 para simular perfis realistas de carga e avaliar latência, erro e saturação \cite{cervone_k6_2024}. O trabalho de Hebbar \cite{hebbar_reactive_2025}, por exemplo, utiliza k6 para validar priorização de tráfego em APIs reativas, monitorando percentis de latência e comportamento sob estresse. A estratégia utilizada pelo ValorizeAI — definição de SLOs, instrumentação do sistema e execução de cenários de carga reprodutíveis — encontra suporte direto nesses estudos, reforçando a adequação da metodologia adotada e conectando explicitamente IaC, SLOs e experimentação.
 
-A Infraestrutura como Código (IaC) é uma prática de DevOps onde a infraestrutura de TI (redes, máquinas virtuais, balanceadores de carga) é provisionada e gerenciada usando arquivos de definição legíveis por máquina (ex: Terraform, AWS CDK), em vez de configuração manual \cite{pessa_iac_2023}. No contexto da pesquisa acadêmica e de engenharia, o principal benefício do IaC é a \textit{reprodutibilidade}. Ao versionar a configuração da infraestrutura juntamente com o código da aplicação, o IaC garante que o ambiente de teste possa ser recriado de forma consistente, eliminando a "deriva de configuração" e tornando os resultados dos testes de desempenho verificáveis \cite{guerriero_iac_2019}.
-
-A literatura sobre IaC, como o estudo de Pessa \cite{pessa_iac_2023}, muitas vezes foca na comparação das próprias ferramentas de IaC (ex: AWS CDK vs. Terraform) em termos de desempenho de provisionamento e experiência do desenvolvedor, em vez de usar o IaC como um \textit{meio} para validar o desempenho da \textit{aplicação} que ele provisiona.
-
-\subsubsection{Validação de SLOs com Testes de Carga (k6)}
-\label{sec:k6_slo}
-
-A metodologia do ValorizeAI baseia-se nos princípios de Engenharia de Confiabilidade de Sites (SRE), onde o sucesso é medido pelo cumprimento dos Objetivos de Nível de Serviço (SLOs) \cite{mccoy_slo_2020}. A validação de SLOs requer testes empíricos sob carga.
-
-A literatura acadêmica recente começa a adotar ferramentas de teste de carga modernas, como o k6 \cite{cervone_k6_2024}, para essa finalidade. Um exemplo notável é o trabalho de Hebbar \cite{hebbar_reactive_2025} sobre APIs reativas para o setor financeiro. Hebbar utiliza o k6 para criar perfis de carga (ex: rajada, estado estacionário) e simular tráfego contra um microsserviço Spring WebFlux \cite{hebbar_reactive_2025}. A contribuição desse estudo é a validação de que a arquitetura consegue aplicar priorização de tráfego (tiering de SLA) em tempo real, medindo métricas de latência, taxa de descarte e saturação \cite{hebbar_reactive_2025}. Este estudo serve como um "espelho" metodológico, validando a abordagem do ValorizeAI (uso de k6 para medir métricas de latência P95 contra SLOs definidos) como academicamente rigorosa e alinhada com o estado da arte da pesquisa em desempenho de sistemas.
-
-\subsection{Síntese da Revisão e Identificação da Lacuna}
+\subsection{Síntese e Lacuna de Pesquisa}
 \label{sec:lacuna}
 
-A revisão da literatura revela que a pesquisa é frequentemente especializada e fragmentada. Encontramos estudos que comparam FaaS vs. CaaS \cite{lloyd_serverless_investigation_2018}, analisam o desempenho de \textit{brokers} de EDA \cite{thepphakan_pulsar_rabbitmq_2025}, comparam ferramentas de IaC \cite{pessa_iac_2023}, ou validam um microsserviço específico usando k6 e SLOs \cite{hebbar_reactive_2025}.
+A literatura revisada é rica, mas fragmentada: há estudos sobre FaaS vs. CaaS \cite{lloyd_serverless_investigation_2018}, comparações de \textit{brokers} de EDA \cite{thepphakan_pulsar_rabbitmq_2025}, análises de ferramentas de IaC \cite{pessa_iac_2023} e validações de desempenho específicas usando k6 e SLOs \cite{hebbar_reactive_2025}. Contudo, conforme discutido por Abad et al. \cite{abad_serverless_gap_2021}, falta uma análise integrada de arquiteturas híbridas que combinem todos esses elementos em um único sistema reprodutível.
 
-A lacuna na literatura, identificada em trabalhos como \cite{wjaets_serverless_ml_2022} e \cite{abad_serverless_gap_2021}, é a ausência de estudos de caso \textit{end-to-end} que integrem \textit{todos} esses componentes. Falta um trabalho que documente e valide empiricamente uma arquitetura holística e híbrida (CaaS + EDA + WebSockets + Cache) que seja:
-\begin{enumerate}
-    \item Provisionada de forma reprodutível (via IaC).
-    \item Validada rigorosamente contra SLOs de latência e \textit{throughput} (via k6).
-    \item Analisada em seus múltiplos componentes (fluxos síncronos e assíncronos).
-\end{enumerate}
-
-A Tabela \ref{tab:quadro_comparativo} visualiza essa lacuna. Enquanto trabalhos anteriores focam em colunas específicas, este TCC (ValorizeAI) é o único que propõe uma validação integrada de todos os eixos: Paradigma, Padrões Híbridos e Metodologia de Validação Completa. Este trabalho preenche, assim, a lacuna ao fornecer um "plano" de arquitetura e validação, completo e empiricamente verificado, para aplicações transacionais modernas em tempo real.
-
-\begin{small}
-\begin{longtable}{@{}p{2.5cm} p{2.5cm} p{3.5cm} p{4.5cm}@{}}
-    \caption{Quadro Comparativo de Estudos sobre Desempenho de Arquiteturas em Nuvem (2018-2025)}
-    \label{tab:quadro_comparativo} \\
-    \toprule
-    \textbf{Estudo (Autor)} & \textbf{Paradigma} & \textbf{Padrões Analisados} & \textbf{Metodologia de Validação} \\
-    \midrule
-    \endfirsthead
-
-    \multicolumn{4}{c}%
-    {{\tablename\ \thetable{} -- Continuação}} \\
-    \toprule
-    \textbf{Estudo (Autor)} & \textbf{Paradigma} & \textbf{Padrões Analisados} & \textbf{Metodologia de Validação} \\
-    \midrule
-    \endhead
-
-    \bottomrule
-    \endfoot
-
-    Lloyd et al. \cite{lloyd_serverless_investigation_2018} & FaaS vs. CaaS & Fatores de desempenho em microsserviços simples. & Benchmarking de desempenho (latência, custo). Não foca em IaC ou SLOs formais. \\
-    \addlinespace
-    Pessa \cite{pessa_iac_2023} & N/A (Foco na ferramenta) & Provisionamento de infraestrutura (FaaS, CaaS). & Comparação de ferramentas de IaC (CDK vs. Terraform). Não valida desempenho da aplicação. \\
-    \addlinespace
-    Hebbar \cite{hebbar_reactive_2025} & Microsserviço (Monolítico) & API Reativa (Spring WebFlux) com priorização. & \textbf{SLOs e k6}. Não foca em IaC, EDA ou WebSockets. \\
-    \addlinespace
-    Thepphakan \cite{thepphakan_pulsar_rabbitmq_2025} & N/A (Foco no broker) & EDA (RabbitMQ vs. Pulsar). & Benchmarking de desempenho (latência, \textit{throughput}). Não é um sistema E2E. \\
-    \addlinespace
-    Abad et al. \cite{abad_serverless_gap_2021} & FaaS / Serverless & Revisão de aplicações serverless. & Análise de literatura. Aponta a \textbf{lacuna} em estudos E2E e workflows complexos. \\
-    \addlinespace
-    \textbf{ValorizeAI (este TCC)} & \textbf{CaaS híbrido com Cloud Run e Cloud Tasks} & \textbf{Arquitetura E2E combinando EDA (Pub/Sub), WebSockets e cache Redis com automações transacionais}. & \textbf{Validação reprodutível via Terraform + k6 + observabilidade (SLOs, logs e filas)}. \\
-    \bottomrule
-\end{longtable}
-\end{small}
-
-Os fatores comparados deixam claro que a literatura cobre fragmentos isolados do problema. Esses referenciais serão consolidados, a seguir, em um vocabulário comum (Clean Architecture, DDD, SRE, EDA) que sustenta a proposta do ValorizeAI e prepara o terreno para a metodologia e a implementação.
+A contribuição do ValorizeAI está exatamente nessa integração: uma arquitetura CaaS orientada a eventos com WebSockets persistentes, cache Redis e filas assíncronas, provisionada integralmente via IaC e validada com metodologia alinhada ao estado da arte. Os estudos analisados servem como blocos isolados; este trabalho, por sua vez, propõe uma validação \textit{end-to-end} que abrange paradigma, padrões arquiteturais e metodologia experimental.

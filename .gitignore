@@ -27,3 +27,12 @@ yarn-error.log
 frankenphp
 frankenphp-worker.php
 _ide_helper.php
+data/composer/.htaccess
+data/lesshst
+config/psysh/psysh_history
+tests/k6/mix.csv
+tests/k6/rw.csv
+tests/k6/store-transactions.csv
+tests/k6/transactions.csv
+docs/tests/2-test-mixed/rw.csv
+docs/tests/1-test-read/transactions.csv
