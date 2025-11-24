@@ -21,6 +21,30 @@ O estudo caracteriza-se como uma \textbf{pesquisa aplicada} conduzida sob a form
 
 A Figura~\ref{fig:arquitetura} sintetiza o ambiente utilizado nos experimentos. O tráfego HTTP/HTTPS é roteado pelo \textbf{Cloud Load Balancer} com \textbf{Cloud CDN}, que distribui \textit{assets} estáticos e aplica políticas de segurança (WAF). A arquitetura executa três serviços Cloud Run:
 
+\begin{figure}[H]
+    \centering
+    \resizebox{\linewidth}{!}{%
+    \begin{tikzpicture}[node distance=1.5cm, every node/.style={font=\footnotesize, align=center}]
+        \node (cdn) [draw, rounded corners, fill=gray!15, minimum width=5cm, minimum height=0.9cm] {Cloud Load Balancer + Cloud CDN};
+        \node (api) [draw, rounded corners, fill=blue!10, minimum width=3cm, minimum height=0.9cm, below left=1.1cm and 2.0cm of cdn] {Cloud Run\\API};
+        \node (reverb) [draw, rounded corners, fill=blue!10, minimum width=3cm, minimum height=0.9cm, below=1.1cm of cdn] {Cloud Run\\Reverb};
+        \node (workers) [draw, rounded corners, fill=blue!10, minimum width=3cm, minimum height=0.9cm, below right=1.1cm and 2.0cm of cdn] {Cloud Run\\Workers};
+        \node (shared) [draw, rounded corners, fill=orange!15, minimum width=6cm, minimum height=1.2cm, below=1.3cm of reverb] {Cloud SQL + Memorystore (Redis) + Cloud Storage};
+        \node (tasks) [draw, rounded corners, fill=green!10, minimum width=5cm, minimum height=0.9cm, below=1.0cm of shared] {Cloud Tasks};
+
+        \draw[->, thick] (cdn) -- (api);
+        \draw[->, thick] (cdn) -- (reverb);
+        \draw[->, thick] (cdn) -- (workers);
+        \draw[->, thick] (api) -- (shared);
+        \draw[->, thick] (reverb) -- (shared);
+        \draw[->, thick] (workers) -- (shared);
+        \draw[->, thick] (api) |- (tasks);
+        \draw[->, thick] (tasks) -| (workers);
+    \end{tikzpicture}}
+    \caption{Arquitetura utilizada nos experimentos.}
+    \label{fig:arquitetura}
+\end{figure}
+
 \begin{itemize}
     \item \textbf{API Laravel:} responsável pelos endpoints REST exercitados nos testes.
     \item \textbf{Laravel Reverb:} servidor WebSocket dedicado, escalado independentemente.
@@ -84,28 +108,5 @@ As evidências utilizadas na análise incluem:
 
 Essa abordagem garante rastreabilidade completa entre arquitetura, ambiente, experimentos e resultados, pois todos os artefatos, código, infraestrutura e cenários, estão versionados no repositório.
 
-\begin{figure}[htbp]
-    \centering
-    \resizebox{\linewidth}{!}{%
-    \begin{tikzpicture}[node distance=1.5cm, every node/.style={font=\footnotesize, align=center}]
-        \node (cdn) [draw, rounded corners, fill=gray!15, minimum width=5cm, minimum height=0.9cm] {Cloud Load Balancer + Cloud CDN};
-        \node (api) [draw, rounded corners, fill=blue!10, minimum width=3cm, minimum height=0.9cm, below left=1.1cm and 2.0cm of cdn] {Cloud Run\\API};
-        \node (reverb) [draw, rounded corners, fill=blue!10, minimum width=3cm, minimum height=0.9cm, below=1.1cm of cdn] {Cloud Run\\Reverb};
-        \node (workers) [draw, rounded corners, fill=blue!10, minimum width=3cm, minimum height=0.9cm, below right=1.1cm and 2.0cm of cdn] {Cloud Run\\Workers};
-        \node (shared) [draw, rounded corners, fill=orange!15, minimum width=6cm, minimum height=1.2cm, below=1.3cm of reverb] {Cloud SQL + Memorystore (Redis) + Cloud Storage};
-        \node (tasks) [draw, rounded corners, fill=green!10, minimum width=5cm, minimum height=0.9cm, below=1.0cm of shared] {Cloud Tasks};
-
-        \draw[->, thick] (cdn) -- (api);
-        \draw[->, thick] (cdn) -- (reverb);
-        \draw[->, thick] (cdn) -- (workers);
-        \draw[->, thick] (api) -- (shared);
-        \draw[->, thick] (reverb) -- (shared);
-        \draw[->, thick] (workers) -- (shared);
-        \draw[->, thick] (api) |- (tasks);
-        \draw[->, thick] (tasks) -| (workers);
-    \end{tikzpicture}}
-    \caption{Arquitetura utilizada nos experimentos.}
-    \label{fig:arquitetura}
-\end{figure}
 
 
