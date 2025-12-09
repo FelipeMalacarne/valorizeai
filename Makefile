@@ -15,6 +15,14 @@ PYTHON_DEPS := pandas matplotlib numpy
 PYTHON_ENV_READY := $(VENV_DIR)/.deps-installed
 MPLCONFIGDIR := /tmp/mpl
 
+# Documentation figures (TikZ/pgfplots)
+FIG_DIR := docs/article/figures
+TIKZ_FIGURES := fig-arquitetura fig-fluxo-sincrono fig-fluxo-assincrono fig-reverb-redis fig-modelo-dados fig-custo-relativo
+FIG_TEX := $(addprefix $(FIG_DIR)/,$(addsuffix -standalone.tex,$(TIKZ_FIGURES)))
+FIG_PDF := $(FIG_TEX:.tex=.pdf)
+FIG_PNG := $(addprefix $(FIG_DIR)/,$(addsuffix .png,$(TIKZ_FIGURES)))
+FIG_JPG := $(addprefix $(FIG_DIR)/,$(addsuffix .jpg,$(TIKZ_FIGURES)))
+
 # Image URLs
 IMAGE_URL := $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(REPOSITORY)/$(IMAGE_NAME)
 LATEST_IMAGE := $(IMAGE_URL):latest
@@ -202,6 +210,41 @@ charts: setup_python_env
 	@mkdir -p $(MPLCONFIGDIR)
 	@cd docs/tests && MPLCONFIGDIR=$(MPLCONFIGDIR) $(PYTHON) generate-curves.py
 	@echo "$(GREEN)✓ Charts generated $(NC)"
+
+# -------------------------------------------------------------------
+# Docs: standalone TikZ/pgfplots figures exported to PNG/JPG
+.PHONY: figures figures-pdf figures-png figures-jpg figures-clean
+
+figures: figures-png
+	@echo "$(GREEN)✓ Figures exported to PNG ($(FIG_DIR))$(NC)"
+
+figures-pdf: $(FIG_PDF)
+	@echo "$(GREEN)✓ PDF figures ready in $(FIG_DIR)$(NC)"
+
+figures-png: $(FIG_PNG)
+	@echo "$(GREEN)✓ PNG figures ready in $(FIG_DIR)$(NC)"
+
+figures-jpg: $(FIG_JPG)
+	@echo "$(GREEN)✓ JPG figures ready in $(FIG_DIR)$(NC)"
+
+.SECONDARY: $(FIG_PDF)
+
+$(FIG_DIR)/%-standalone.pdf: $(FIG_DIR)/%-standalone.tex
+	@echo "$(YELLOW)Compiling $< -> $@$(NC)"
+	@pdflatex -interaction=nonstopmode -halt-on-error -output-directory=$(FIG_DIR) $< >/dev/null
+
+$(FIG_DIR)/%.png: $(FIG_DIR)/%-standalone.pdf
+	@echo "$(YELLOW)Converting $< -> $@$(NC)"
+	@magick -density 300 $< -quality 95 $@
+
+$(FIG_DIR)/%.jpg: $(FIG_DIR)/%-standalone.pdf
+	@echo "$(YELLOW)Converting $< -> $@$(NC)"
+	@magick -density 300 $< -quality 92 $@
+
+figures-clean:
+	@echo "$(YELLOW)Cleaning generated figure artifacts...$(NC)"
+	@rm -f $(FIG_PDF) $(FIG_PNG) $(FIG_JPG) $(FIG_DIR)/*.aux $(FIG_DIR)/*.log
+	@echo "$(GREEN)✓ Figure artifacts removed$(NC)"
 
 .PHONY: clean
 clean:

@@ -1,0 +1,47 @@
+\documentclass[tikz,border=8pt]{standalone}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.95\linewidth,
+    height=7cm,
+    xlabel={Tempo (horas do dia)},
+    ylabel={Custo relativo (Compute Engine = 1.0)},
+    xmin=0, xmax=24,
+    ymin=0, ymax=3.0,
+    xtick={0,4,8,12,16,20,24},
+    ytick={0,0.5,1,1.5,2,2.5,3},
+    grid=major,
+    legend style={at={(0.5,-0.20)},anchor=north,legend columns=2},
+    thick,
+]
+
+% Compute Engine (base = 1.0)
+\addplot[red, thick] coordinates {
+    (0,1.0) (4,1.0) (8,1.0) (12,1.0) (16,1.0) (20,1.0) (24,1.0)
+};
+\addlegendentry{Compute Engine (base = 1.0)}
+
+% Cloud Run (instance-based) 1.9×
+\addplot[blue!80!black, thick] coordinates {
+    (0,0.2) (4,0.2) (8,0.8) (12,1.9) (16,0.7) (20,0.25) (24,0.2)
+};
+\addlegendentry{Cloud Run (instance-based) $\approx$1.9×}
+
+% Cloud Run (request-based) 2.5×
+\addplot[blue!40!cyan, thick, dashed] coordinates {
+    (0,0.25) (4,0.25) (8,1.1) (12,2.5) (16,1.0) (20,0.35) (24,0.25)
+};
+\addlegendentry{Cloud Run (request-based) $\approx$2.5×}
+
+% GKE (~1.2×)
+\addplot[green!60!black, thick] coordinates {
+    (0,0.8) (4,0.8) (8,1.0) (12,1.2) (16,1.0) (20,0.85) (24,0.8)
+};
+\addlegendentry{GKE (elasticidade moderada) $\approx$1.2×}
+
+\end{axis}
+\end{tikzpicture}
+\end{document}
