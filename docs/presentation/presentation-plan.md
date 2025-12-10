@@ -45,7 +45,7 @@ Sugestão de estrutura (que encaixa no modelo: Introdução / Metodologia / Resu
 
 Se quiser, emenda:
 
-> “A ideia central é avaliar, na prática, como uma arquitetura moderna baseada em serviços gerenciados em nuvem se comporta sob carga intensa em um cenário financeiro real.”
+> “A ideia central é avaliar, na prática, como uma arquitetura moderna baseada em serviços gerenciados em nuvem — que escalam sob demanda e cobram por uso — se comporta sob carga intensa em um produto web real de carga variável, com aprendizados aplicáveis a aplicações web modernas.”
 
 ---
 
@@ -72,19 +72,20 @@ Se quiser, emenda:
 
 **No slide (poucos bullets):**
 
-* Plataformas financeiras: tráfego variável, forte consistência, baixa latência
+* Aplicações web modernas (colaborativas, e-commerce, APIs): tráfego variável, forte consistência, baixa latência
 * Elasticidade em nuvem (Cloud Run, serviços gerenciados)
+* Pay-per-use e scale-to-zero: recursos só quando há demanda
 * Complexidade → necessidade de observabilidade e validação integrada 
 
 **Fala sugerida:**
 
-> “O contexto deste trabalho são **plataformas financeiras modernas**, que lidam com picos de transações, muita leitura e escrita, e ao mesmo tempo precisam manter **consistência forte, baixa latência e alta disponibilidade**.
-> A resposta comum a isso é usar a **elasticidade da nuvem** – serviços como Cloud Run, Cloud SQL, Redis gerenciado, filas, etc., que escalam automaticamente conforme a carga.
+> “O contexto deste trabalho são **aplicações web modernas** que lidam com picos de transações, muita leitura e escrita, e ao mesmo tempo precisam manter **consistência forte, baixa latência e alta disponibilidade**.
+> A resposta comum é usar a **elasticidade da nuvem** – serviços como Cloud Run, Cloud SQL, Redis gerenciado, filas, etc., que escalam automaticamente conforme a carga, desligam na ociosidade e cobram apenas pelo uso.
 > O problema é que, conforme a arquitetura vai ficando mais distribuída e elástica, cresce também a **complexidade de entender e observar o sistema**. Logs, métricas e traces passam a ser fundamentais, e surge a necessidade de **validar na prática** se aquela arquitetura realmente aguenta a carga que se espera dela.”
 
 Se quiser reforçar:
 
-> “O ValorizeAI entra como um caso real para estudar essa relação entre elasticidade e observabilidade em um cenário financeiro.”
+> “O ValorizeAI entra como um caso real para estudar essa relação entre elasticidade e observabilidade em cenários de cargas variáveis em apps web em geral.”
 
 ---
 
@@ -129,7 +130,7 @@ Se quiser reforçar:
 
 **Fala sugerida:**
 
-> “O **objetivo geral** é demonstrar, de forma prática, que a arquitetura do ValorizeAI consegue sustentar metas de desempenho e confiabilidade típicas de um produto financeiro real.
+> “O **objetivo geral** é demonstrar, de forma prática, que a arquitetura do ValorizeAI consegue sustentar metas de desempenho e confiabilidade típicas de um produto web moderno com carga variável.
 >
 > Para isso, eu:
 > – mapeei a arquitetura completa;
@@ -275,6 +276,7 @@ Você pode usar três blocos: **Conclusões**, **Limitações**, **Trabalhos fut
 * Arquitetura atende bem workloads intensivos em leitura
 * Escrita concorrente limitada pela cota de instâncias HTTP
 * Pipeline assíncrono (Cloud Tasks + workers) é elástico e confiável 
+* Elasticidade e pay-per-use aproveitam recursos só na demanda e reduzem custo em cargas variáveis
 
 **Fala sugerida (conclusões):**
 
@@ -282,7 +284,8 @@ Você pode usar três blocos: **Conclusões**, **Limitações**, **Trabalhos fut
 >
 > * a arquitetura do ValorizeAI **suporta muito bem workloads de leitura**, mesmo em cenários com mil usuários simultâneos;
 > * o ponto de atenção está nos **caminhos de escrita**, onde o limite de instâncias e o custo computacional por requisição acabam degradando a latência;
-> * e o pipeline assíncrono, baseado em Cloud Tasks e workers em Cloud Run, se mostrou **bastante eficiente** para processar grandes volumes sem intervenção manual.”
+> * e o pipeline assíncrono, baseado em Cloud Tasks e workers em Cloud Run, se mostrou **bastante eficiente** para processar grandes volumes sem intervenção manual;
+> * além disso, o modelo elástico e pay-per-use faz com que recursos sejam usados só quando há demanda, reduzindo custo em cargas variáveis e aplicando-se a diferentes domínios de aplicações web modernas.”
 
 **No slide – Limitações:**
 
@@ -308,7 +311,7 @@ Você pode usar três blocos: **Conclusões**, **Limitações**, **Trabalhos fut
 >
 > * repetir os testes com **limites maiores de instâncias e CPU**, para ver onde surgem novos gargalos;
 > * estudar o uso de **réplicas de leitura** e talvez **particionamento de dados** para aliviar as rotas mais críticas;
-> * e evoluir o uso de **embeddings** e automações do ValorizeAI para cenários como detecção de anomalias e recomendações financeiras.”
+> * e evoluir o uso de **embeddings** e automações do ValorizeAI para cenários como detecção de anomalias e recomendações.”
 
 ---
 
