@@ -9,19 +9,15 @@ O Cloud SQL manteve tempos estáveis ao longo do teste, indicando que o gargalo 
 No plano assíncrono, a drenagem de 51{,}58~mil tarefas em 10~min comprovou que a combinação Cloud Tasks + workers em Cloud Run sustenta rajadas intensas sem intervenção manual, preservando elasticidade e rastreabilidade do processamento.
 
 O percurso deste trabalho seguiu uma narrativa coesa para responder à sua questão central.
-Partiu-se do \textbf{problema} da escassez de validações integradas de arquiteturas elásticas (a lacuna na literatura), propondo como contribuição um estudo de caso completo e reprodutível.
+Partiu-se do problema da escassez de validações integradas de arquiteturas elásticas (a lacuna na literatura), propondo como contribuição um estudo de caso completo e reprodutível.
 Para isso, os objetivos específicos foram alcançados sequencialmente: a arquitetura foi mapeada e seus fluxos documentados;
 os testes de carga e de pipeline assíncrono foram executados para validar os SLOs, revelando tanto a robustez do caminho de leitura quanto os limites do de escrita;
 e, por fim, os resultados foram interpretados para fornecer uma análise de causa e efeito e de custo-benefício.
 Essa jornada não apenas validou o ValorizeAI, mas entregou um roteiro prático para a evolução de sistemas transacionais modernos.
 
-\subsection{Limitações}
+Em termos de limitações, duas condicionantes moldaram os resultados: a infraestrutura operou com as cotas padrão de um ambiente recém-provisionado (10 instâncias de 1~vCPU), restringindo a observação de escalas superiores; e o banco permaneceu centralizado em uma única instância regional do Cloud SQL, configuração que pode induzir contenção em cenários de escrita simultânea em grande escala.
 
-Duas limitações principais moldaram os resultados. Primeiro, a infraestrutura operou com as cotas padrão de um ambiente recém-provisionado (10 instâncias de 1~vCPU), o que restringiu a observação de comportamentos em escalas superiores. Segundo, o banco de dados permaneceu centralizado em uma única instância regional do Cloud SQL; embora suficiente para o tráfego exercitado, essa configuração pode induzir contenção em cenários de escrita simultânea em grande escala.
-
-\subsection{Trabalhos Futuros}
-
-Como continuidade, pretende-se ampliar progressivamente a cota de Cloud Run, repetindo os testes sob 20 ou 40~vCPU para identificar novos gargalos.
+Quanto a trabalhos futuros, pretende-se ampliar progressivamente a cota de Cloud Run, repetindo os testes sob 20 ou 40~vCPU para identificar novos gargalos.
 Também se planeja avaliar alternativas para aliviar operações analíticas, como réplicas de leitura e ajustes verticais das instâncias primárias para absorver picos de escrita.
 Outro eixo de evolução envolve mecanismos de \textit{failover} multi-região para banco e Redis, aumentando a resiliência global da plataforma.
 No plano funcional, o pipeline assíncrono poderá ser estendido com orquestração baseada em eventos (por exemplo, Workflows), além da expansão do uso de embeddings e automações de categorização para casos como detecção de anomalias e recomendações transacionais.
