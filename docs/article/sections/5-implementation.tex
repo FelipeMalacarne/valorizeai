@@ -81,7 +81,7 @@ Esse fluxo é ilustrado na Figura~\ref{fig:fluxo-sincrono}.
 
 \subsection{Fluxo Assíncrono: Cloud Tasks e Workers}
 
-Tarefas que exigem maior tempo de processamento são delegadas ao pipeline assíncrono. O processo ocorre em quatro etapas:
+Tarefas que exigem maior tempo de processamento são delegadas ao pipeline assíncrono. O processo ocorre em quatro etapas, conforme mostra a Figura~\ref{fig:fluxo-assincrono}:
 
 \begin{enumerate}
     \item a API cria uma tarefa via Cloud Tasks, anexando o payload necessário;
@@ -92,7 +92,7 @@ Tarefas que exigem maior tempo de processamento são delegadas ao pipeline assí
 
 O uso de \textit{push queues} elimina a necessidade de processos consumidores contínuos e garante elasticidade automática baseada no ritmo de produção.
 
-Esse fluxo é ilustrado na Figura~\ref{fig:fluxo-assincrono}.
+% Esse fluxo é ilustrado na Figura~\ref{fig:fluxo-assincrono}.
 
 \begin{figure}[htbp]
     \centering
