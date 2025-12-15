@@ -1,7 +1,7 @@
 \section{Fundamentação Teórica}
 \label{sec:fundamentacao}
 
-Esta seção apresenta os conceitos que sustentam o design, a implementação e a validação empírica do ValorizeAI.
+Esta seção apresenta os conceitos que sustentam o design, a implementação e a validação empírica do estudo de caso.
 São abordados princípios de design de software, fundamentos arquiteturais dos componentes
 utilizados e noções essenciais de Engenharia de Confiabilidade (SRE), que orientam
 a formulação dos SLOs e os experimentos descritos na metodologia.
@@ -9,12 +9,12 @@ a formulação dos SLOs e os experimentos descritos na metodologia.
 \subsection{Princípios de Design de Software}
 \label{sec:principios_design}
 
-O desenvolvimento do ValorizeAI segue práticas consolidadas de engenharia de software,
+O desenvolvimento do estudo de caso segue práticas consolidadas de engenharia de software,
 que visam reduzir acoplamento, aumentar coesão e facilitar evolução incremental da aplicação.
 A \textit{Clean Architecture}, proposta por Martin \cite{martin_clean_2017},
 sustenta essa base ao impor a \textit{Regra da Dependência}: detalhes variáveis,
 como frameworks e tecnologias de persistência, devem depender das regras de negócio,
-e não o contrário. No ValorizeAI, essa diretriz se manifesta na separação explícita
+e não o contrário. No estudo de caso, essa diretriz se manifesta na separação explícita
 entre lógica de domínio (Actions e Queries) e elementos de infraestrutura
 (controladores, Reverb, Redis e Cloud SQL), preparando o terreno para os demais princípios.
 
@@ -36,7 +36,7 @@ e dando suporte às camadas anteriormente descritas, encerrando o ciclo de princ
 \subsection{Arquitetura e Componentes da Aplicação}
 \label{sec:componentes_app}
 
-A arquitetura do ValorizeAI combina serviços gerenciados que oferecem elasticidade,
+A arquitetura do estudo de caso combina serviços gerenciados que oferecem elasticidade,
 isolamento, baixo acoplamento e capacidade de processamento assíncrono, começando pelo
 Google Cloud Run, plataforma CaaS que executa contêineres \textit{stateless} com escalonamento
 automático e \textit{scale-to-zero} \cite{google_elasticity_2024}. Nele operam duas
@@ -60,7 +60,7 @@ as metas de elasticidade e responsividade descritas na seção anterior possam s
 \subsection{Engenharia de Confiabilidade de Sites (SRE)}
 \label{sec:sre}
 
-A metodologia de validação do ValorizeAI segue os princípios de SRE apresentados
+A metodologia de validação do estudo de caso segue os princípios de SRE apresentados
 pelo Google \cite{google_sre_book_main}, tratando confiabilidade como disciplina
 quantitativa guiada por indicadores e metas formalizadas. Três conceitos embasam
 os experimentos: os \textbf{SLIs} (\textit{Service Level Indicators}) capturam métricas

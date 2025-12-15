@@ -1,11 +1,11 @@
 \section{Introdução}
 \label{sec:introducao}
 
-O ValorizeAI, objeto deste estudo, surge como um caso completo para investigar a relação
-entre elasticidade e observabilidade. Trata-se de uma aplicação web modular que integra
-ingestão de dados, processamento síncrono e assíncrono e comunicação em tempo real,
-utilizando uma \textit{stack} moderna baseada em Cloud Run, Cloud SQL, Redis (Memorystore),
-Cloud Tasks, WebSockets e serviços auxiliares.
+Este estudo de caso surge como um exemplo completo para investigar a relação entre
+elasticidade e observabilidade. Trata-se de uma aplicação web modular que integra ingestão
+de dados, processamento síncrono e assíncrono e comunicação em tempo real, utilizando uma
+\textit{stack} moderna baseada em Cloud Run, Cloud SQL, Redis (Memorystore), Cloud Tasks,
+WebSockets e serviços auxiliares.
 
 Aplicações digitais modernas, incluindo plataformas de e-commerce, serviços financeiros e
 sistemas colaborativos, enfrentam o desafio de absorver cargas de trabalho voláteis sem
@@ -25,9 +25,9 @@ arquiteturas e práticas integradas.
 Neste trabalho, os SLOs (\textit{Service Level Objectives}) estabelecem metas para os principais indicadores do serviço; os percentis P50, P95 e P99 expressam as latências máximas observadas para 50\%, 95\% e 99\% das requisições; e VU (\textit{Virtual User}) designa cada usuário virtual gerado pela ferramenta de carga k6.
 
 Workloads transacionais que envolvem ingestão intensa de dados, estados compartilhados e
-interfaces colaborativas, como os simulados pelo ValorizeAI, impõem requisitos rigorosos de
-consistência, rastreabilidade e baixa latência mesmo sob variações abruptas de tráfego. Para
-atendê-los, arquiteturas modernas combinam componentes especializados, CDNs e
+interfaces colaborativas, como os simulados neste estudo de caso, impõem requisitos
+rigorosos de consistência, rastreabilidade e baixa latência mesmo sob variações abruptas de
+tráfego. Para atendê-los, arquiteturas modernas combinam componentes especializados, CDNs e
 balanceadores globais, filas assíncronas orientadas a eventos, cache distribuído e comunicação
 persistente via WebSockets \cite{barri_scalability_2025, confluent_eda_2024,
 yadav_redis_leaderboard_2019, fernando_websocket_2025}. Apesar de a literatura abordar cada
@@ -37,13 +37,13 @@ híbridas (CaaS + filas + WebSockets) em cenários reprodutíveis de carga
 comparações de ferramentas de IaC \cite{pessa_iac_2023} ou análises de microsserviços
 isolados \cite{hebbar_reactive_2025}, raramente considerando o comportamento do sistema
 completo. Este trabalho busca preencher essa lacuna ao documentar a arquitetura do
-ValorizeAI e validar seu comportamento sob estresse frente a SLOs definidos, respondendo à
-questão: \textit{Como uma arquitetura híbrida e elástica, composta por Cloud Run, Redis,
-Cloud SQL, Cloud Tasks e WebSockets dedicados, se comporta sob condições intensas de
-carga, e como esse comportamento pode ser validado de forma reprodutível?}
+estudo de caso e validar seu comportamento sob estresse frente a SLOs definidos, respondendo
+à questão: \textit{Como uma arquitetura híbrida e elástica, composta por Cloud Run, Redis,
+Cloud SQL, Cloud Tasks e WebSockets dedicados, se comporta sob condições intensas de carga,
+e como esse comportamento pode ser validado de forma reprodutível?}
 
 O objetivo geral consiste em demonstrar, por meio de documentação técnica e experimentos
-de desempenho, que a arquitetura do ValorizeAI, com CDN, contêineres escalados
+de desempenho, que a arquitetura do estudo de caso, com CDN, contêineres escalados
 horizontalmente, pipelines assíncronos, servidor de WebSockets, armazenamento em
 \textit{buckets} e cache Redis, sustenta os SLOs definidos para um produto transacional
 completo, mantendo código, infraestrutura e observabilidade versionados em repositório. Esse
@@ -65,6 +65,6 @@ transacionais em ambientes CaaS.
 O restante deste artigo está organizado da seguinte forma: a Seção~\ref{sec:relacionados}
 apresenta os trabalhos relacionados; a Seção~\ref{sec:fundamentacao} discute a fundamentação
 teórica; a Seção~\ref{sec:metodologia} descreve a metodologia experimental; a
-Seção~\ref{sec:implementacao} detalha a implementação do ValorizeAI; a
+Seção~\ref{sec:implementacao} detalha a implementação do estudo de caso; a
 Seção~\ref{sec:resultados} consolida os resultados e análises; e, por fim, a
 Seção~\ref{sec:conclusao} apresenta as conclusões e trabalhos futuros.

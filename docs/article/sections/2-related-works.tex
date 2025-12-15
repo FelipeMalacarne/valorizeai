@@ -5,7 +5,7 @@ A arquitetura investigada neste trabalho situa-se na interseção de três eixos
 (i) paradigmas de execução em nuvem,
 (ii) padrões arquiteturais para desempenho e resiliência e
 (iii) metodologias de validação empírica.
-Esta seção revisa o estado da arte nesses eixos para posicionar a contribuição do ValorizeAI e evidenciar a lacuna identificada na seção de Introdução.
+Esta seção revisa o estado da arte nesses eixos para posicionar a contribuição do estudo de caso e evidenciar a lacuna identificada na seção de Introdução.
 
 \subsection{Paradigmas de Execução: Serverless (FaaS) e Contêineres Gerenciados (CaaS)}
 \label{sec:paradigmas}
@@ -22,15 +22,15 @@ Esses aspectos o tornam inadequado para componentes persistentes como servidores
 Por outro lado, o CaaS, como Google Cloud Run ou AWS Fargate,
 mantém a elasticidade do FaaS, mas preserva o controle sobre o ambiente do contêiner
 e comporta processos contínuos \cite{lloyd_serverless_investigation_2018}.
-Essa característica é essencial para o servidor de WebSockets do ValorizeAI (Laravel Reverb),
-que requer conexões persistentes e compartilhamento de estado via Redis.
+Essa característica é essencial para o servidor de WebSockets do estudo de caso
+(Laravel Reverb), que requer conexões persistentes e compartilhamento de estado via Redis.
 Assim, a literatura sustenta a escolha do CaaS como paradigma mais adequado para
 arquiteturas híbridas que combinam serviços \textit{stateless} e componentes de longa duração.
 
 \subsection{Padrões Arquiteturais para Desempenho e Resiliência}
 \label{sec:padroes}
 
-Para que a arquitetura do ValorizeAI atenda aos SLOs definidos ela precisa combinar
+Para que a arquitetura do estudo de caso atenda aos SLOs definidos ela precisa combinar
 padrões síncronos e assíncronos capazes de manter responsividade, disponibilidade
 e escalabilidade diante de variações de carga. A literatura descreve esses padrões
 como peças complementares: filas assíncronas absorvem rajadas enquanto canais em
@@ -42,7 +42,7 @@ de diferentes \textit{brokers}, como RabbitMQ, Apache Kafka e Pulsar,
 frente a cenários com variação de tamanho de mensagens e taxas de publicação
 \cite{thepphakan_pulsar_rabbitmq_2025}. Esses trabalhos demonstram que a escolha da
 fila depende do perfil do \textit{workload}: baixa latência para eventos pequenos ou alto \textit{throughput}
-contínuo para fluxos intensivos. A arquitetura do ValorizeAI segue essa abordagem
+contínuo para fluxos intensivos. A arquitetura do estudo de caso segue essa abordagem
 ao integrar Cloud Tasks para desacoplar operações pesadas do ciclo de requisição HTTP,
 garantindo responsividade mesmo sob carga e abrindo espaço para os canais síncronos.
 
@@ -55,9 +55,9 @@ o Redis atua como \textit{backplane} que mantém a consistência entre instânci
 ao distribuir mensagens para clientes conectados. Estudos recentes analisam o impacto desse modelo
 em métricas de \textit{throughput} e latência RTT, validando suas vantagens para sistemas colaborativos e
 dashboards em tempo real \cite{fernando_websocket_2025, twine_websocket_scaling_2022}.
-Esse padrão é consistente com o design do ValorizeAI, cujo servidor WebSocket persistente publica
-e assina eventos via Redis para garantir consistência e escalabilidade horizontal,
-fechando o ciclo entre filas assíncronas e comunicação síncrona.
+Esse padrão é consistente com o design do estudo de caso, cujo servidor WebSocket
+persistente publica e assina eventos via Redis para garantir consistência e
+escalabilidade horizontal, fechando o ciclo entre filas assíncronas e comunicação síncrona.
 
 \subsection{Metodologias de Validação Empírica}
 \label{sec:metodologias_validacao}
@@ -76,10 +76,10 @@ orientada a SLOs para medir sucesso operacional \cite{mccoy_slo_2020}.
 A literatura recente adota ferramentas modernas como o k6 para simular perfis realistas
 de carga e avaliar latência, erro e saturação \cite{cervone_k6_2024}. O trabalho de Hebbar \cite{hebbar_reactive_2025},
 por exemplo, utiliza k6 para validar priorização de tráfego em APIs reativas, monitorando
-percentis de latência e comportamento sob estresse. A estratégia utilizada pelo ValorizeAI,
-definição de SLOs, instrumentação do sistema e execução de cenários de carga reprodutíveis,
-encontra suporte direto nesses estudos, reforçando a adequação da metodologia adotada
-e conectando explicitamente IaC, SLOs e experimentação.
+percentis de latência e comportamento sob estresse. A estratégia utilizada pelo estudo de
+caso, definição de SLOs, instrumentação do sistema e execução de cenários de carga
+reprodutíveis, encontra suporte direto nesses estudos, reforçando a adequação da
+metodologia adotada e conectando explicitamente IaC, SLOs e experimentação.
 
 \subsection{Síntese e Lacuna de Pesquisa}
 \label{sec:lacuna}
@@ -90,7 +90,7 @@ e validações de desempenho específicas usando k6 e SLOs \cite{hebbar_reactive
 Contudo, conforme discutido por Abad et al. \cite{abad_serverless_gap_2021},
 falta uma análise integrada de arquiteturas híbridas que combinem todos esses elementos em um único sistema reprodutível.
 
-A contribuição do ValorizeAI está exatamente nessa integração: uma arquitetura CaaS
+A contribuição do estudo de caso está exatamente nessa integração: uma arquitetura CaaS
 orientada a eventos com WebSockets persistentes, cache Redis e filas assíncronas,
 provisionada integralmente via IaC e validada com metodologia alinhada ao estado da arte.
 Os estudos analisados servem como blocos isolados; este trabalho, por sua vez,
