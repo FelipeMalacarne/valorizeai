@@ -63,19 +63,20 @@
 
 \input{article-config/event-info}
 
-\title{Documentação e Validação Experimental de uma Arquitetura Serverless Elástica em Plataformas Transacionais \\
+\title{Documentação e Validação Experimental de uma Arquitetura Serverless
+Elástica em Plataformas Transacionais \\
 \medskip
 \small{
-    \textit{Title: Experimental Documentation and Validation of an Elastic Serverless Architecture for Transactional Platforms}
-}
-}
+    \textit{Title: Experimental Documentation and Validation of an Elastic
+    Serverless Architecture for Transactional Platforms}
+} }
 
 \author{Felipe Tomkiel Malacarne, Prof. Me. Marcos André Lucas}
 
 \address{
-    Universidade Regional Integrada do Alto Uruguai e das Missões \\
-    Departamento de Engenharias e Ciência da Computação\\
-  Caixa Postal 743 -- 99.709-910 -- Erechim -- RS -- Brasil
+Universidade Regional Integrada do Alto Uruguai e das Missões \\ Departamento de
+Engenharias e Ciência da Computação\\ Caixa Postal 743 -- 99.709-910 -- Erechim
+-- RS -- Brasil
 \email{101090@uricer.edu.br, mlucas@uricer.edu.br}
 }
 
@@ -88,16 +89,47 @@
 
 
 \begin{resumo}
-    Plataformas financeiras modernas exigem arquiteturas elásticas capazes de absorver picos transacionais com consistência e observabilidade. Este trabalho documenta e valida o ValorizeAI, aplicação de categorização automática em Cloud Run, Cloud SQL, Redis (Memorystore), Cloud Tasks e WebSockets. A abordagem, inspirada em SRE (\textit{Site Reliability Engineering}), define SLOs (\textit{Service Level Objectives}) de latência P95 (95º percentil) $\leq$ 300~ms, erro $<$ 0,5\% e disponibilidade $\geq$ 99{,}5\%, provisiona infraestrutura como código e avalia leitura intensiva, leitura/escrita e pipeline assíncrono com k6. O cenário de leitura sustentou 1{,}000 usuários virtuais (VUs, usuários simulados; média de 470 req/s, pico de $\approx$970 req/s) com P95 de 158~ms; o misto manteve 226 req/s com 650 VUs e violou o SLO após $\approx$539 VUs, elevando o P95 para 658~ms e o P99 (99º percentil) para 2,67~s. O pipeline assíncrono processou 51,58 mil tarefas em 10 minutos (86 tarefas/s) sem perdas. Conclui-se que a arquitetura atende workloads intensivos em leitura; para escritas concorrentes, exige-se mais instâncias HTTP ou otimizações no caminho de escrita.
+Plataformas financeiras modernas exigem arquiteturas elásticas capazes de
+absorver picos transacionais com consistência e observabilidade. Este trabalho
+documenta e valida um estudo de caso de categorização automática em Cloud Run,
+Cloud SQL, Redis (Memorystore), Cloud Tasks e WebSockets. A abordagem, inspirada
+em SRE (\textit{Site Reliability Engineering}), define SLOs (\textit{Service
+Level Objectives}) de latência P95 (95º percentil) $\leq$ 300~ms, erro $<$ 0,5\%
+e disponibilidade $\geq$ 99{,}5\%, provisiona infraestrutura como código e
+avalia leitura intensiva, leitura/escrita e pipeline assíncrono com k6. O
+cenário de leitura sustentou 1{,}000 usuários virtuais (VUs, usuários simulados;
+média de 470 req/s, pico de $\approx$970 req/s) com P95 de 158~ms; o misto
+manteve 226 req/s com 650 VUs e violou o SLO após $\approx$539 VUs, elevando o
+P95 para 658~ms e o P99 (99º percentil) para 2,67~s. O pipeline assíncrono
+processou 51,58 mil tarefas em 10 minutos (86 tarefas/s) sem perdas. Conclui-se
+que a arquitetura atende workloads intensivos em leitura; para escritas
+concorrentes, exige-se mais instâncias HTTP ou otimizações no caminho de
+escrita.
 \end{resumo}
 
-\palavraschave{Computação Serverless, Cloud Run, Plataformas Financeiras, Testes de Carga, Observabilidade.}
+\palavraschave{Computação Serverless, Cloud Run, Plataformas Financeiras, Testes
+de Carga, Observabilidade.}
 
 \begin{abstract}
-Modern financial workloads demand elastic architectures capable of sustaining variable traffic while preserving strong consistency and observability. This paper documents and validates ValorizeAI, an automated categorization platform on Cloud Run, Cloud SQL, Redis, Cloud Tasks, and WebSockets. The SRE-inspired approach sets SLOs (\textit{Service Level Objectives}) for P95 latency (95th percentile) $\leq$ 300~ms, error rate $<$ 0.5\%, and availability $\geq$ 99.5\%, provisions infrastructure as code, and exercises read-only, mixed read/write, and asynchronous-pipeline scenarios with k6. The read test supported 1,000 virtual users (VUs, load-generated users; mean 470 req/s, peak $\approx$970 req/s) with P95 = 158~ms and zero failures; the mixed scenario sustained 226 req/s at 650 VUs and violated the SLO after $\approx$539 VUs, reaching P95 = 658~ms and P99 (99th percentile) = 2.67~s. The asynchronous pipeline processed 51.58k tasks in 10 minutes (86 tasks/s) without loss. The architecture comfortably supports read-heavy traffic; higher write concurrency demands more HTTP instances or optimizations in the write path.
+Modern financial workloads demand elastic architectures capable of sustaining
+variable traffic while preserving strong consistency and observability. This
+paper documents and validates a case-study automated categorization platform on
+Cloud Run, Cloud SQL, Redis, Cloud Tasks, and WebSockets. The SRE-inspired
+approach sets SLOs (\textit{Service Level Objectives}) for P95 latency (95th
+percentile) $\leq$ 300~ms, error rate $<$ 0.5\%, and availability $\geq$ 99.5\%,
+provisions infrastructure as code, and exercises read-only, mixed read/write,
+and asynchronous-pipeline scenarios with k6. The read test supported 1,000
+virtual users (VUs, load-generated users; mean 470 req/s, peak $\approx$970
+req/s) with P95 = 158~ms and zero failures; the mixed scenario sustained 226
+req/s at 650 VUs and violated the SLO after $\approx$539 VUs, reaching P95 =
+658~ms and P99 (99th percentile) = 2.67~s. The asynchronous pipeline processed
+51.58k tasks in 10 minutes (86 tasks/s) without loss. The architecture
+comfortably supports read-heavy traffic; higher write concurrency demands more
+HTTP instances or optimizations in the write path.
 \end{abstract}
 
-\keywords{Serverless Computing, Cloud Run, Financial Platforms, Performance Testing, Observability.}
+\keywords{Serverless Computing, Cloud Run, Financial Platforms, Performance
+Testing, Observability.}
 
 \newpage
 \input{sections/1-introduction}
@@ -109,7 +141,9 @@ Modern financial workloads demand elastic architectures capable of sustaining va
 \input{sections/7-conclusion}
 \newpage
 
-% \nocite{BCB_Economia_Bancaria_2024,Febraban_Tecnologia_2024,Febraban_Transacoes_2025}
+% \nocite{BCB_Economia_Bancaria_2024,
+% Febraban_Tecnologia_2024,
+% Febraban_Transacoes_2025}
 
 \bibliographystyle{article-config/sbc}
 \bibliography{references/references}

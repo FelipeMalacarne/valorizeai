@@ -1,27 +1,37 @@
 \section{Implementação}
 \label{sec:implementacao}
 
-Esta seção descreve a implementação do ValorizeAI, enfatizando os elementos arquiteturais, os fluxos de execução e os componentes que foram exercitados nos experimentos de carga. O objetivo é apresentar como o sistema opera internamente, de modo a contextualizar os resultados apresentados na próxima seção.
+Esta seção descreve a implementação do ValorizeAI, enfatizando os elementos arquiteturais,
+os fluxos de execução e os componentes que foram exercitados nos experimentos de carga.
+O objetivo é apresentar como o sistema opera internamente, de modo a contextualizar
+os resultados apresentados na próxima seção.
 
 \subsection{Arquitetura Lógica da Aplicação}
 
 A aplicação segue uma arquitetura modular composta por três subsistemas principais:
 
 \begin{itemize}
-    \item \textbf{Serviço HTTP (API Laravel):} responsável pelas operações transacionais síncronas (consultas, criação de transações, ingestão de dados e automações).
-    \item \textbf{Servidor WebSocket (Laravel Reverb):} dedicado ao envio de notificações em tempo real e atualização dos dashboards.
-    \item \textbf{Workers HTTP (Cloud Run):} executores de tarefas assíncronas disparadas pelo Cloud Tasks.
+    \item \textbf{Serviço HTTP (API Laravel):} responsável pelas operações transacionais
+        síncronas (consultas, criação de transações, ingestão de dados e automações).
+    \item \textbf{Servidor WebSocket (Laravel Reverb):} dedicado ao envio de notificações
+        em tempo real e atualização dos dashboards.
+    \item \textbf{Workers HTTP (Cloud Run):} executores de tarefas assíncronas disparadas
+        pelo Cloud Tasks.
 \end{itemize}
 
-Cada subsistema é implantado como serviço independente no Cloud Run, permitindo escalonamento isolado e controle fino de concorrência.
+Cada subsistema é implantado como serviço independente no Cloud Run, permitindo escalonamento
+isolado e controle fino de concorrência.
 
 \subsection{Fluxo Síncrono: API HTTP}
 
-O backend Laravel organiza o domínio financeiro em módulos que seguem Clean Architecture e DDD. As rotas públicas acessam controladores que delegam:
+O backend Laravel organiza o domínio financeiro em módulos que seguem Clean Architecture
+e DDD. As rotas públicas acessam controladores que delegam:
 
 \begin{itemize}
-    \item \textbf{consultas} para classes \textit{Query}, otimizadas para leitura e usando Redis como cache;
-    \item \textbf{escritas} para classes \textit{Action}, que encapsulam validações, regras de negócio, transações no PostgreSQL e emissão de eventos.
+    \item \textbf{consultas} para classes \textit{Query}, otimizadas para leitura
+        e usando Redis como cache;
+    \item \textbf{escritas} para classes \textit{Action}, que encapsulam validações,
+        regras de negócio, transações no PostgreSQL e emissão de eventos.
 \end{itemize}
 
 Os endpoints exercitados nos testes k6 incluem:
@@ -32,7 +42,8 @@ Os endpoints exercitados nos testes k6 incluem:
     \item \verb|GET /api/accounts|, consulta leve usada para refletir mudanças de saldo.
 \end{itemize}
 
-O caminho de leitura foi otimizado com cache \textit{cache-aside}: a primeira consulta popula Redis, e subsequentes retornam em baixa latência.
+O caminho de leitura foi otimizado com cache \textit{cache-aside}: a primeira consulta popula Redis,
+e subsequentes retornam em baixa latência.
 O caminho de escrita, por sua vez, não usa cache e realiza operações ACID no PostgreSQL.
 Esse fluxo é ilustrado na Figura~\ref{fig:fluxo-sincrono}.
 
@@ -81,7 +92,8 @@ Esse fluxo é ilustrado na Figura~\ref{fig:fluxo-sincrono}.
 
 \subsection{Fluxo Assíncrono: Cloud Tasks e Workers}
 
-Tarefas que exigem maior tempo de processamento são delegadas ao pipeline assíncrono. O processo ocorre em quatro etapas, conforme mostra a Figura~\ref{fig:fluxo-assincrono}:
+Tarefas que exigem maior tempo de processamento são delegadas ao pipeline assíncrono.
+O processo ocorre em quatro etapas, conforme mostra a Figura~\ref{fig:fluxo-assincrono}:
 
 \begin{enumerate}
     \item a API cria uma tarefa via Cloud Tasks, anexando o payload necessário;
@@ -90,7 +102,8 @@ Tarefas que exigem maior tempo de processamento são delegadas ao pipeline assí
     \item cada worker executa o processamento (ex.: importação de extratos, geração de relatórios, triggers de automações).
 \end{enumerate}
 
-O uso de \textit{push queues} elimina a necessidade de processos consumidores contínuos e garante elasticidade automática baseada no ritmo de produção.
+O uso de \textit{push queues} elimina a necessidade de processos consumidores contínuos
+e garante elasticidade automática baseada no ritmo de produção.
 
 % Esse fluxo é ilustrado na Figura~\ref{fig:fluxo-assincrono}.
 
@@ -127,7 +140,9 @@ O uso de \textit{push queues} elimina a necessidade de processos consumidores co
 
 \subsection{Comunicação em Tempo Real: WebSockets com Reverb e Redis}
 
-O servidor WebSocket do Reverb mantém conexões persistentes com os clientes do painel em tempo real. Como o ambiente Cloud Run escala horizontalmente e instancia múltiplos contêineres, cada instância possui um conjunto próprio de clientes conectados.
+O servidor WebSocket do Reverb mantém conexões persistentes com os clientes do painel
+em tempo real. Como o ambiente Cloud Run escala horizontalmente e instancia múltiplos
+contêineres, cada instância possui um conjunto próprio de clientes conectados.
 
 Para distribuir eventos entre elas, utiliza-se Redis como \textit{backplane} Pub/Sub:
 
@@ -139,7 +154,8 @@ Para distribuir eventos entre elas, utiliza-se Redis como \textit{backplane} Pub
 
 Esse mecanismo assegura coerência e funcionamento correto mesmo em ambientes altamente elásticos.
 
-A Figura~\ref{fig:reverb-redis} resume a relação entre instâncias do Reverb, Redis e clientes conectados
+A Figura~\ref{fig:reverb-redis} resume a relação entre instâncias do Reverb, Redis
+e clientes conectados
 
 \begin{figure}[htbp]
     \centering
@@ -189,7 +205,13 @@ A Figura~\ref{fig:reverb-redis} resume a relação entre instâncias do Reverb, 
 \FloatBarrier
 \subsection{Modelo de Dados e Otimizações}
 
-O modelo lógico (Figura~\ref{fig:modelo-dados}) segue um desenho multi-inquilino composto por usuários, contas, categorias e orçamentos que representam a estrutura organizacional do sistema, além de transações e divisões (\textit{splits}) responsáveis por manter a granularidade das movimentações financeiras. Embeddings vetoriais, armazenados via \texttt{pgvector}, complementam o modelo ao fornecer suporte para classificação automática e comparação semântica de registros, justificando sua presença mesmo em um ambiente relacional tradicional.
+O modelo lógico (Figura~\ref{fig:modelo-dados}) segue um desenho multi-inquilino
+composto por usuários, contas, categorias e orçamentos que representam a estrutura
+organizacional do sistema, além de transações e divisões (\textit{splits}) responsáveis
+por manter a granularidade das movimentações financeiras. Embeddings vetoriais, armazenados
+via \texttt{pgvector}, complementam o modelo ao fornecer suporte para classificação
+automática e comparação semântica de registros, justificando sua presença mesmo em
+um ambiente relacional tradicional.
 
 \begin{figure}[H]
     \centering
@@ -226,12 +248,34 @@ O modelo lógico (Figura~\ref{fig:modelo-dados}) segue um desenho multi-inquilin
     \label{fig:modelo-dados}
 \end{figure}
 
-Para sustentar o volume de leituras e escritas observado, foram aplicadas otimizações específicas. Índices compostos em \verb|transactions(date, account_id)| aceleram filtros combinados por data e conta, enquanto a padronização da paginação reduz o fan-out em cenários com alto paralelismo. A projeção de DTOs limita a transferência de dados apenas ao necessário para o front-end, preservando largura de banda e diminuindo o trabalho de serialização. Por fim, o pré-aquecimento da cache com consultas frequentes garante que o Redis já contenha os conjuntos de dados mais requisitados antes dos testes, minimizando latência inicial e variações entre execuções.
+Para sustentar o volume de leituras e escritas observado, foram aplicadas otimizações
+específicas. Índices compostos em \verb|transactions(date, account_id)| aceleram
+filtros combinados por data e conta, enquanto a padronização da paginação reduz o
+fan-out em cenários com alto paralelismo. A projeção de DTOs limita a transferência
+de dados apenas ao necessário para o front-end, preservando largura de banda e diminuindo
+o trabalho de serialização. Por fim, o pré-aquecimento da cache com consultas frequentes
+garante que o Redis já contenha os conjuntos de dados mais requisitados antes dos testes,
+minimizando latência inicial e variações entre execuções.
 
 \subsection{Observabilidade e Instrumentação}
 
-A coleta de evidências envolveu um conjunto integrado de ferramentas. O \textbf{Cloud Monitoring} forneceu métricas de CPU, memória, instâncias ativas, latência e backlog do Cloud Tasks, permitindo enxergar a reação da infraestrutura conforme as cargas variavam. Os \textbf{CSVs automatizados do k6} serviram como fonte canônica para SLIs de latência e taxa de erro, garantindo comparabilidade entre execuções. \textbf{Logs estruturados} foram emitidos para cada requisição crítica a fim de rastrear saturação do banco e falhas de escrita, enquanto \textbf{dashboards personalizados} consolidaram esses dados para acompanhar em tempo real o comportamento dos serviços do Cloud Run durante os experimentos. Essa infraestrutura correlaciona aplicação, banco, Redis, filas e WebSockets com precisão suficiente para justificar as conclusões da Seção~\ref{sec:resultados}.
+A coleta de evidências envolveu um conjunto integrado de ferramentas. O \textbf{Cloud Monitoring}
+forneceu métricas de CPU, memória, instâncias ativas, latência e backlog do Cloud Tasks,
+permitindo enxergar a reação da infraestrutura conforme as cargas variavam.
+Os \textbf{CSVs automatizados do k6} serviram como fonte canônica para SLIs de latência
+e taxa de erro, garantindo comparabilidade entre execuções. \textbf{Logs estruturados}
+foram emitidos para cada requisição crítica a fim de rastrear saturação do banco e falhas de escrita,
+enquanto \textbf{dashboards personalizados} consolidaram esses dados para acompanhar
+em tempo real o comportamento dos serviços do Cloud Run durante os experimentos.
+Essa infraestrutura correlaciona aplicação, banco, Redis, filas e WebSockets com precisão
+suficiente para justificar as conclusões da Seção~\ref{sec:resultados}.
 
 \subsection{Síntese da Implementação}
 
-A integração entre API síncrona, pipeline assíncrono via Cloud Tasks, cache Redis e servidor WebSocket escalável fornece a base operacional necessária para avaliar os SLOs definidos. O comportamento observado sob tráfego elevado é consequência direta dessas decisões: a API concentra o domínio e delega trabalho pesado aos workers, o Redis mantém leituras rápidas e sincroniza eventos em tempo real, e o Reverb garante que notificações persistam mesmo com escalonamento horizontal. Juntos, esses componentes amarram as otimizações descritas ao longo da seção e sustentam os experimentos discutidos posteriormente.
+A integração entre API síncrona, pipeline assíncrono via Cloud Tasks, cache Redis
+e servidor WebSocket escalável fornece a base operacional necessária para avaliar
+os SLOs definidos. O comportamento observado sob tráfego elevado é consequência direta
+dessas decisões: a API concentra o domínio e delega trabalho pesado aos workers,
+o Redis mantém leituras rápidas e sincroniza eventos em tempo real, e o Reverb garante
+que notificações persistam mesmo com escalonamento horizontal. Juntos, esses componentes
+amarram as otimizações descritas ao longo da seção e sustentam os experimentos discutidos posteriormente.

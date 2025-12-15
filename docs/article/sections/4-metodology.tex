@@ -1,25 +1,44 @@
 \section{Metodologia}
 \label{sec:metodologia}
 
-A metodologia adotada neste trabalho é aplicada, experimental e orientada a reprodutibilidade. Todas as configurações de infraestrutura, código e instrumentação foram versionadas no repositório do ValorizeAI, permitindo que os experimentos de carga sejam reproduzidos de forma determinística.
+A metodologia adotada neste trabalho é aplicada, experimental e orientada a reprodutibilidade.
+Todas as configurações de infraestrutura, código e instrumentação foram versionadas
+no repositório do ValorizeAI, permitindo que os experimentos de carga sejam reproduzidos
+de forma determinística.
 
 \subsection{Tipo de Pesquisa e Estratégia Geral}
 
-O estudo caracteriza-se como uma \textbf{pesquisa aplicada} conduzida sob a forma de \textbf{estudo de caso} de uma aplicação real em operação. A estratégia seguiu quatro fases iterativas:
+O estudo caracteriza-se como uma \textbf{pesquisa aplicada} conduzida sob a forma
+de \textbf{estudo de caso} de uma aplicação real em operação. A estratégia seguiu
+quatro fases iterativas:
 
 \begin{enumerate}
-    \item \textbf{Planejamento:} definição dos SLOs (latência P95~$\leq$~300~ms, taxa de erro~$<$~0,5\%, disponibilidade~$\geq$~99,5\%). Consideraram-se também as cotas do Cloud Run (10 instâncias simultâneas de 1~vCPU/1~GiB), que estabeleceram o limite teórico de throughput.
+    \item \textbf{Planejamento:} definição dos SLOs (latência P95~$\leq$~300~ms,
+        taxa de erro~$<$~0,5\%, disponibilidade~$\geq$~99,5\%).
+        Consideraram-se também as cotas do Cloud Run (10 instâncias simultâneas de 1~vCPU/1~GiB),
+        que estabeleceram o limite teórico de throughput.
 
-    \item \textbf{Preparação do ambiente:} módulos Terraform provisionaram a infraestrutura (VPC, Cloud Run, Cloud SQL, Redis, Cloud Tasks e balanceador). O Docker Compose reproduziu localmente PostgreSQL, Redis e ferramentas de observabilidade. O Makefile encapsulou rotinas de lint, build e execução dos cenários k6.
+    \item \textbf{Preparação do ambiente:} módulos Terraform provisionaram a infraestrutura
+        (VPC, Cloud Run, Cloud SQL, Redis, Cloud Tasks e balanceador).
+        O Docker Compose reproduziu localmente PostgreSQL, Redis e ferramentas de observabilidade.
+        O Makefile encapsulou rotinas de lint, build e execução dos cenários k6.
 
-    \item \textbf{Execução controlada:} os cenários k6 (leitura intensiva e leitura/escrita) foram executados contra o domínio público da API, enquanto o pipeline assíncrono processava um lote adicional de tarefas enviadas ao Cloud Tasks.
+    \item \textbf{Execução controlada:} os cenários k6 (leitura intensiva e leitura/escrita)
+        foram executados contra o domínio público da API, enquanto o pipeline assíncrono
+        processava um lote adicional de tarefas enviadas ao Cloud Tasks.
 
-    \item \textbf{Coleta e análise:} métricas de latência, throughput e taxa de erro foram extraídas dos CSVs do k6 e correlacionadas com séries temporais do Cloud Monitoring (CPU, memória, backlog de tarefas). O comportamento do pipeline assíncrono foi documentado qualitativamente e quantitativamente.
+    \item \textbf{Coleta e análise:} métricas de latência, throughput e taxa de erro foram
+        extraídas dos CSVs do k6 e correlacionadas com séries temporais do Cloud Monitoring
+        (CPU, memória, backlog de tarefas). O comportamento do pipeline assíncrono foi
+        documentado qualitativamente e quantitativamente.
 \end{enumerate}
 
 \subsection{Arquitetura do Ambiente Experimental}
 
-A Figura~\ref{fig:arquitetura} sintetiza o ambiente utilizado nos experimentos. O tráfego HTTP/HTTPS é roteado pelo \textbf{Cloud Load Balancer} com \textbf{Cloud CDN}, que distribui \textit{assets} estáticos e aplica políticas de segurança (WAF). A arquitetura executa três serviços Cloud Run:
+A Figura~\ref{fig:arquitetura} sintetiza o ambiente utilizado nos experimentos.
+O tráfego HTTP/HTTPS é roteado pelo \textbf{Cloud Load Balancer} com \textbf{Cloud CDN},
+que distribui \textit{assets} estáticos e aplica políticas de segurança (WAF).
+A arquitetura executa três serviços Cloud Run:
 
 \begin{figure}[H]
     \centering
@@ -51,39 +70,62 @@ A Figura~\ref{fig:arquitetura} sintetiza o ambiente utilizado nos experimentos. 
     \item \textbf{Workers HTTP:} consumidores assíncronos acionados pelo Cloud Tasks.
 \end{itemize}
 
-O Redis (Memorystore) atua como \textit{cache} para consultas críticas e como \textit{backplane} Pub/Sub para a sincronização do Reverb. O banco transacional permanece no \textbf{Cloud SQL for PostgreSQL}, configurado como instância de 2~vCPU e 16~GiB de RAM para refletir o ambiente produtivo. O \textbf{Cloud Tasks} executa o pipeline assíncrono por meio de requisições \textit{push}, permitindo escalabilidade automática dos workers. O \textbf{Cloud Storage} integra o sistema, mas não foi exercitado nos testes.
+O Redis (Memorystore) atua como \textit{cache} para consultas críticas e como \textit{backplane}
+Pub/Sub para a sincronização do Reverb. O banco transacional permanece no \textbf{Cloud SQL for PostgreSQL},
+configurado como instância de 2~vCPU e 16~GiB de RAM para refletir o ambiente produtivo.
+O \textbf{Cloud Tasks} executa o pipeline assíncrono por meio de requisições \textit{push},
+permitindo escalabilidade automática dos workers. O \textbf{Cloud Storage} integra o sistema,
+mas não foi exercitado nos testes.
 
 \subsection{Desenvolvimento da Aplicação e Modelo de Dados}
 
-O backend Laravel concentra o domínio financeiro e expõe APIs consumidas pelo front-end em React. Os workers HTTP processam tarefas intensivas, como importações de extratos, geração de relatórios e envio de notificações. O modelo relacional multi-inquilino, mostrado na Figura~\ref{fig:modelo-dados}, organiza usuários, contas, transações, categorias, orçamentos e embeddings vetoriais, permitindo cenários realistas durante os testes.
+O backend Laravel concentra o domínio financeiro e expõe APIs consumidas pelo front-end em React.
+Os workers HTTP processam tarefas intensivas, como importações de extratos, geração de relatórios e envio de notificações.
+O modelo relacional multi-inquilino, mostrado na Figura~\ref{fig:modelo-dados},
+organiza usuários, contas, transações, categorias, orçamentos e embeddings vetoriais,
+permitindo cenários realistas durante os testes.
 
 \subsection{Ferramentas e Processo de Preparação}
 
 A reprodutibilidade foi garantida por três pilares:
 
 \begin{itemize}
-    \item \textbf{Infraestrutura como Código (IaC):} cada componente (Cloud SQL, Redis, Cloud Run, Tasks e balanceador) possui módulo Terraform independente. Outputs conectam automaticamente credenciais, redes e endpoints entre serviços, evitando divergências.
+    \item \textbf{Infraestrutura como Código (IaC):} cada componente
+        (Cloud SQL, Redis, Cloud Run, Tasks e balanceador) possui módulo Terraform independente.
+        Outputs conectam automaticamente credenciais, redes e endpoints entre serviços,
+        evitando divergências.
 
-    \item \textbf{Ambientes determinísticos:} Docker Compose e Makefile garantem que a aplicação seja testada sempre com a mesma versão do stack (PHP 8.4, PostgreSQL, Redis), evitando variabilidade entre execuções.
+    \item \textbf{Ambientes determinísticos:} Docker Compose e Makefile garantem que a aplicação
+        seja testada sempre com a mesma versão do stack (PHP 8.4, PostgreSQL, Redis),
+        evitando variabilidade entre execuções.
 
-    \item \textbf{Observabilidade:} métricas de CPU, fila, memória e latência foram coletadas no Cloud Monitoring. Logs e traces complementaram a identificação dos pontos de saturação.
+    \item \textbf{Observabilidade:} métricas de CPU, fila, memória e latência foram coletadas
+        no Cloud Monitoring. Logs e traces complementaram a identificação dos pontos de saturação.
 \end{itemize}
 
 \subsection{Planejamento dos SLOs e Desenho dos Cenários}
 
-Com base na literatura de SRE \cite{mccoy_slo_2020,google_sre_book_main}, adotaram-se três metas: latência P95 $\leq 300$~ms, erro $<$0{,}5\% e disponibilidade $\geq$99,5\%. As cotas do Cloud Run definiram o limite físico dos experimentos (10 instâncias de 1~vCPU). Os testes foram projetados para atingir e analisar o comportamento nessa zona de saturação.
+Com base na literatura de SRE \cite{mccoy_slo_2020,google_sre_book_main}, adotaram-se três metas:
+latência P95 $\leq 300$~ms, erro $<$0{,}5\% e disponibilidade $\geq$99,5\%.
+As cotas do Cloud Run definiram o limite físico dos experimentos (10 instâncias de 1~vCPU).
+Os testes foram projetados para atingir e analisar o comportamento nessa zona de saturação.
 
 Foram definidos três experimentos:
 
 \begin{enumerate}
-    \item \textbf{Cenário de leitura intensiva:} 1.000 VUs acessando o endpoint \texttt{GET /api/transactions} durante 17 minutos. O roteiro alternou contas, filtros e um \textit{think time} de 1~s para simular interação real.
+    \item \textbf{Cenário de leitura intensiva:} 1.000 VUs acessando o endpoint
+        \texttt{GET /api/transactions} durante 17 minutos. O roteiro alternou contas,
+        filtros e um \textit{think time} de 1~s para simular interação real.
 
-    \item \textbf{Cenário misto leitura/escrita:} 650 VUs alternando entre consultas e criação de transações (65\% leitura, 20\% escrita, 15\% contas). Esse fluxo replica a proporção observada nos logs reais.
+    \item \textbf{Cenário misto leitura/escrita:} 650 VUs alternando entre consultas e criação de transações
+        (65\% leitura, 20\% escrita, 15\% contas). Esse fluxo replica a proporção observada nos logs reais.
 
-    \item \textbf{Teste assíncrono:} publicação de 51.580 tarefas no Cloud Tasks, monitorando o tempo de drenagem e o pico de instâncias dos workers.
+    \item \textbf{Teste assíncrono:} publicação de 51.580 tarefas no Cloud Tasks, monitorando
+        o tempo de drenagem e o pico de instâncias dos workers.
 \end{enumerate}
 
-Os cenários foram estruturados com ramp-ups progressivos (150 $\rightarrow$ 1.000 VUs) para aquecer o cache e observar o comportamento nas proximidades do teto de instâncias.
+Os cenários foram estruturados com ramp-ups progressivos (150 $\rightarrow$ 1.000 VUs)
+para aquecer o cache e observar o comportamento nas proximidades do teto de instâncias.
 
 \subsection{Execução dos Experimentos}
 
@@ -106,7 +148,8 @@ As evidências utilizadas na análise incluem:
     \item \textbf{Logs e observações experimentais}, destacando comportamentos de saturação.
 \end{itemize}
 
-Essa abordagem garante rastreabilidade completa entre arquitetura, ambiente, experimentos e resultados, pois todos os artefatos, código, infraestrutura e cenários, estão versionados no repositório.
+Essa abordagem garante rastreabilidade completa entre arquitetura, ambiente, experimentos
+e resultados, pois todos os artefatos, código, infraestrutura e cenários, estão versionados no repositório.
 
 
 
