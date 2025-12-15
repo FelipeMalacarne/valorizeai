@@ -85,7 +85,7 @@ Esse fluxo é ilustrado na Figura~\ref{fig:fluxo-sincrono}.
         % Escrita: só banco
         \draw[->] (action) -- node[right]{transações ACID} (pg);
     \end{tikzpicture}
-    \caption{Fluxo síncrono da API HTTP, destacando a separação entre caminhos de leitura (\textit{Query} + Redis) e escrita (\textit{Action} + PostgreSQL).}
+    \caption{Fluxo síncrono da API HTTP, destacando a separação entre caminhos de leitura (\textit{Query} + Redis) e escrita (\textit{Action} + PostgreSQL). Fonte: autor.}
     \label{fig:fluxo-sincrono}
 \end{figure}
 
@@ -134,7 +134,7 @@ e garante elasticidade automática baseada no ritmo de produção.
         \draw[->] (tasks) -- node[right]{Entrega \emph{push}} (worker);
         \draw[->] (worker) -- node[right]{Processamento ACID / eventos} (db);
     \end{tikzpicture}
-    \caption{Fluxo assíncrono entre API HTTP, Cloud Tasks e workers em Cloud Run.}
+    \caption{Fluxo assíncrono entre API HTTP, Cloud Tasks e workers em Cloud Run. Fonte: autor.}
     \label{fig:fluxo-assincrono}
 \end{figure}
 
@@ -198,7 +198,7 @@ e clientes conectados
         \draw[<->] (reverbA) -- node[left]{WebSocket} (client1);
         \draw[<->] (reverbB) -- node[right]{WebSocket} (client2);
     \end{tikzpicture}
-    \caption{Distribuição de eventos em tempo real via Redis e instâncias do servidor WebSocket Reverb.}
+    \caption{Distribuição de eventos em tempo real via Redis e instâncias do servidor WebSocket Reverb. Fonte: autor.}
     \label{fig:reverb-redis}
 \end{figure}
 
@@ -244,7 +244,7 @@ um ambiente relacional tradicional.
         \draw (categories) to[out=-140,in=0] node[midway,below]{1:N} (transactions);
         \draw (categories) to[out=-90,in=0] node[midway,right]{1:N} (splits);
     \end{tikzpicture}}
-    \caption{Modelo lógico central derivado do esquema relacional do estudo de caso.}
+    \caption{Modelo lógico central derivado do esquema relacional do estudo de caso. Fonte: autor.}
     \label{fig:modelo-dados}
 \end{figure}
 
